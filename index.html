@@ -1,43 +1,835 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ Clash of MAS · Вход и Регистрация</title>
+    <!-- Font Awesome для иконок (глазки) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script type="module">
+        // ==================== ВСЯ ЛОГИКА В ОДНОМ ФАЙЛЕ ====================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { 
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
+            signOut, onAuthStateChanged, sendPasswordResetEmail 
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { 
+            getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs 
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+        // ---------- НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ) ----------
+        // 1. Firebase конфигурация (возьмите из консоли Firebase)
+        // ---------- НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ) ----------
+        // 1. Firebase конфигурация (возьмите из консоли Firebase)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgx-V8GP_cgCZLGws2e1pHZ5OnMy20nxk",
+            authDomain: "clash-of-mas.firebaseapp.com",
+            projectId: "clash-of-mas",
+            storageBucket: "clash-of-mas.firebasestorage.app",
+            messagingSenderId: "403759349179",
+            appId: "1:403759349179:web:62c2c68604b1c0334a589e"
+        };
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+        // 2. EmailJS настройки (замените на свои из EmailJS)
+        const EMAILJS_PUBLIC_KEY = "YOUR_EMAILJS_PUBLIC_KEY";      // ваш публичный ключ
+        const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";              // ID сервиса
+        const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";            // ID шаблона
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+        // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // EmailJS инициализация
+        (function loadEmailJS() {
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";
+            document.head.appendChild(script);
+            script.onload = () => emailjs.init(EMAILJS_PUBLIC_KEY);
+        })();
+
+        // Глобальные переменные состояния
+        let currentScreen = 'landing';
+        let tempRegData = null;           // временные данные до подтверждения email
+        let generatedCode = null;         // сгенерированный код подтверждения
+        let resetEmail = '';              // email для сброса пароля
+
+        // DOM элементы
+        const screens = {
+            landing: document.getElementById('landing'),
+            login: document.getElementById('loginScreen'),
+            register: document.getElementById('registerScreen'),
+            reset: document.getElementById('resetPasswordScreen'),
+            game: document.getElementById('gameScreen')
+        };
+        const loader = document.getElementById('loader');
+
+        // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+        function showScreen(screenId) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            if (screens[screenId]) screens[screenId].classList.add('active');
+            currentScreen = screenId;
+        }
+
+        function showLoader(show = true) {
+            loader.classList.toggle('hidden', !show);
+        }
+
+        // Генерация аватарки по нику (первые буквы)
+        function generateAvatar(nickname) {
+            if (!nickname) return '👤';
+            const words = nickname.trim().split(/\s+/);
+            const first = words[0]?.[0] || '';
+            const second = words[1]?.[0] || (words[0]?.[1] || '');
+            return (first + second).toUpperCase() || '👤';
+        }
+
+        // Проверка уникальности ника в Firestore
+        async function isNicknameUnique(nickname) {
+            const q = query(collection(db, "users"), where("nickname", "==", nickname));
+            const snapshot = await getDocs(q);
+            return snapshot.empty;
+        }
+
+        // Отправка кода подтверждения через EmailJS
+        async function sendEmailCode(email, type = 'verify') {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            generatedCode = code;
+            
+            const templateParams = {
+                to_email: email,
+                code: code,
+                type: type === 'verify' ? 'регистрации' : 'сброса пароля',
+                subject: type === 'verify' ? 'Код подтверждения Clash of MAS' : 'Сброс пароля Clash of MAS'
+            };
+            
+            try {
+                // Реальная отправка через EmailJS (если ключи указаны)
+                if (EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                    alert(`📧 Код отправлен на ${email}`);
+                } else {
+                    // Демо-режим (EmailJS не настроен)
+                    console.warn('EmailJS не настроен. Используйте демо-код:', code);
+                    alert(`🔐 ДЕМО-РЕЖИМ\nEmailJS не настроен.\nВаш код подтверждения: ${code}`);
+                }
+                return code;
+            } catch (error) {
+                console.error('Ошибка EmailJS:', error);
+                alert(`⚠️ Ошибка отправки email. Демо-код: ${code}`);
+                return code;
+            }
+        }
+
+        // Переключение видимости пароля
+        function setupPasswordToggles() {
+            document.querySelectorAll('.toggle-password').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    const targetId = e.currentTarget.dataset.target;
+                    const input = document.getElementById(targetId);
+                    if (input) {
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        e.currentTarget.classList.toggle('fa-eye');
+                        e.currentTarget.classList.toggle('fa-eye-slash');
+                    }
+                });
+            });
+        }
+
+        // ---------- НАВИГАЦИЯ (КНОПКИ) ----------
+        document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('register'));
+        document.getElementById('showLoginBtn')?.addEventListener('click', () => showScreen('login'));
+        document.getElementById('backFromLoginBtn')?.addEventListener('click', () => showScreen('landing'));
+        document.getElementById('backFromRegBtn')?.addEventListener('click', () => {
+            document.getElementById('verificationSection')?.classList.add('hidden');
+            document.getElementById('registerSubmitBtn')?.classList.remove('hidden');
+            showScreen('landing');
+        });
+        document.getElementById('forgotPasswordBtn')?.addEventListener('click', () => {
+            const emailInput = document.getElementById('loginEmail');
+            document.getElementById('resetEmail').value = emailInput?.value || '';
+            showScreen('reset');
+        });
+        document.getElementById('backFromResetBtn')?.addEventListener('click', () => showScreen('login'));
+        document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
+
+        // ---------- РЕГИСТРАЦИЯ ----------
+        const nicknameInput = document.getElementById('regNickname');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const nicknameStatus = document.getElementById('nicknameStatus');
+
+        nicknameInput?.addEventListener('input', async (e) => {
+            const nickname = e.target.value.trim();
+            avatarPreview.textContent = generateAvatar(nickname) || '👤';
+            
+            if (nickname.length < 3) {
+                nicknameStatus.textContent = '⚠️ Минимум 3 символа';
+                nicknameStatus.className = 'validation-hint error-text';
+                e.target.dataset.valid = 'false';
+                return;
+            }
+            
+            const unique = await isNicknameUnique(nickname);
+            nicknameStatus.textContent = unique ? '✅ Ник свободен' : '❌ Ник занят';
+            nicknameStatus.className = unique ? 'validation-hint success-text' : 'validation-hint error-text';
+            e.target.dataset.valid = unique && nickname.length >= 3 ? 'true' : 'false';
+        });
+
+        document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nickname = document.getElementById('regNickname').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regPasswordConfirm').value;
+            const errorSpan = document.getElementById('passwordMatchError');
+            
+            if (password !== confirm) {
+                errorSpan.textContent = '❌ Пароли не совпадают';
+                return;
+            }
+            if (password.length < 6) {
+                errorSpan.textContent = '❌ Пароль должен быть минимум 6 символов';
+                return;
+            }
+            if (nicknameInput?.dataset.valid !== 'true') {
+                alert('Никнейм занят или некорректен');
+                return;
+            }
+            
+            errorSpan.textContent = '';
+            showLoader(true);
+            
+            // Отправляем код подтверждения
+            const code = await sendEmailCode(email, 'verify');
+            tempRegData = { nickname, email, password, avatar: generateAvatar(nickname) };
+            
+            document.getElementById('verificationSection')?.classList.remove('hidden');
+            document.getElementById('registerSubmitBtn')?.classList.add('hidden');
+            showLoader(false);
+        });
+
+        document.getElementById('verifyEmailBtn')?.addEventListener('click', async () => {
+            const inputCode = document.getElementById('verificationCode').value;
+            if (inputCode !== generatedCode) {
+                alert('❌ Неверный код подтверждения');
+                return;
+            }
+            
+            if (!tempRegData) {
+                alert('Ошибка: данные регистрации потеряны');
+                return;
+            }
+            
+            showLoader(true);
+            try {
+                // Создаём пользователя в Firebase Auth
+                const userCred = await createUserWithEmailAndPassword(auth, tempRegData.email, tempRegData.password);
+                
+                // Сохраняем дополнительные данные в Firestore
+                await setDoc(doc(db, "users", userCred.user.uid), {
+                    nickname: tempRegData.nickname,
+                    email: tempRegData.email,
+                    avatar: tempRegData.avatar,
+                    createdAt: new Date().toISOString()
+                });
+                
+                alert('✅ Регистрация успешна! Добро пожаловать в Clash of MAS!');
+                
+                // Очистка формы
+                document.getElementById('registerForm').reset();
+                document.getElementById('verificationSection')?.classList.add('hidden');
+                document.getElementById('registerSubmitBtn')?.classList.remove('hidden');
+                avatarPreview.textContent = '👤';
+                tempRegData = null;
+                generatedCode = null;
+                
+                showScreen('game');
+            } catch (error) {
+                console.error(error);
+                let message = error.message;
+                if (error.code === 'auth/email-already-in-use') message = 'Этот email уже зарегистрирован';
+                alert('❌ Ошибка: ' + message);
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        document.getElementById('resendCodeBtn')?.addEventListener('click', async () => {
+            if (tempRegData?.email) {
+                showLoader(true);
+                await sendEmailCode(tempRegData.email, 'verify');
+                showLoader(false);
+            }
+        });
+
+        // ---------- ВХОД ----------
+        document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoader(true);
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                document.getElementById('loginForm').reset();
+                showScreen('game');
+            } catch (error) {
+                console.error(error);
+                let message = error.message;
+                if (error.code === 'auth/user-not-found') message = 'Пользователь не найден';
+                if (error.code === 'auth/wrong-password') message = 'Неверный пароль';
+                if (error.code === 'auth/invalid-email') message = 'Некорректный email';
+                alert('❌ Ошибка входа: ' + message);
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        // ---------- СБРОС ПАРОЛЯ ----------
+        let resetCodeSent = false;
+        document.getElementById('resetForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('resetEmail');
+            const email = emailInput.value.trim();
+            const codeSection = document.getElementById('resetCodeSection');
+            const btn = document.getElementById('resetActionBtn');
+            
+            if (!resetCodeSent) {
+                // Шаг 1: Отправка кода
+                showLoader(true);
+                resetEmail = email;
+                const code = await sendEmailCode(email, 'reset');
+                resetCodeSent = true;
+                generatedCode = code;
+                
+                codeSection?.classList.remove('hidden');
+                btn.textContent = 'Сменить пароль';
+                showLoader(false);
+            } else {
+                // Шаг 2: Проверка кода и смена пароля
+                const userCode = document.getElementById('resetCode').value;
+                const newPass = document.getElementById('newPassword').value;
+                
+                if (userCode !== generatedCode) {
+                    alert('❌ Неверный код подтверждения');
+                    return;
+                }
+                
+                if (newPass.length < 6) {
+                    alert('❌ Пароль должен быть минимум 6 символов');
+                    return;
+                }
+                
+                showLoader(true);
+                try {
+                    // Отправляем письмо для сброса пароля через Firebase
+                    await sendPasswordResetEmail(auth, resetEmail);
+                    alert(`✅ Инструкция по сбросу пароля отправлена на ${resetEmail}`);
+                    
+                    // Сброс формы
+                    document.getElementById('resetForm').reset();
+                    codeSection?.classList.add('hidden');
+                    btn.textContent = 'Отправить код';
+                    resetCodeSent = false;
+                    generatedCode = null;
+                    
+                    showScreen('login');
+                } catch (error) {
+                    console.error(error);
+                    alert('❌ Ошибка: ' + error.message);
+                } finally {
+                    showLoader(false);
+                }
+            }
+        });
+
+        // ---------- ОТСЛЕЖИВАНИЕ АВТОРИЗАЦИИ ----------
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Загружаем данные профиля из Firestore
+                try {
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        document.getElementById('gameNickname').textContent = data.nickname || 'Игрок';
+                        document.getElementById('gameEmail').textContent = data.email || user.email;
+                        document.getElementById('gameAvatar').textContent = data.avatar || '👤';
+                    } else {
+                        // Если профиля нет в Firestore, создаём базовый
+                        const defaultData = {
+                            nickname: user.email?.split('@')[0] || 'Игрок',
+                            email: user.email,
+                            avatar: generateAvatar(user.email?.split('@')[0] || ''),
+                            createdAt: new Date().toISOString()
+                        };
+                        await setDoc(doc(db, "users", user.uid), defaultData);
+                        document.getElementById('gameNickname').textContent = defaultData.nickname;
+                        document.getElementById('gameEmail').textContent = defaultData.email;
+                        document.getElementById('gameAvatar').textContent = defaultData.avatar;
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки профиля:', error);
+                }
+                
+                if (currentScreen !== 'reset') showScreen('game');
+            } else {
+                showScreen('landing');
+            }
+        });
+
+        // Инициализация переключателей паролей после загрузки DOM
+        window.addEventListener('DOMContentLoaded', () => {
+            setupPasswordToggles();
+            
+            // Повторная настройка при смене экранов
+            const observer = new MutationObserver(() => setupPasswordToggles());
+            observer.observe(document.getElementById('app'), { childList: true, subtree: true });
+        });
+
+        // Глобальный экспорт для отладки (опционально)
+        window.app = { auth, db, showScreen };
+    </script>
+    <style>
+        /* ==================== СТИЛИ ==================== */
+        :root {
+            --bg-dark: #0b0f19;
+            --bg-card: #1a2332;
+            --primary: #e94560;
+            --primary-dark: #b52b45;
+            --secondary: #0f3460;
+            --text-light: #e4e6eb;
+            --text-muted: #8899bb;
+            --success: #4caf50;
+            --error: #f44336;
+            --border-color: #2a3a55;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #141a29 100%);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 32px 28px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 800;
+            text-shadow: 3px 3px 0 var(--primary-dark);
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            margin-bottom: 24px;
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            text-shadow: 2px 2px 0 var(--primary-dark);
+        }
+
+        h3 {
+            color: #fff;
+            margin: 10px 0 5px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 40px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 8px 0;
+            background: transparent;
+            color: var(--text-light);
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn.primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 0 var(--primary-dark);
+        }
+        .btn.primary:hover {
+            background: #ff4d6d;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 var(--primary-dark);
+        }
+        .btn.primary:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 var(--primary-dark);
+        }
+
+        .btn.secondary {
+            background: var(--secondary);
+            border: 1px solid #1f4a7a;
+        }
+        .btn.secondary:hover {
+            background: #1a4070;
+        }
+
+        .btn.link {
+            color: #7aa5ff;
+            text-decoration: underline;
+            background: none;
+            padding: 10px;
+        }
+        .btn.link:hover {
+            color: #a5c4ff;
+        }
+
+        .btn.text {
+            color: var(--text-muted);
+            background: none;
+        }
+        .btn.text:hover {
+            color: white;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 18px;
+            margin: 10px 0;
+            background: #0d1421;
+            border: 2px solid var(--border-color);
+            border-radius: 40px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        input::placeholder {
+            color: #6a7c94;
+        }
+
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .password-wrapper input {
+            margin: 0;
+            padding-right: 50px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 20px;
+            transition: color 0.2s;
+        }
+        .toggle-password:hover {
+            color: white;
+        }
+
+        .avatar-placeholder {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, var(--primary), #ff6b8b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 12px;
+            text-transform: uppercase;
+            box-shadow: 0 6px 0 var(--primary-dark), 0 10px 20px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .avatar-section {
+            margin-bottom: 10px;
+        }
+
+        .hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .error-text {
+            color: var(--error);
+            font-size: 13px;
+        }
+
+        .success-text {
+            color: var(--success);
+        }
+
+        .validation-hint {
+            font-size: 13px;
+            display: block;
+            margin-top: -5px;
+            margin-bottom: 8px;
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        #gameScreen .card {
+            padding: 30px 25px;
+        }
+
+        #userProfile {
+            margin: 25px 0;
+        }
+
+        #gameNickname {
+            font-size: 28px;
+            color: var(--primary);
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        #gameEmail {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        #verificationSection {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        /* Адаптация для мобильных */
+        @media (max-width: 480px) {
+            .card {
+                padding: 24px 18px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Анимация загрузки -->
+        <div id="loader" class="hidden">
+            <div style="text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 40px; margin-bottom: 15px;"></i><br>
+                Загрузка...
+            </div>
+        </div>
+        
+        <!-- Главный экран выбора (Вход / Регистрация) -->
+        <div id="landing" class="screen active">
+            <div class="card">
+                <h1>⚔️ CLASH OF MAS ⚔️</h1>
+                <p style="margin-bottom: 25px; color: var(--text-muted);">Добро пожаловать в битву!</p>
+                <button id="showRegisterBtn" class="btn primary full-width">
+                    <i class="fas fa-user-plus" style="margin-right: 8px;"></i>Зарегистрироваться
+                </button>
+                <button id="showLoginBtn" class="btn secondary full-width">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Войти
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран Входа -->
+        <div id="loginScreen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-key" style="margin-right: 10px;"></i>Вход</h2>
+                <form id="loginForm">
+                    <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" placeholder="Пароль" required autocomplete="current-password">
+                        <i class="far fa-eye toggle-password" data-target="loginPassword"></i>
+                    </div>
+                    <button type="submit" class="btn primary full-width">Войти в аккаунт</button>
+                </form>
+                <button id="forgotPasswordBtn" class="btn link">🤔 Забыл(а) пароль?</button>
+                <button id="backFromLoginBtn" class="btn text">
+                    <i class="fas fa-arrow-left"></i> На главную
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран Регистрации -->
+        <div id="registerScreen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-user-plus"></i> Регистрация</h2>
+                <form id="registerForm">
+                    <!-- Аватар по умолчанию (генерируется динамически) -->
+                    <div class="avatar-section">
+                        <div id="avatarPreview" class="avatar-placeholder">👤</div>
+                        <p class="hint">Аватар создаётся из первых букв ника</p>
+                    </div>
+                    
+                    <input type="text" id="regNickname" placeholder="Никнейм" required minlength="3" autocomplete="off">
+                    <span id="nicknameStatus" class="validation-hint"></span>
+                    
+                    <input type="email" id="regEmail" placeholder="Email" required autocomplete="email">
+                    
+                    <div class="password-wrapper">
+                        <input type="password" id="regPassword" placeholder="Пароль" required minlength="6" autocomplete="new-password">
+                        <i class="far fa-eye toggle-password" data-target="regPassword"></i>
+                    </div>
+                    <div class="password-wrapper">
+                        <input type="password" id="regPasswordConfirm" placeholder="Подтвердите пароль" required autocomplete="new-password">
+                        <i class="far fa-eye toggle-password" data-target="regPasswordConfirm"></i>
+                    </div>
+                    <span id="passwordMatchError" class="error-text"></span>
+
+                    <!-- Секция подтверждения Email (показывается после отправки формы) -->
+                    <div id="verificationSection" class="hidden">
+                        <p style="margin: 15px 0 10px; color: var(--text-muted);">Введите код из письма</p>
+                        <input type="text" id="verificationCode" placeholder="123456" maxlength="6" inputmode="numeric">
+                        <button type="button" id="verifyEmailBtn" class="btn secondary full-width">✅ Подтвердить Email</button>
+                        <button type="button" id="resendCodeBtn" class="btn text">📧 Отправить код повторно</button>
+                    </div>
+
+                    <button type="submit" id="registerSubmitBtn" class="btn primary full-width">📝 Продолжить</button>
+                </form>
+                <button id="backFromRegBtn" class="btn text">
+                    <i class="fas fa-arrow-left"></i> На главную
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран Сброса пароля -->
+        <div id="resetPasswordScreen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-lock"></i> Сброс пароля</h2>
+                <form id="resetForm">
+                    <input type="email" id="resetEmail" placeholder="Ваш Email" required autocomplete="email">
+                    
+                    <div id="resetCodeSection" class="hidden">
+                        <input type="text" id="resetCode" placeholder="Код из письма" inputmode="numeric" maxlength="6">
+                        <div class="password-wrapper">
+                            <input type="password" id="newPassword" placeholder="Новый пароль" minlength="6" autocomplete="new-password">
+                            <i class="far fa-eye toggle-password" data-target="newPassword"></i>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="resetActionBtn" class="btn primary full-width">
+                        📤 Отправить код
+                    </button>
+                </form>
+                <button id="backFromResetBtn" class="btn text">
+                    <i class="fas fa-arrow-left"></i> Назад ко входу
+                </button>
+            </div>
+        </div>
+
+        <!-- Игровой экран (после входа) -->
+        <div id="gameScreen" class="screen">
+            <div class="card">
+                <h2>🏰 CLASH OF MAS</h2>
+                <div id="userProfile">
+                    <div id="gameAvatar" class="avatar-placeholder">👤</div>
+                    <h3 id="gameNickname">Игрок</h3>
+                    <p id="gameEmail">email@example.com</p>
+                </div>
+                <div style="background: rgba(233,69,96,0.1); padding: 20px; border-radius: 16px; margin: 20px 0;">
+                    <i class="fas fa-gamepad" style="font-size: 40px; color: var(--primary);"></i>
+                    <p style="margin-top: 10px;">Добро пожаловать в игру!<br>Здесь будет ваш геймплей.</p>
+                </div>
+                <button id="logoutBtn" class="btn secondary full-width">
+                    <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Дополнительная инициализация после загрузки -->
+    <script>
+        // Небольшой хелпер для переключения иконок глазика (дублируется для надёжности)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Убедимся, что все глазики работают
+            document.querySelectorAll('.toggle-password').forEach(icon => {
+                // Удаляем старые обработчики, чтобы не дублировались
+                icon.removeEventListener('click', icon.click);
+                icon.addEventListener('click', function(e) {
+                    const targetId = this.dataset.target;
+                    const input = document.getElementById(targetId);
+                    if (input) {
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        this.classList.toggle('fa-eye');
+                        this.classList.toggle('fa-eye-slash');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
 </html>
