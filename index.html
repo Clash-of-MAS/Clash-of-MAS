@@ -12,13 +12,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { 
             getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
-            signOut, onAuthStateChanged, sendPasswordResetEmail 
+            signOut, onAuthStateChanged, sendPasswordResetEmail,
+            updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential,
+            deleteUser
         } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { 
-            getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs 
+            getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs,
+            deleteDoc, updateDoc
         } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // ---------- НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ) ----------
+        // ---------- НАСТРОЙКИ ----------
         const firebaseConfig = {
             apiKey: "AIzaSyCgx-V8GP_cgCZLGws2e1pHZ5OnMy20nxk",
             authDomain: "clash-of-mas.firebaseapp.com",
@@ -28,17 +31,1011 @@
             appId: "1:403759349179:web:62c2c68604b1c0334a589e"
         };
 
-        // 2. EmailJS настройки
         const EMAILJS_PUBLIC_KEY = "NpbBqnbjRAYFfBZc5";
         const EMAILJS_SERVICE_ID = "service_unkraqr";
         const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
 
-        // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+        // ---------- СИСТЕМА ПЕРЕВОДОВ ----------
+        const translations = {
+            ru: {
+                welcome: 'Добро пожаловать в битву!',
+                register: 'Зарегистрироваться',
+                login: 'Войти',
+                loginTitle: 'Вход',
+                email: 'Email',
+                password: 'Пароль',
+                loginBtn: 'Войти в аккаунт',
+                forgotPassword: '🤔 Забыл(а) пароль?',
+                backToHome: 'На главную',
+                registerTitle: 'Регистрация',
+                nickname: 'Никнейм',
+                avatarHint: 'Аватар создаётся из первых букв ника',
+                confirmPassword: 'Подтвердите пароль',
+                continue: 'Продолжить',
+                enterCode: 'Введите код из письма',
+                confirmEmail: 'Подтвердить Email',
+                resendCode: 'Отправить код повторно',
+                resetTitle: 'Сброс пароля',
+                yourEmail: 'Ваш Email',
+                codeFromEmail: 'Код из письма',
+                newPassword: 'Новый пароль',
+                sendCode: 'Отправить код',
+                changePassword: 'Сменить пароль',
+                backToLogin: 'Назад ко входу',
+                addAccount: 'Добавить аккаунт',
+                savedAccounts: 'Сохраненные аккаунты',
+                loginOther: 'Войти в другой аккаунт',
+                back: 'Назад',
+                home: 'Главная',
+                characters: 'Персонажи',
+                clan: 'Клан',
+                account: 'Аккаунт',
+                settings: 'Настройки',
+                welcomeGame: 'Добро пожаловать в игру!',
+                gameplayHere: 'Здесь будет основной геймплей',
+                yourCharacters: 'Ваши персонажи',
+                charactersHere: 'Здесь будут ваши персонажи',
+                clanHere: 'Здесь будет информация о клане',
+                changeEmail: 'Изменить Email',
+                changeEmailBtn: 'Сменить Email',
+                newEmail: 'Новый Email',
+                currentPassword: 'Текущий пароль',
+                confirmEmailChange: 'Подтвердить смену Email',
+                changePasswordBtn: 'Сменить пароль',
+                confirmNewPassword: 'Подтвердите новый пароль',
+                confirmPasswordChange: 'Подтвердить смену пароля',
+                logout: 'Выйти из аккаунта',
+                deleteAccount: 'Удалить аккаунт',
+                deleteAccountBtn: 'Удалить аккаунт',
+                confirmDelete: 'Да, я уверен (1/2)',
+                cancel: 'Отмена',
+                themeSettings: 'Настройки темы',
+                darkTheme: 'Темная тема',
+                lightTheme: 'Светлая тема',
+                customColors: 'Настройка цветов',
+                backgroundColor: 'Цвет фона',
+                primaryColor: 'Основной цвет',
+                secondaryColor: 'Вторичный цвет',
+                textColor: 'Цвет текста',
+                resetColors: 'Сбросить цвета',
+                languageSettings: 'Язык',
+                selectLanguage: 'Выберите язык',
+                soundSettings: 'Звук',
+                enableSound: 'Включить звук',
+                notifications: 'Уведомления',
+                enableNotifications: 'Включить уведомления',
+                saveSettings: 'Сохранить настройки',
+                loading: 'Загрузка...',
+                min3chars: 'Минимум 3 символа',
+                nickFree: 'Ник свободен',
+                nickTaken: 'Ник занят',
+                passwordsNotMatch: 'Пароли не совпадают',
+                min6chars: 'Пароль должен быть минимум 6 символов',
+                wrongCode: 'Неверный код подтверждения',
+                regSuccess: 'Регистрация успешна! Добро пожаловать в Clash of MAS!',
+                emailChanged: 'Email успешно изменен',
+                passwordChanged: 'Пароль успешно изменен',
+                accountDeleted: 'Аккаунт успешно удален',
+                confirmLogout: 'Вы уверены, что хотите выйти из аккаунта?',
+                confirmDelete1: 'Вы уверены? Это действие нельзя отменить!',
+                confirmDelete2: 'ТОЧНО УВЕРЕНЫ? ВСЕ ДАННЫЕ БУДУТ УДАЛЕНЫ!',
+                enterPasswordConfirm: 'Введите пароль для подтверждения',
+                deleteAccountConfirm: 'ДА, УДАЛИТЬ АККАУНТ (2/2)',
+                codeSent: 'Код отправлен на',
+                demoMode: 'ДЕМО-РЕЖИМ\nКод подтверждения:',
+                error: 'Ошибка',
+                success: 'Успешно'
+            },
+            en: {
+                welcome: 'Welcome to the battle!',
+                register: 'Register',
+                login: 'Login',
+                loginTitle: 'Login',
+                email: 'Email',
+                password: 'Password',
+                loginBtn: 'Sign In',
+                forgotPassword: '🤔 Forgot password?',
+                backToHome: 'Back to home',
+                registerTitle: 'Registration',
+                nickname: 'Nickname',
+                avatarHint: 'Avatar is generated from nickname',
+                confirmPassword: 'Confirm password',
+                continue: 'Continue',
+                enterCode: 'Enter code from email',
+                confirmEmail: 'Confirm Email',
+                resendCode: 'Resend code',
+                resetTitle: 'Reset password',
+                yourEmail: 'Your Email',
+                codeFromEmail: 'Code from email',
+                newPassword: 'New password',
+                sendCode: 'Send code',
+                changePassword: 'Change password',
+                backToLogin: 'Back to login',
+                addAccount: 'Add account',
+                savedAccounts: 'Saved accounts',
+                loginOther: 'Login to another account',
+                back: 'Back',
+                home: 'Home',
+                characters: 'Characters',
+                clan: 'Clan',
+                account: 'Account',
+                settings: 'Settings',
+                welcomeGame: 'Welcome to the game!',
+                gameplayHere: 'Main gameplay will be here',
+                yourCharacters: 'Your characters',
+                charactersHere: 'Your characters will be here',
+                clanHere: 'Clan information will be here',
+                changeEmail: 'Change Email',
+                changeEmailBtn: 'Change Email',
+                newEmail: 'New Email',
+                currentPassword: 'Current password',
+                confirmEmailChange: 'Confirm Email change',
+                changePasswordBtn: 'Change password',
+                confirmNewPassword: 'Confirm new password',
+                confirmPasswordChange: 'Confirm password change',
+                logout: 'Logout',
+                deleteAccount: 'Delete account',
+                deleteAccountBtn: 'Delete account',
+                confirmDelete: 'Yes, I\'m sure (1/2)',
+                cancel: 'Cancel',
+                themeSettings: 'Theme settings',
+                darkTheme: 'Dark theme',
+                lightTheme: 'Light theme',
+                customColors: 'Custom colors',
+                backgroundColor: 'Background color',
+                primaryColor: 'Primary color',
+                secondaryColor: 'Secondary color',
+                textColor: 'Text color',
+                resetColors: 'Reset colors',
+                languageSettings: 'Language',
+                selectLanguage: 'Select language',
+                soundSettings: 'Sound',
+                enableSound: 'Enable sound',
+                notifications: 'Notifications',
+                enableNotifications: 'Enable notifications',
+                saveSettings: 'Save settings',
+                loading: 'Loading...',
+                min3chars: 'Minimum 3 characters',
+                nickFree: 'Nickname available',
+                nickTaken: 'Nickname taken',
+                passwordsNotMatch: 'Passwords do not match',
+                min6chars: 'Password must be at least 6 characters',
+                wrongCode: 'Wrong confirmation code',
+                regSuccess: 'Registration successful! Welcome to Clash of MAS!',
+                emailChanged: 'Email successfully changed',
+                passwordChanged: 'Password successfully changed',
+                accountDeleted: 'Account successfully deleted',
+                confirmLogout: 'Are you sure you want to logout?',
+                confirmDelete1: 'Are you sure? This action cannot be undone!',
+                confirmDelete2: 'ARE YOU ABSOLUTELY SURE? ALL DATA WILL BE DELETED!',
+                enterPasswordConfirm: 'Enter password to confirm',
+                deleteAccountConfirm: 'YES, DELETE ACCOUNT (2/2)',
+                codeSent: 'Code sent to',
+                demoMode: 'DEMO MODE\nConfirmation code:',
+                error: 'Error',
+                success: 'Success'
+            },
+            es: {
+                welcome: '¡Bienvenido a la batalla!',
+                register: 'Registrarse',
+                login: 'Iniciar sesión',
+                loginTitle: 'Iniciar sesión',
+                email: 'Correo electrónico',
+                password: 'Contraseña',
+                loginBtn: 'Entrar',
+                forgotPassword: '🤔 ¿Olvidaste la contraseña?',
+                backToHome: 'Volver al inicio',
+                registerTitle: 'Registro',
+                nickname: 'Apodo',
+                avatarHint: 'El avatar se genera del apodo',
+                confirmPassword: 'Confirmar contraseña',
+                continue: 'Continuar',
+                enterCode: 'Ingresa el código del correo',
+                confirmEmail: 'Confirmar Email',
+                resendCode: 'Reenviar código',
+                resetTitle: 'Restablecer contraseña',
+                yourEmail: 'Tu Email',
+                codeFromEmail: 'Código del correo',
+                newPassword: 'Nueva contraseña',
+                sendCode: 'Enviar código',
+                changePassword: 'Cambiar contraseña',
+                backToLogin: 'Volver al inicio de sesión',
+                addAccount: 'Agregar cuenta',
+                savedAccounts: 'Cuentas guardadas',
+                loginOther: 'Iniciar sesión en otra cuenta',
+                back: 'Atrás',
+                home: 'Inicio',
+                characters: 'Personajes',
+                clan: 'Clan',
+                account: 'Cuenta',
+                settings: 'Configuración',
+                welcomeGame: '¡Bienvenido al juego!',
+                gameplayHere: 'El juego principal estará aquí',
+                yourCharacters: 'Tus personajes',
+                charactersHere: 'Tus personajes estarán aquí',
+                clanHere: 'La información del clan estará aquí',
+                changeEmail: 'Cambiar Email',
+                changeEmailBtn: 'Cambiar Email',
+                newEmail: 'Nuevo Email',
+                currentPassword: 'Contraseña actual',
+                confirmEmailChange: 'Confirmar cambio de Email',
+                changePasswordBtn: 'Cambiar contraseña',
+                confirmNewPassword: 'Confirmar nueva contraseña',
+                confirmPasswordChange: 'Confirmar cambio de contraseña',
+                logout: 'Cerrar sesión',
+                deleteAccount: 'Eliminar cuenta',
+                deleteAccountBtn: 'Eliminar cuenta',
+                confirmDelete: 'Sí, estoy seguro (1/2)',
+                cancel: 'Cancelar',
+                themeSettings: 'Configuración del tema',
+                darkTheme: 'Tema oscuro',
+                lightTheme: 'Tema claro',
+                customColors: 'Colores personalizados',
+                backgroundColor: 'Color de fondo',
+                primaryColor: 'Color principal',
+                secondaryColor: 'Color secundario',
+                textColor: 'Color de texto',
+                resetColors: 'Restablecer colores',
+                languageSettings: 'Idioma',
+                selectLanguage: 'Seleccionar idioma',
+                soundSettings: 'Sonido',
+                enableSound: 'Activar sonido',
+                notifications: 'Notificaciones',
+                enableNotifications: 'Activar notificaciones',
+                saveSettings: 'Guardar configuración',
+                loading: 'Cargando...',
+                min3chars: 'Mínimo 3 caracteres',
+                nickFree: 'Apodo disponible',
+                nickTaken: 'Apodo ocupado',
+                passwordsNotMatch: 'Las contraseñas no coinciden',
+                min6chars: 'La contraseña debe tener al menos 6 caracteres',
+                wrongCode: 'Código de confirmación incorrecto',
+                regSuccess: '¡Registro exitoso! ¡Bienvenido a Clash of MAS!',
+                emailChanged: 'Email cambiado exitosamente',
+                passwordChanged: 'Contraseña cambiada exitosamente',
+                accountDeleted: 'Cuenta eliminada exitosamente',
+                confirmLogout: '¿Estás seguro de que quieres cerrar sesión?',
+                confirmDelete1: '¿Estás seguro? ¡Esta acción no se puede deshacer!',
+                confirmDelete2: '¿ESTÁS COMPLETAMENTE SEGURO? ¡TODOS LOS DATOS SERÁN ELIMINADOS!',
+                enterPasswordConfirm: 'Ingresa la contraseña para confirmar',
+                deleteAccountConfirm: 'SÍ, ELIMINAR CUENTA (2/2)',
+                codeSent: 'Código enviado a',
+                demoMode: 'MODO DEMO\nCódigo de confirmación:',
+                error: 'Error',
+                success: 'Éxito'
+            },
+            fr: {
+                welcome: 'Bienvenue dans la bataille !',
+                register: 'S\'inscrire',
+                login: 'Se connecter',
+                loginTitle: 'Connexion',
+                email: 'Email',
+                password: 'Mot de passe',
+                loginBtn: 'Se connecter',
+                forgotPassword: '🤔 Mot de passe oublié ?',
+                backToHome: 'Retour à l\'accueil',
+                registerTitle: 'Inscription',
+                nickname: 'Pseudo',
+                avatarHint: 'L\'avatar est généré à partir du pseudo',
+                confirmPassword: 'Confirmer le mot de passe',
+                continue: 'Continuer',
+                enterCode: 'Entrez le code de l\'email',
+                confirmEmail: 'Confirmer l\'Email',
+                resendCode: 'Renvoyer le code',
+                resetTitle: 'Réinitialiser le mot de passe',
+                yourEmail: 'Votre Email',
+                codeFromEmail: 'Code de l\'email',
+                newPassword: 'Nouveau mot de passe',
+                sendCode: 'Envoyer le code',
+                changePassword: 'Changer le mot de passe',
+                backToLogin: 'Retour à la connexion',
+                addAccount: 'Ajouter un compte',
+                savedAccounts: 'Comptes enregistrés',
+                loginOther: 'Se connecter à un autre compte',
+                back: 'Retour',
+                home: 'Accueil',
+                characters: 'Personnages',
+                clan: 'Clan',
+                account: 'Compte',
+                settings: 'Paramètres',
+                welcomeGame: 'Bienvenue dans le jeu !',
+                gameplayHere: 'Le gameplay principal sera ici',
+                yourCharacters: 'Vos personnages',
+                charactersHere: 'Vos personnages seront ici',
+                clanHere: 'Les informations du clan seront ici',
+                changeEmail: 'Changer l\'Email',
+                changeEmailBtn: 'Changer l\'Email',
+                newEmail: 'Nouvel Email',
+                currentPassword: 'Mot de passe actuel',
+                confirmEmailChange: 'Confirmer le changement d\'Email',
+                changePasswordBtn: 'Changer le mot de passe',
+                confirmNewPassword: 'Confirmer le nouveau mot de passe',
+                confirmPasswordChange: 'Confirmer le changement de mot de passe',
+                logout: 'Déconnexion',
+                deleteAccount: 'Supprimer le compte',
+                deleteAccountBtn: 'Supprimer le compte',
+                confirmDelete: 'Oui, je suis sûr (1/2)',
+                cancel: 'Annuler',
+                themeSettings: 'Paramètres du thème',
+                darkTheme: 'Thème sombre',
+                lightTheme: 'Thème clair',
+                customColors: 'Couleurs personnalisées',
+                backgroundColor: 'Couleur de fond',
+                primaryColor: 'Couleur principale',
+                secondaryColor: 'Couleur secondaire',
+                textColor: 'Couleur du texte',
+                resetColors: 'Réinitialiser les couleurs',
+                languageSettings: 'Langue',
+                selectLanguage: 'Choisir la langue',
+                soundSettings: 'Son',
+                enableSound: 'Activer le son',
+                notifications: 'Notifications',
+                enableNotifications: 'Activer les notifications',
+                saveSettings: 'Enregistrer les paramètres',
+                loading: 'Chargement...',
+                min3chars: 'Minimum 3 caractères',
+                nickFree: 'Pseudo disponible',
+                nickTaken: 'Pseudo pris',
+                passwordsNotMatch: 'Les mots de passe ne correspondent pas',
+                min6chars: 'Le mot de passe doit avoir au moins 6 caractères',
+                wrongCode: 'Code de confirmation incorrect',
+                regSuccess: 'Inscription réussie ! Bienvenue dans Clash of MAS !',
+                emailChanged: 'Email changé avec succès',
+                passwordChanged: 'Mot de passe changé avec succès',
+                accountDeleted: 'Compte supprimé avec succès',
+                confirmLogout: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+                confirmDelete1: 'Êtes-vous sûr ? Cette action est irréversible !',
+                confirmDelete2: 'ÊTES-VOUS ABSOLUMENT SÛR ? TOUTES LES DONNÉES SERONT SUPPRIMÉES !',
+                enterPasswordConfirm: 'Entrez le mot de passe pour confirmer',
+                deleteAccountConfirm: 'OUI, SUPPRIMER LE COMPTE (2/2)',
+                codeSent: 'Code envoyé à',
+                demoMode: 'MODE DÉMO\nCode de confirmation :',
+                error: 'Erreur',
+                success: 'Succès'
+            },
+            de: {
+                welcome: 'Willkommen in der Schlacht!',
+                register: 'Registrieren',
+                login: 'Anmelden',
+                loginTitle: 'Anmeldung',
+                email: 'Email',
+                password: 'Passwort',
+                loginBtn: 'Anmelden',
+                forgotPassword: '🤔 Passwort vergessen?',
+                backToHome: 'Zurück zur Startseite',
+                registerTitle: 'Registrierung',
+                nickname: 'Spitzname',
+                avatarHint: 'Avatar wird aus Spitzname generiert',
+                confirmPassword: 'Passwort bestätigen',
+                continue: 'Fortfahren',
+                enterCode: 'Code aus Email eingeben',
+                confirmEmail: 'Email bestätigen',
+                resendCode: 'Code erneut senden',
+                resetTitle: 'Passwort zurücksetzen',
+                yourEmail: 'Ihre Email',
+                codeFromEmail: 'Code aus Email',
+                newPassword: 'Neues Passwort',
+                sendCode: 'Code senden',
+                changePassword: 'Passwort ändern',
+                backToLogin: 'Zurück zur Anmeldung',
+                addAccount: 'Konto hinzufügen',
+                savedAccounts: 'Gespeicherte Konten',
+                loginOther: 'In anderes Konto anmelden',
+                back: 'Zurück',
+                home: 'Startseite',
+                characters: 'Charaktere',
+                clan: 'Clan',
+                account: 'Konto',
+                settings: 'Einstellungen',
+                welcomeGame: 'Willkommen im Spiel!',
+                gameplayHere: 'Hauptspiel wird hier sein',
+                yourCharacters: 'Ihre Charaktere',
+                charactersHere: 'Ihre Charaktere werden hier sein',
+                clanHere: 'Clan-Informationen werden hier sein',
+                changeEmail: 'Email ändern',
+                changeEmailBtn: 'Email ändern',
+                newEmail: 'Neue Email',
+                currentPassword: 'Aktuelles Passwort',
+                confirmEmailChange: 'Email-Änderung bestätigen',
+                changePasswordBtn: 'Passwort ändern',
+                confirmNewPassword: 'Neues Passwort bestätigen',
+                confirmPasswordChange: 'Passwort-Änderung bestätigen',
+                logout: 'Abmelden',
+                deleteAccount: 'Konto löschen',
+                deleteAccountBtn: 'Konto löschen',
+                confirmDelete: 'Ja, ich bin sicher (1/2)',
+                cancel: 'Abbrechen',
+                themeSettings: 'Theme-Einstellungen',
+                darkTheme: 'Dunkles Theme',
+                lightTheme: 'Helles Theme',
+                customColors: 'Benutzerdefinierte Farben',
+                backgroundColor: 'Hintergrundfarbe',
+                primaryColor: 'Primärfarbe',
+                secondaryColor: 'Sekundärfarbe',
+                textColor: 'Textfarbe',
+                resetColors: 'Farben zurücksetzen',
+                languageSettings: 'Sprache',
+                selectLanguage: 'Sprache wählen',
+                soundSettings: 'Ton',
+                enableSound: 'Ton aktivieren',
+                notifications: 'Benachrichtigungen',
+                enableNotifications: 'Benachrichtigungen aktivieren',
+                saveSettings: 'Einstellungen speichern',
+                loading: 'Laden...',
+                min3chars: 'Mindestens 3 Zeichen',
+                nickFree: 'Spitzname verfügbar',
+                nickTaken: 'Spitzname vergeben',
+                passwordsNotMatch: 'Passwörter stimmen nicht überein',
+                min6chars: 'Passwort muss mindestens 6 Zeichen haben',
+                wrongCode: 'Falscher Bestätigungscode',
+                regSuccess: 'Registrierung erfolgreich! Willkommen bei Clash of MAS!',
+                emailChanged: 'Email erfolgreich geändert',
+                passwordChanged: 'Passwort erfolgreich geändert',
+                accountDeleted: 'Konto erfolgreich gelöscht',
+                confirmLogout: 'Sind Sie sicher, dass Sie sich abmelden möchten?',
+                confirmDelete1: 'Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!',
+                confirmDelete2: 'SIND SIE ABSOLUT SICHER? ALLE DATEN WERDEN GELÖSCHT!',
+                enterPasswordConfirm: 'Geben Sie das Passwort zur Bestätigung ein',
+                deleteAccountConfirm: 'JA, KONTO LÖSCHEN (2/2)',
+                codeSent: 'Code gesendet an',
+                demoMode: 'DEMO-MODUS\nBestätigungscode:',
+                error: 'Fehler',
+                success: 'Erfolg'
+            },
+            zh: {
+                welcome: '欢迎来到战场！',
+                register: '注册',
+                login: '登录',
+                loginTitle: '登录',
+                email: '邮箱',
+                password: '密码',
+                loginBtn: '登录账户',
+                forgotPassword: '🤔 忘记密码？',
+                backToHome: '返回首页',
+                registerTitle: '注册',
+                nickname: '昵称',
+                avatarHint: '头像由昵称生成',
+                confirmPassword: '确认密码',
+                continue: '继续',
+                enterCode: '输入邮件中的验证码',
+                confirmEmail: '确认邮箱',
+                resendCode: '重新发送验证码',
+                resetTitle: '重置密码',
+                yourEmail: '您的邮箱',
+                codeFromEmail: '邮件验证码',
+                newPassword: '新密码',
+                sendCode: '发送验证码',
+                changePassword: '修改密码',
+                backToLogin: '返回登录',
+                addAccount: '添加账户',
+                savedAccounts: '已保存的账户',
+                loginOther: '登录其他账户',
+                back: '返回',
+                home: '首页',
+                characters: '角色',
+                clan: '公会',
+                account: '账户',
+                settings: '设置',
+                welcomeGame: '欢迎来到游戏！',
+                gameplayHere: '主要游戏内容将在这里',
+                yourCharacters: '您的角色',
+                charactersHere: '您的角色将在这里',
+                clanHere: '公会信息将在这里',
+                changeEmail: '修改邮箱',
+                changeEmailBtn: '修改邮箱',
+                newEmail: '新邮箱',
+                currentPassword: '当前密码',
+                confirmEmailChange: '确认修改邮箱',
+                changePasswordBtn: '修改密码',
+                confirmNewPassword: '确认新密码',
+                confirmPasswordChange: '确认修改密码',
+                logout: '退出登录',
+                deleteAccount: '删除账户',
+                deleteAccountBtn: '删除账户',
+                confirmDelete: '是的，我确定 (1/2)',
+                cancel: '取消',
+                themeSettings: '主题设置',
+                darkTheme: '深色主题',
+                lightTheme: '浅色主题',
+                customColors: '自定义颜色',
+                backgroundColor: '背景颜色',
+                primaryColor: '主色调',
+                secondaryColor: '次要颜色',
+                textColor: '文字颜色',
+                resetColors: '重置颜色',
+                languageSettings: '语言',
+                selectLanguage: '选择语言',
+                soundSettings: '声音',
+                enableSound: '启用声音',
+                notifications: '通知',
+                enableNotifications: '启用通知',
+                saveSettings: '保存设置',
+                loading: '加载中...',
+                min3chars: '最少3个字符',
+                nickFree: '昵称可用',
+                nickTaken: '昵称已被占用',
+                passwordsNotMatch: '密码不匹配',
+                min6chars: '密码至少6个字符',
+                wrongCode: '验证码错误',
+                regSuccess: '注册成功！欢迎来到 Clash of MAS！',
+                emailChanged: '邮箱修改成功',
+                passwordChanged: '密码修改成功',
+                accountDeleted: '账户删除成功',
+                confirmLogout: '确定要退出登录吗？',
+                confirmDelete1: '确定吗？此操作无法撤销！',
+                confirmDelete2: '完全确定吗？所有数据将被删除！',
+                enterPasswordConfirm: '输入密码确认',
+                deleteAccountConfirm: '是的，删除账户 (2/2)',
+                codeSent: '验证码已发送至',
+                demoMode: '演示模式\n验证码：',
+                error: '错误',
+                success: '成功'
+            },
+            ar: {
+                welcome: '!مرحباً بك في المعركة',
+                register: 'تسجيل',
+                login: 'دخول',
+                loginTitle: 'تسجيل الدخول',
+                email: 'البريد الإلكتروني',
+                password: 'كلمة المرور',
+                loginBtn: 'تسجيل الدخول',
+                forgotPassword: '🤔 نسيت كلمة المرور؟',
+                backToHome: 'العودة للرئيسية',
+                registerTitle: 'تسجيل',
+                nickname: 'اللقب',
+                avatarHint: 'يتم إنشاء الصورة الرمزية من اللقب',
+                confirmPassword: 'تأكيد كلمة المرور',
+                continue: 'متابعة',
+                enterCode: 'أدخل الرمز من البريد الإلكتروني',
+                confirmEmail: 'تأكيد البريد الإلكتروني',
+                resendCode: 'إعادة إرسال الرمز',
+                resetTitle: 'إعادة تعيين كلمة المرور',
+                yourEmail: 'بريدك الإلكتروني',
+                codeFromEmail: 'الرمز من البريد الإلكتروني',
+                newPassword: 'كلمة مرور جديدة',
+                sendCode: 'إرسال الرمز',
+                changePassword: 'تغيير كلمة المرور',
+                backToLogin: 'العودة لتسجيل الدخول',
+                addAccount: 'إضافة حساب',
+                savedAccounts: 'الحسابات المحفوظة',
+                loginOther: 'تسجيل الدخول لحساب آخر',
+                back: 'رجوع',
+                home: 'الرئيسية',
+                characters: 'الشخصيات',
+                clan: 'العشيرة',
+                account: 'الحساب',
+                settings: 'الإعدادات',
+                welcomeGame: '!مرحباً بك في اللعبة',
+                gameplayHere: 'اللعب الرئيسي سيكون هنا',
+                yourCharacters: 'شخصياتك',
+                charactersHere: 'شخصياتك ستكون هنا',
+                clanHere: 'معلومات العشيرة ستكون هنا',
+                changeEmail: 'تغيير البريد الإلكتروني',
+                changeEmailBtn: 'تغيير البريد الإلكتروني',
+                newEmail: 'بريد إلكتروني جديد',
+                currentPassword: 'كلمة المرور الحالية',
+                confirmEmailChange: 'تأكيد تغيير البريد الإلكتروني',
+                changePasswordBtn: 'تغيير كلمة المرور',
+                confirmNewPassword: 'تأكيد كلمة المرور الجديدة',
+                confirmPasswordChange: 'تأكيد تغيير كلمة المرور',
+                logout: 'تسجيل الخروج',
+                deleteAccount: 'حذف الحساب',
+                deleteAccountBtn: 'حذف الحساب',
+                confirmDelete: '(1/2) نعم، أنا متأكد',
+                cancel: 'إلغاء',
+                themeSettings: 'إعدادات المظهر',
+                darkTheme: 'مظهر داكن',
+                lightTheme: 'مظهر فاتح',
+                customColors: 'ألوان مخصصة',
+                backgroundColor: 'لون الخلفية',
+                primaryColor: 'اللون الرئيسي',
+                secondaryColor: 'اللون الثانوي',
+                textColor: 'لون النص',
+                resetColors: 'إعادة تعيين الألوان',
+                languageSettings: 'اللغة',
+                selectLanguage: 'اختر اللغة',
+                soundSettings: 'الصوت',
+                enableSound: 'تفعيل الصوت',
+                notifications: 'الإشعارات',
+                enableNotifications: 'تفعيل الإشعارات',
+                saveSettings: 'حفظ الإعدادات',
+                loading: '...جاري التحميل',
+                min3chars: 'الحد الأدنى 3 أحرف',
+                nickFree: 'اللقب متاح',
+                nickTaken: 'اللقب محجوز',
+                passwordsNotMatch: 'كلمات المرور غير متطابقة',
+                min6chars: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل',
+                wrongCode: 'رمز التأكيد غير صحيح',
+                regSuccess: '!تم التسجيل بنجاح! مرحباً بك في Clash of MAS',
+                emailChanged: 'تم تغيير البريد الإلكتروني بنجاح',
+                passwordChanged: 'تم تغيير كلمة المرور بنجاح',
+                accountDeleted: 'تم حذف الحساب بنجاح',
+                confirmLogout: 'هل أنت متأكد أنك تريد تسجيل الخروج؟',
+                confirmDelete1: '!هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء',
+                confirmDelete2: '!هل أنت متأكد تماماً؟ سيتم حذف جميع البيانات',
+                enterPasswordConfirm: 'أدخل كلمة المرور للتأكيد',
+                deleteAccountConfirm: '(2/2) نعم، احذف الحساب',
+                codeSent: 'تم إرسال الرمز إلى',
+                demoMode: 'وضع تجريبي\n:رمز التأكيد',
+                error: 'خطأ',
+                success: 'نجاح'
+            },
+            pt: {
+                welcome: 'Bem-vindo à batalha!',
+                register: 'Registrar',
+                login: 'Entrar',
+                loginTitle: 'Entrar',
+                email: 'Email',
+                password: 'Senha',
+                loginBtn: 'Entrar na conta',
+                forgotPassword: '🤔 Esqueceu a senha?',
+                backToHome: 'Voltar ao início',
+                registerTitle: 'Registro',
+                nickname: 'Apelido',
+                avatarHint: 'Avatar é gerado do apelido',
+                confirmPassword: 'Confirmar senha',
+                continue: 'Continuar',
+                enterCode: 'Digite o código do email',
+                confirmEmail: 'Confirmar Email',
+                resendCode: 'Reenviar código',
+                resetTitle: 'Redefinir senha',
+                yourEmail: 'Seu Email',
+                codeFromEmail: 'Código do email',
+                newPassword: 'Nova senha',
+                sendCode: 'Enviar código',
+                changePassword: 'Alterar senha',
+                backToLogin: 'Voltar ao login',
+                addAccount: 'Adicionar conta',
+                savedAccounts: 'Contas salvas',
+                loginOther: 'Entrar em outra conta',
+                back: 'Voltar',
+                home: 'Início',
+                characters: 'Personagens',
+                clan: 'Clã',
+                account: 'Conta',
+                settings: 'Configurações',
+                welcomeGame: 'Bem-vindo ao jogo!',
+                gameplayHere: 'O jogo principal estará aqui',
+                yourCharacters: 'Seus personagens',
+                charactersHere: 'Seus personagens estarão aqui',
+                clanHere: 'Informações do clã estarão aqui',
+                changeEmail: 'Alterar Email',
+                changeEmailBtn: 'Alterar Email',
+                newEmail: 'Novo Email',
+                currentPassword: 'Senha atual',
+                confirmEmailChange: 'Confirmar alteração de Email',
+                changePasswordBtn: 'Alterar senha',
+                confirmNewPassword: 'Confirmar nova senha',
+                confirmPasswordChange: 'Confirmar alteração de senha',
+                logout: 'Sair',
+                deleteAccount: 'Excluir conta',
+                deleteAccountBtn: 'Excluir conta',
+                confirmDelete: 'Sim, tenho certeza (1/2)',
+                cancel: 'Cancelar',
+                themeSettings: 'Configurações do tema',
+                darkTheme: 'Tema escuro',
+                lightTheme: 'Tema claro',
+                customColors: 'Cores personalizadas',
+                backgroundColor: 'Cor de fundo',
+                primaryColor: 'Cor primária',
+                secondaryColor: 'Cor secundária',
+                textColor: 'Cor do texto',
+                resetColors: 'Redefinir cores',
+                languageSettings: 'Idioma',
+                selectLanguage: 'Selecionar idioma',
+                soundSettings: 'Som',
+                enableSound: 'Ativar som',
+                notifications: 'Notificações',
+                enableNotifications: 'Ativar notificações',
+                saveSettings: 'Salvar configurações',
+                loading: 'Carregando...',
+                min3chars: 'Mínimo 3 caracteres',
+                nickFree: 'Apelido disponível',
+                nickTaken: 'Apelido ocupado',
+                passwordsNotMatch: 'As senhas não coincidem',
+                min6chars: 'A senha deve ter pelo menos 6 caracteres',
+                wrongCode: 'Código de confirmação incorreto',
+                regSuccess: 'Registro bem-sucedido! Bem-vindo ao Clash of MAS!',
+                emailChanged: 'Email alterado com sucesso',
+                passwordChanged: 'Senha alterada com sucesso',
+                accountDeleted: 'Conta excluída com sucesso',
+                confirmLogout: 'Tem certeza que deseja sair?',
+                confirmDelete1: 'Tem certeza? Esta ação não pode ser desfeita!',
+                confirmDelete2: 'TEM CERTEZA ABSOLUTA? TODOS OS DADOS SERÃO EXCLUÍDOS!',
+                enterPasswordConfirm: 'Digite a senha para confirmar',
+                deleteAccountConfirm: 'SIM, EXCLUIR CONTA (2/2)',
+                codeSent: 'Código enviado para',
+                demoMode: 'MODO DEMO\nCódigo de confirmação:',
+                error: 'Erro',
+                success: 'Sucesso'
+            },
+            hi: {
+                welcome: 'युद्ध में आपका स्वागत है!',
+                register: 'पंजीकरण करें',
+                login: 'लॉग इन करें',
+                loginTitle: 'लॉग इन',
+                email: 'ईमेल',
+                password: 'पासवर्ड',
+                loginBtn: 'खाते में लॉग इन करें',
+                forgotPassword: '🤔 पासवर्ड भूल गए?',
+                backToHome: 'होम पर वापस जाएं',
+                registerTitle: 'पंजीकरण',
+                nickname: 'उपनाम',
+                avatarHint: 'अवतार उपनाम से बनता है',
+                confirmPassword: 'पासवर्ड की पुष्टि करें',
+                continue: 'जारी रखें',
+                enterCode: 'ईमेल से कोड दर्ज करें',
+                confirmEmail: 'ईमेल की पुष्टि करें',
+                resendCode: 'कोड पुनः भेजें',
+                resetTitle: 'पासवर्ड रीसेट करें',
+                yourEmail: 'आपका ईमेल',
+                codeFromEmail: 'ईमेल से कोड',
+                newPassword: 'नया पासवर्ड',
+                sendCode: 'कोड भेजें',
+                changePassword: 'पासवर्ड बदलें',
+                backToLogin: 'लॉगिन पर वापस जाएं',
+                addAccount: 'खाता जोड़ें',
+                savedAccounts: 'सहेजे गए खाते',
+                loginOther: 'दूसरे खाते में लॉग इन करें',
+                back: 'वापस',
+                home: 'होम',
+                characters: 'पात्र',
+                clan: 'कबीला',
+                account: 'खाता',
+                settings: 'सेटिंग्स',
+                welcomeGame: 'खेल में आपका स्वागत है!',
+                gameplayHere: 'मुख्य गेमप्ले यहां होगा',
+                yourCharacters: 'आपके पात्र',
+                charactersHere: 'आपके पात्र यहां होंगे',
+                clanHere: 'कबीले की जानकारी यहां होगी',
+                changeEmail: 'ईमेल बदलें',
+                changeEmailBtn: 'ईमेल बदलें',
+                newEmail: 'नया ईमेल',
+                currentPassword: 'वर्तमान पासवर्ड',
+                confirmEmailChange: 'ईमेल परिवर्तन की पुष्टि करें',
+                changePasswordBtn: 'पासवर्ड बदलें',
+                confirmNewPassword: 'नए पासवर्ड की पुष्टि करें',
+                confirmPasswordChange: 'पासवर्ड परिवर्तन की पुष्टि करें',
+                logout: 'लॉग आउट',
+                deleteAccount: 'खाता हटाएं',
+                deleteAccountBtn: 'खाता हटाएं',
+                confirmDelete: 'हां, मुझे यकीन है (1/2)',
+                cancel: 'रद्द करें',
+                themeSettings: 'थीम सेटिंग्स',
+                darkTheme: 'डार्क थीम',
+                lightTheme: 'लाइट थीम',
+                customColors: 'कस्टम रंग',
+                backgroundColor: 'बैकग्राउंड रंग',
+                primaryColor: 'प्राथमिक रंग',
+                secondaryColor: 'द्वितीयक रंग',
+                textColor: 'टेक्स्ट रंग',
+                resetColors: 'रंग रीसेट करें',
+                languageSettings: 'भाषा',
+                selectLanguage: 'भाषा चुनें',
+                soundSettings: 'ध्वनि',
+                enableSound: 'ध्वनि सक्षम करें',
+                notifications: 'सूचनाएं',
+                enableNotifications: 'सूचनाएं सक्षम करें',
+                saveSettings: 'सेटिंग्स सहेजें',
+                loading: 'लोड हो रहा है...',
+                min3chars: 'न्यूनतम 3 अक्षर',
+                nickFree: 'उपनाम उपलब्ध है',
+                nickTaken: 'उपनाम लिया जा चुका है',
+                passwordsNotMatch: 'पासवर्ड मेल नहीं खाते',
+                min6chars: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
+                wrongCode: 'गलत पुष्टिकरण कोड',
+                regSuccess: 'पंजीकरण सफल! Clash of MAS में आपका स्वागत है!',
+                emailChanged: 'ईमेल सफलतापूर्वक बदला गया',
+                passwordChanged: 'पासवर्ड सफलतापूर्वक बदला गया',
+                accountDeleted: 'खाता सफलतापूर्वक हटाया गया',
+                confirmLogout: 'क्या आप वाकई लॉग आउट करना चाहते हैं?',
+                confirmDelete1: 'क्या आप सुनिश्चित हैं? यह क्रिया वापस नहीं ली जा सकती!',
+                confirmDelete2: 'क्या आप पूरी तरह सुनिश्चित हैं? सभी डेटा हटा दिया जाएगा!',
+                enterPasswordConfirm: 'पुष्टि के लिए पासवर्ड दर्ज करें',
+                deleteAccountConfirm: 'हां, खाता हटाएं (2/2)',
+                codeSent: 'कोड भेजा गया',
+                demoMode: 'डेमो मोड\nपुष्टिकरण कोड:',
+                error: 'त्रुटि',
+                success: 'सफलता'
+            },
+            ja: {
+                welcome: '戦いへようこそ！',
+                register: '登録',
+                login: 'ログイン',
+                loginTitle: 'ログイン',
+                email: 'メール',
+                password: 'パスワード',
+                loginBtn: 'アカウントにログイン',
+                forgotPassword: '🤔 パスワードをお忘れですか？',
+                backToHome: 'ホームに戻る',
+                registerTitle: '登録',
+                nickname: 'ニックネーム',
+                avatarHint: 'アバターはニックネームから生成されます',
+                confirmPassword: 'パスワードを確認',
+                continue: '続ける',
+                enterCode: 'メールからコードを入力',
+                confirmEmail: 'メールを確認',
+                resendCode: 'コードを再送信',
+                resetTitle: 'パスワードをリセット',
+                yourEmail: 'あなたのメール',
+                codeFromEmail: 'メールからのコード',
+                newPassword: '新しいパスワード',
+                sendCode: 'コードを送信',
+                changePassword: 'パスワードを変更',
+                backToLogin: 'ログインに戻る',
+                addAccount: 'アカウントを追加',
+                savedAccounts: '保存されたアカウント',
+                loginOther: '別のアカウントでログイン',
+                back: '戻る',
+                home: 'ホーム',
+                characters: 'キャラクター',
+                clan: 'クラン',
+                account: 'アカウント',
+                settings: '設定',
+                welcomeGame: 'ゲームへようこそ！',
+                gameplayHere: 'メインゲームプレイはここにあります',
+                yourCharacters: 'あなたのキャラクター',
+                charactersHere: 'あなたのキャラクターはここにあります',
+                clanHere: 'クラン情報はここにあります',
+                changeEmail: 'メールを変更',
+                changeEmailBtn: 'メールを変更',
+                newEmail: '新しいメール',
+                currentPassword: '現在のパスワード',
+                confirmEmailChange: 'メール変更を確認',
+                changePasswordBtn: 'パスワードを変更',
+                confirmNewPassword: '新しいパスワードを確認',
+                confirmPasswordChange: 'パスワード変更を確認',
+                logout: 'ログアウト',
+                deleteAccount: 'アカウントを削除',
+                deleteAccountBtn: 'アカウントを削除',
+                confirmDelete: 'はい、確認しました (1/2)',
+                cancel: 'キャンセル',
+                themeSettings: 'テーマ設定',
+                darkTheme: 'ダークテーマ',
+                lightTheme: 'ライトテーマ',
+                customColors: 'カスタムカラー',
+                backgroundColor: '背景色',
+                primaryColor: 'メインカラー',
+                secondaryColor: 'セカンダリカラー',
+                textColor: 'テキストカラー',
+                resetColors: '色をリセット',
+                languageSettings: '言語',
+                selectLanguage: '言語を選択',
+                soundSettings: 'サウンド',
+                enableSound: 'サウンドを有効にする',
+                notifications: '通知',
+                enableNotifications: '通知を有効にする',
+                saveSettings: '設定を保存',
+                loading: '読み込み中...',
+                min3chars: '最低3文字',
+                nickFree: 'ニックネーム利用可能',
+                nickTaken: 'ニックネーム使用済み',
+                passwordsNotMatch: 'パスワードが一致しません',
+                min6chars: 'パスワードは最低6文字必要です',
+                wrongCode: '確認コードが間違っています',
+                regSuccess: '登録成功！Clash of MASへようこそ！',
+                emailChanged: 'メールが正常に変更されました',
+                passwordChanged: 'パスワードが正常に変更されました',
+                accountDeleted: 'アカウントが正常に削除されました',
+                confirmLogout: '本当にログアウトしますか？',
+                confirmDelete1: '本当によろしいですか？この操作は取り消せません！',
+                confirmDelete2: '完全に確かですか？すべてのデータが削除されます！',
+                enterPasswordConfirm: '確認のためパスワードを入力してください',
+                deleteAccountConfirm: 'はい、アカウントを削除します (2/2)',
+                codeSent: 'コードを送信しました',
+                demoMode: 'デモモード\n確認コード：',
+                error: 'エラー',
+                success: '成功'
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'ru';
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+        let customColors = JSON.parse(localStorage.getItem('customColors') || 'null');
+
+        function t(key) {
+            return translations[currentLanguage]?.[key] || translations.ru[key] || key;
+        }
+
+        function updateAllTexts() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (el.tagName === 'INPUT' && el.type === 'text' || el.tagName === 'INPUT' && el.type === 'email' || el.tagName === 'INPUT' && el.type === 'password') {
+                    el.placeholder = t(key);
+                } else {
+                    el.textContent = t(key);
+                }
+            });
+            
+            // Особые элементы с иконками
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                el.innerHTML = t(el.dataset.i18nHtml);
+            });
+        }
+
+        function applyTheme() {
+            const root = document.documentElement;
+            
+            if (customColors) {
+                root.style.setProperty('--bg-dark', customColors.bgDark);
+                root.style.setProperty('--bg-card', customColors.bgCard);
+                root.style.setProperty('--primary', customColors.primary);
+                root.style.setProperty('--primary-dark', customColors.primaryDark);
+                root.style.setProperty('--secondary', customColors.secondary);
+                root.style.setProperty('--text-light', customColors.textLight);
+                root.style.setProperty('--text-muted', customColors.textMuted);
+                root.style.setProperty('--border-color', customColors.borderColor);
+            } else if (currentTheme === 'light') {
+                root.style.setProperty('--bg-dark', '#f0f2f5');
+                root.style.setProperty('--bg-card', '#ffffff');
+                root.style.setProperty('--primary', '#e94560');
+                root.style.setProperty('--primary-dark', '#b52b45');
+                root.style.setProperty('--secondary', '#4a90e2');
+                root.style.setProperty('--text-light', '#1a1a1a');
+                root.style.setProperty('--text-muted', '#666666');
+                root.style.setProperty('--border-color', '#d0d5dd');
+            } else {
+                root.style.setProperty('--bg-dark', '#0b0f19');
+                root.style.setProperty('--bg-card', '#1a2332');
+                root.style.setProperty('--primary', '#e94560');
+                root.style.setProperty('--primary-dark', '#b52b45');
+                root.style.setProperty('--secondary', '#0f3460');
+                root.style.setProperty('--text-light', '#e4e6eb');
+                root.style.setProperty('--text-muted', '#8899bb');
+                root.style.setProperty('--border-color', '#2a3a55');
+            }
+            
+            document.body.style.background = `linear-gradient(135deg, var(--bg-dark) 0%, ${currentTheme === 'light' ? '#e8eaed' : '#141a29'} 100%)`;
+        }
+
+        function saveCustomColors() {
+            const styles = getComputedStyle(document.documentElement);
+            customColors = {
+                bgDark: styles.getPropertyValue('--bg-dark').trim(),
+                bgCard: styles.getPropertyValue('--bg-card').trim(),
+                primary: styles.getPropertyValue('--primary').trim(),
+                primaryDark: styles.getPropertyValue('--primary-dark').trim(),
+                secondary: styles.getPropertyValue('--secondary').trim(),
+                textLight: styles.getPropertyValue('--text-light').trim(),
+                textMuted: styles.getPropertyValue('--text-muted').trim(),
+                borderColor: styles.getPropertyValue('--border-color').trim()
+            };
+            localStorage.setItem('customColors', JSON.stringify(customColors));
+            currentTheme = 'custom';
+            localStorage.setItem('theme', 'custom');
+        }
+
+        // Экспорт функций в глобальную область
+        window.t = t;
+        window.updateAllTexts = updateAllTexts;
+        window.applyTheme = applyTheme;
+        window.saveCustomColors = saveCustomColors;
+        window.changeLanguage = (lang) => {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            updateAllTexts();
+            document.getElementById('languageSelect').value = lang;
+        };
+        window.setTheme = (theme) => {
+            currentTheme = theme;
+            localStorage.setItem('theme', theme);
+            if (theme !== 'custom') {
+                customColors = null;
+                localStorage.removeItem('customColors');
+            }
+            applyTheme();
+        };
+        window.resetColors = () => {
+            customColors = null;
+            localStorage.removeItem('customColors');
+            setTheme('dark');
+        };
+
+        // ---------- ИНИЦИАЛИЗАЦИЯ FIREBASE (остальная логика) ----------
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // EmailJS инициализация
         (function loadEmailJS() {
             const script = document.createElement('script');
             script.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";
@@ -46,33 +1043,31 @@
             script.onload = () => emailjs.init(EMAILJS_PUBLIC_KEY);
         })();
 
-        // Глобальные переменные состояния
         let currentScreen = 'landing';
         let tempRegData = null;
         let generatedCode = null;
         let resetEmail = '';
-        
-        // Таймер для повторной отправки кода
+        let pendingEmailChange = null;
         let resendTimeout = null;
         let resendSecondsLeft = 0;
-        const resendBtn = document.getElementById('resendCodeBtn');
-        const resendBtnReset = document.getElementById('resendResetCodeBtn');
+        let savedAccounts = JSON.parse(localStorage.getItem('savedAccounts') || '[]');
+        let deleteConfirmStep = 0;
 
-        // DOM элементы
         const screens = {
             landing: document.getElementById('landing'),
             login: document.getElementById('loginScreen'),
             register: document.getElementById('registerScreen'),
             reset: document.getElementById('resetPasswordScreen'),
-            game: document.getElementById('gameScreen')
+            game: document.getElementById('gameScreen'),
+            addAccount: document.getElementById('addAccountScreen')
         };
         const loader = document.getElementById('loader');
 
-        // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
         function showScreen(screenId) {
-            Object.values(screens).forEach(s => s.classList.remove('active'));
+            Object.values(screens).forEach(s => s?.classList.remove('active'));
             if (screens[screenId]) screens[screenId].classList.add('active');
             currentScreen = screenId;
+            setTimeout(updateAllTexts, 10);
         }
 
         function showLoader(show = true) {
@@ -93,25 +1088,22 @@
             return snapshot.empty;
         }
 
-        // Функция запуска таймера для кнопки повторной отправки
         function startResendTimer(btnElement, seconds = 120) {
             if (resendTimeout) clearInterval(resendTimeout);
             resendSecondsLeft = seconds;
-            
-            const originalText = btnElement.innerHTML;
             btnElement.disabled = true;
+            const originalText = btnElement.innerHTML;
             
             const updateTimer = () => {
                 if (resendSecondsLeft <= 0) {
                     btnElement.disabled = false;
-                    btnElement.innerHTML = '📧 Отправить код повторно';
+                    btnElement.innerHTML = originalText;
                     clearInterval(resendTimeout);
-                    resendTimeout = null;
                     return;
                 }
                 const mins = Math.floor(resendSecondsLeft / 60);
                 const secs = resendSecondsLeft % 60;
-                btnElement.innerHTML = `⏳ Повтор через ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                btnElement.innerHTML = `⏳ ${t('resendCode')} ${mins}:${secs < 10 ? '0' : ''}${secs}`;
                 resendSecondsLeft--;
             };
             
@@ -119,122 +1111,124 @@
             resendTimeout = setInterval(updateTimer, 1000);
         }
 
-        // Отправка кода подтверждения через EmailJS
         async function sendEmailCode(email, type = 'verify') {
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             generatedCode = code;
             
-            const templateParams = {
-                to_email: email,
-                code: code,
-                type: type === 'verify' ? 'регистрации' : 'сброса пароля',
-                subject: type === 'verify' ? 'Код подтверждения Clash of MAS' : 'Сброс пароля Clash of MAS'
-            };
-            
             try {
                 if (EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
-                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-                    alert(`📧 Код отправлен на ${email}`);
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                        to_email: email,
+                        code: code,
+                        subject: `Clash of MAS - ${type === 'verify' ? 'Регистрация' : 'Подтверждение'}`
+                    });
+                    alert(`${t('codeSent')} ${email}`);
                 } else {
-                    console.warn('EmailJS не настроен. Демо-код:', code);
-                    alert(`🔐 ДЕМО-РЕЖИМ\nКод подтверждения: ${code}`);
+                    alert(`${t('demoMode')} ${code}`);
                 }
                 return code;
             } catch (error) {
-                console.error('Ошибка EmailJS:', error);
-                alert(`⚠️ Ошибка отправки email. Демо-код: ${code}`);
+                alert(`${t('demoMode')} ${code}`);
                 return code;
             }
         }
 
-        // ---------- НАВИГАЦИЯ ----------
+        function saveAccountToStorage(email, nickname, avatar) {
+            if (!savedAccounts.find(a => a.email === email)) {
+                savedAccounts.push({ email, nickname, avatar });
+                localStorage.setItem('savedAccounts', JSON.stringify(savedAccounts));
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        async function loadAccountProfile(user) {
+            try {
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('accountNickname').textContent = data.nickname || 'Игрок';
+                    document.getElementById('accountEmail').textContent = data.email || user.email;
+                    document.getElementById('accountAvatarLarge').textContent = data.avatar || '👤';
+                    document.getElementById('accountAvatarSmall').textContent = data.avatar || '👤';
+                }
+            } catch (error) {}
+        }
+
+        // Навигация
         document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('register'));
         document.getElementById('showLoginBtn')?.addEventListener('click', () => showScreen('login'));
         document.getElementById('backFromLoginBtn')?.addEventListener('click', () => showScreen('landing'));
         document.getElementById('backFromRegBtn')?.addEventListener('click', () => {
             document.getElementById('verificationSection')?.classList.add('hidden');
             document.getElementById('registerSubmitBtn')?.classList.remove('hidden');
-            if (resendTimeout) clearInterval(resendTimeout);
             showScreen('landing');
         });
         document.getElementById('forgotPasswordBtn')?.addEventListener('click', () => {
-            const emailInput = document.getElementById('loginEmail');
-            document.getElementById('resetEmail').value = emailInput?.value || '';
+            document.getElementById('resetEmail').value = document.getElementById('loginEmail')?.value || '';
             showScreen('reset');
         });
-        document.getElementById('backFromResetBtn')?.addEventListener('click', () => {
-            if (resendTimeout) clearInterval(resendTimeout);
-            showScreen('login');
+        document.getElementById('backFromResetBtn')?.addEventListener('click', () => showScreen('login'));
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            if (confirm(t('confirmLogout'))) signOut(auth);
         });
-        document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
+        document.getElementById('addAccountBtn')?.addEventListener('click', () => showScreen('addAccount'));
+        document.getElementById('backFromAddAccountBtn')?.addEventListener('click', () => showScreen('game'));
 
-        // ---------- РЕГИСТРАЦИЯ ----------
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        // Регистрация
         const nicknameInput = document.getElementById('regNickname');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const nicknameStatus = document.getElementById('nicknameStatus');
-
         nicknameInput?.addEventListener('input', async (e) => {
             const nickname = e.target.value.trim();
-            avatarPreview.textContent = generateAvatar(nickname) || '👤';
+            document.getElementById('avatarPreview').textContent = generateAvatar(nickname) || '👤';
             
             if (nickname.length < 3) {
-                nicknameStatus.textContent = '⚠️ Минимум 3 символа';
-                nicknameStatus.className = 'validation-hint error-text';
+                document.getElementById('nicknameStatus').textContent = `⚠️ ${t('min3chars')}`;
                 e.target.dataset.valid = 'false';
                 return;
             }
             
             const unique = await isNicknameUnique(nickname);
-            nicknameStatus.textContent = unique ? '✅ Ник свободен' : '❌ Ник занят';
-            nicknameStatus.className = unique ? 'validation-hint success-text' : 'validation-hint error-text';
-            e.target.dataset.valid = unique && nickname.length >= 3 ? 'true' : 'false';
+            document.getElementById('nicknameStatus').textContent = unique ? `✅ ${t('nickFree')}` : `❌ ${t('nickTaken')}`;
+            e.target.dataset.valid = unique ? 'true' : 'false';
         });
 
         document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nickname = document.getElementById('regNickname').value.trim();
+            const nickname = nicknameInput.value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regPasswordConfirm').value;
-            const errorSpan = document.getElementById('passwordMatchError');
             
             if (password !== confirm) {
-                errorSpan.textContent = '❌ Пароли не совпадают';
+                alert(t('passwordsNotMatch'));
                 return;
             }
             if (password.length < 6) {
-                errorSpan.textContent = '❌ Пароль должен быть минимум 6 символов';
-                return;
-            }
-            if (nicknameInput?.dataset.valid !== 'true') {
-                alert('Никнейм занят или некорректен');
+                alert(t('min6chars'));
                 return;
             }
             
-            errorSpan.textContent = '';
             showLoader(true);
-            
-            const code = await sendEmailCode(email, 'verify');
+            await sendEmailCode(email, 'verify');
             tempRegData = { nickname, email, password, avatar: generateAvatar(nickname) };
-            
             document.getElementById('verificationSection')?.classList.remove('hidden');
             document.getElementById('registerSubmitBtn')?.classList.add('hidden');
-            
-            // Запускаем таймер для кнопки повторной отправки
-            startResendTimer(resendBtn);
-            
+            startResendTimer(document.getElementById('resendCodeBtn'));
             showLoader(false);
         });
 
         document.getElementById('verifyEmailBtn')?.addEventListener('click', async () => {
-            const inputCode = document.getElementById('verificationCode').value;
-            if (inputCode !== generatedCode) {
-                alert('❌ Неверный код подтверждения');
-                return;
-            }
-            
-            if (!tempRegData) {
-                alert('Ошибка: данные регистрации потеряны');
+            if (document.getElementById('verificationCode').value !== generatedCode) {
+                alert(t('wrongCode'));
                 return;
             }
             
@@ -247,193 +1241,308 @@
                     avatar: tempRegData.avatar,
                     createdAt: new Date().toISOString()
                 });
-                
-                alert('✅ Регистрация успешна! Добро пожаловать в Clash of MAS!');
-                
+                saveAccountToStorage(tempRegData.email, tempRegData.nickname, tempRegData.avatar);
+                alert(t('regSuccess'));
                 document.getElementById('registerForm').reset();
                 document.getElementById('verificationSection')?.classList.add('hidden');
                 document.getElementById('registerSubmitBtn')?.classList.remove('hidden');
-                avatarPreview.textContent = '👤';
-                tempRegData = null;
-                generatedCode = null;
-                if (resendTimeout) clearInterval(resendTimeout);
-                
                 showScreen('game');
             } catch (error) {
-                console.error(error);
-                let message = error.message;
-                if (error.code === 'auth/email-already-in-use') message = 'Этот email уже зарегистрирован';
-                alert('❌ Ошибка: ' + message);
+                alert(`${t('error')}: ${error.message}`);
             } finally {
                 showLoader(false);
             }
         });
 
-        resendBtn?.addEventListener('click', async () => {
-            if (tempRegData?.email) {
-                showLoader(true);
-                await sendEmailCode(tempRegData.email, 'verify');
-                startResendTimer(resendBtn); // Перезапускаем таймер
-                showLoader(false);
-            }
-        });
-
-        // Кнопка повторной отправки для сброса пароля (добавим ниже в reset логике)
-        const resendResetBtn = document.getElementById('resendResetCodeBtn');
-        resendResetBtn?.addEventListener('click', async () => {
-            if (resetEmail) {
-                showLoader(true);
-                await sendEmailCode(resetEmail, 'reset');
-                startResendTimer(resendResetBtn);
-                showLoader(false);
-            }
-        });
-
-        // ---------- ВХОД ----------
+        // Вход
         document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            
             showLoader(true);
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                document.getElementById('loginForm').reset();
+                const userCred = await signInWithEmailAndPassword(auth, 
+                    document.getElementById('loginEmail').value.trim(),
+                    document.getElementById('loginPassword').value
+                );
+                const docSnap = await getDoc(doc(db, "users", userCred.user.uid));
+                if (docSnap.exists()) {
+                    saveAccountToStorage(userCred.user.email, docSnap.data().nickname, docSnap.data().avatar);
+                }
                 showScreen('game');
             } catch (error) {
-                console.error(error);
-                let message = error.message;
-                if (error.code === 'auth/user-not-found') message = 'Пользователь не найден';
-                if (error.code === 'auth/wrong-password') message = 'Неверный пароль';
-                if (error.code === 'auth/invalid-email') message = 'Некорректный email';
-                alert('❌ Ошибка входа: ' + message);
+                alert(`${t('error')}: ${error.message}`);
             } finally {
                 showLoader(false);
             }
         });
 
-        // ---------- СБРОС ПАРОЛЯ ----------
+        document.getElementById('addAccountLoginForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoader(true);
+            try {
+                await signInWithEmailAndPassword(auth,
+                    document.getElementById('addAccountEmail').value.trim(),
+                    document.getElementById('addAccountPassword').value
+                );
+                showScreen('game');
+            } catch (error) {
+                alert(`${t('error')}: ${error.message}`);
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        // Сброс пароля
         let resetCodeSent = false;
         document.getElementById('resetForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const emailInput = document.getElementById('resetEmail');
-            const email = emailInput.value.trim();
-            const codeSection = document.getElementById('resetCodeSection');
-            const btn = document.getElementById('resetActionBtn');
+            const email = document.getElementById('resetEmail').value.trim();
             
             if (!resetCodeSent) {
                 showLoader(true);
                 resetEmail = email;
-                const code = await sendEmailCode(email, 'reset');
+                await sendEmailCode(email, 'reset');
                 resetCodeSent = true;
-                generatedCode = code;
-                
-                codeSection?.classList.remove('hidden');
-                btn.textContent = 'Сменить пароль';
-                
-                // Запускаем таймер для кнопки повторной отправки
-                startResendTimer(resendResetBtn);
-                
+                document.getElementById('resetCodeSection')?.classList.remove('hidden');
+                document.getElementById('resetActionBtn').textContent = t('changePassword');
+                startResendTimer(document.getElementById('resendResetCodeBtn'));
                 showLoader(false);
             } else {
-                const userCode = document.getElementById('resetCode').value;
+                if (document.getElementById('resetCode').value !== generatedCode) {
+                    alert(t('wrongCode'));
+                    return;
+                }
                 const newPass = document.getElementById('newPassword').value;
-                
-                if (userCode !== generatedCode) {
-                    alert('❌ Неверный код подтверждения');
-                    return;
-                }
-                
                 if (newPass.length < 6) {
-                    alert('❌ Пароль должен быть минимум 6 символов');
+                    alert(t('min6chars'));
                     return;
                 }
-                
                 showLoader(true);
                 try {
                     await sendPasswordResetEmail(auth, resetEmail);
-                    alert(`✅ Инструкция по сбросу пароля отправлена на ${resetEmail}`);
-                    
-                    document.getElementById('resetForm').reset();
-                    codeSection?.classList.add('hidden');
-                    btn.textContent = 'Отправить код';
-                    resetCodeSent = false;
-                    generatedCode = null;
-                    if (resendTimeout) clearInterval(resendTimeout);
-                    
+                    alert(`${t('success')}!`);
                     showScreen('login');
                 } catch (error) {
-                    console.error(error);
-                    alert('❌ Ошибка: ' + error.message);
+                    alert(`${t('error')}: ${error.message}`);
                 } finally {
                     showLoader(false);
                 }
             }
         });
 
-        // ---------- ОТСЛЕЖИВАНИЕ АВТОРИЗАЦИИ ----------
+        // Управление аккаунтом
+        document.getElementById('changeEmailBtn')?.addEventListener('click', () => {
+            document.getElementById('emailChangeSection').classList.remove('hidden');
+        });
+
+        document.getElementById('sendEmailChangeCodeBtn')?.addEventListener('click', async () => {
+            const newEmail = document.getElementById('newEmail').value.trim();
+            if (!newEmail) return;
+            showLoader(true);
+            pendingEmailChange = newEmail;
+            await sendEmailCode(newEmail, 'email_change');
+            document.getElementById('emailChangeCodeSection').classList.remove('hidden');
+            startResendTimer(document.getElementById('resendEmailChangeCodeBtn'));
+            showLoader(false);
+        });
+
+        document.getElementById('confirmEmailChangeBtn')?.addEventListener('click', async () => {
+            if (document.getElementById('emailChangeCode').value !== generatedCode) {
+                alert(t('wrongCode'));
+                return;
+            }
+            showLoader(true);
+            try {
+                const user = auth.currentUser;
+                const credential = EmailAuthProvider.credential(user.email, 
+                    document.getElementById('currentPasswordForEmail').value);
+                await reauthenticateWithCredential(user, credential);
+                await updateEmail(user, pendingEmailChange);
+                await updateDoc(doc(db, "users", user.uid), { email: pendingEmailChange });
+                alert(t('emailChanged'));
+                document.getElementById('emailChangeSection').classList.add('hidden');
+                document.getElementById('emailChangeCodeSection').classList.add('hidden');
+                loadAccountProfile(user);
+            } catch (error) {
+                alert(`${t('error')}: ${error.message}`);
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        document.getElementById('changePasswordBtn')?.addEventListener('click', () => {
+            document.getElementById('passwordChangeSection').classList.remove('hidden');
+        });
+
+        document.getElementById('confirmPasswordChangeBtn')?.addEventListener('click', async () => {
+            const currentPass = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newAccountPassword').value;
+            const confirmPass = document.getElementById('confirmNewPassword').value;
+            
+            if (newPass !== confirmPass) {
+                alert(t('passwordsNotMatch'));
+                return;
+            }
+            if (newPass.length < 6) {
+                alert(t('min6chars'));
+                return;
+            }
+            
+            showLoader(true);
+            try {
+                const user = auth.currentUser;
+                const credential = EmailAuthProvider.credential(user.email, currentPass);
+                await reauthenticateWithCredential(user, credential);
+                await updatePassword(user, newPass);
+                alert(t('passwordChanged'));
+                document.getElementById('passwordChangeSection').classList.add('hidden');
+            } catch (error) {
+                alert(`${t('error')}: ${error.message}`);
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+            deleteConfirmStep = 0;
+            document.getElementById('deleteConfirmSection').classList.remove('hidden');
+            document.getElementById('deleteConfirmText').textContent = t('confirmDelete1');
+            document.getElementById('confirmDeleteBtn').textContent = t('confirmDelete');
+        });
+
+        document.getElementById('confirmDeleteBtn')?.addEventListener('click', async () => {
+            const password = document.getElementById('deletePassword').value;
+            if (!password) {
+                alert(t('enterPasswordConfirm'));
+                return;
+            }
+            
+            if (deleteConfirmStep === 0) {
+                deleteConfirmStep = 1;
+                document.getElementById('deleteConfirmText').textContent = t('confirmDelete2');
+                document.getElementById('confirmDeleteBtn').textContent = t('deleteAccountConfirm');
+                return;
+            }
+            
+            showLoader(true);
+            try {
+                const user = auth.currentUser;
+                const credential = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credential);
+                await deleteDoc(doc(db, "users", user.uid));
+                await deleteUser(user);
+                savedAccounts = savedAccounts.filter(a => a.email !== user.email);
+                localStorage.setItem('savedAccounts', JSON.stringify(savedAccounts));
+                alert(t('accountDeleted'));
+                showScreen('landing');
+            } catch (error) {
+                alert(`${t('error')}: ${error.message}`);
+            } finally {
+                showLoader(false);
+                document.getElementById('deleteConfirmSection').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => {
+            document.getElementById('deleteConfirmSection').classList.add('hidden');
+        });
+
+        // Сохраненные аккаунты
+        document.getElementById('savedAccountsList')?.addEventListener('click', async (e) => {
+            const item = e.target.closest('.saved-account-item');
+            if (!item) return;
+            const password = prompt(`${t('enterPasswordConfirm')} ${item.dataset.email}:`);
+            if (!password) return;
+            showLoader(true);
+            try {
+                await signInWithEmailAndPassword(auth, item.dataset.email, password);
+                showScreen('game');
+            } catch {
+                alert(t('wrongCode'));
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        // Инициализация настроек
+        window.addEventListener('DOMContentLoaded', () => {
+            // Глазки
+            document.body.addEventListener('click', (e) => {
+                const icon = e.target.closest('.toggle-password');
+                if (!icon) return;
+                const input = document.getElementById(icon.dataset.target);
+                if (input) {
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+            });
+
+            // Настройки темы
+            const themeSelect = document.getElementById('themeSelect');
+            const customColorsDiv = document.getElementById('customColorsSection');
+            
+            themeSelect.value = currentTheme === 'custom' ? 'custom' : currentTheme;
+            customColorsDiv.classList.toggle('hidden', themeSelect.value !== 'custom');
+            
+            themeSelect.addEventListener('change', (e) => {
+                customColorsDiv.classList.toggle('hidden', e.target.value !== 'custom');
+                if (e.target.value !== 'custom') setTheme(e.target.value);
+            });
+
+            document.getElementById('bgColorPicker')?.addEventListener('input', (e) => {
+                document.documentElement.style.setProperty('--bg-dark', e.target.value);
+            });
+            document.getElementById('primaryColorPicker')?.addEventListener('input', (e) => {
+                document.documentElement.style.setProperty('--primary', e.target.value);
+            });
+            document.getElementById('secondaryColorPicker')?.addEventListener('input', (e) => {
+                document.documentElement.style.setProperty('--secondary', e.target.value);
+            });
+            document.getElementById('saveCustomColorsBtn')?.addEventListener('click', saveCustomColors);
+            document.getElementById('resetColorsBtn')?.addEventListener('click', resetColors);
+
+            // Язык
+            const langSelect = document.getElementById('languageSelect');
+            langSelect.value = currentLanguage;
+            langSelect.addEventListener('change', (e) => changeLanguage(e.target.value));
+
+            // Инициализация
+            applyTheme();
+            updateAllTexts();
+        });
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
-                    const docRef = doc(db, "users", user.uid);
-                    const docSnap = await getDoc(docRef);
-                    
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         document.getElementById('gameNickname').textContent = data.nickname || 'Игрок';
-                        document.getElementById('gameEmail').textContent = data.email || user.email;
                         document.getElementById('gameAvatar').textContent = data.avatar || '👤';
-                    } else {
-                        const defaultData = {
-                            nickname: user.email?.split('@')[0] || 'Игрок',
-                            email: user.email,
-                            avatar: generateAvatar(user.email?.split('@')[0] || ''),
-                            createdAt: new Date().toISOString()
-                        };
-                        await setDoc(doc(db, "users", user.uid), defaultData);
-                        document.getElementById('gameNickname').textContent = defaultData.nickname;
-                        document.getElementById('gameEmail').textContent = defaultData.email;
-                        document.getElementById('gameAvatar').textContent = defaultData.avatar;
+                        await loadAccountProfile(user);
                     }
-                } catch (error) {
-                    console.error('Ошибка загрузки профиля:', error);
-                }
+                    
+                    const savedList = document.getElementById('savedAccountsList');
+                    if (savedList) {
+                        savedList.innerHTML = savedAccounts.map(acc => `
+                            <div class="saved-account-item" data-email="${acc.email}">
+                                <div class="saved-avatar">${acc.avatar || '👤'}</div>
+                                <div class="saved-info">
+                                    <div class="saved-nickname">${acc.nickname}</div>
+                                    <div class="saved-email">${acc.email}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } catch (error) {}
                 
-                if (currentScreen !== 'reset') showScreen('game');
+                if (currentScreen !== 'reset' && currentScreen !== 'addAccount') showScreen('game');
             } else {
                 showScreen('landing');
             }
         });
-
-        // ---------- ИСПРАВЛЕНИЕ ГЛАЗКОВ (УНИВЕРСАЛЬНОЕ РЕШЕНИЕ) ----------
-        window.addEventListener('DOMContentLoaded', () => {
-            // Используем делегирование событий через document, чтобы работало при любых изменениях DOM
-            document.body.addEventListener('click', (e) => {
-                const toggleIcon = e.target.closest('.toggle-password');
-                if (!toggleIcon) return;
-                
-                const targetId = toggleIcon.dataset.target;
-                const input = document.getElementById(targetId);
-                
-                if (input) {
-                    const isPassword = input.type === 'password';
-                    input.type = isPassword ? 'text' : 'password';
-                    
-                    // Меняем иконку
-                    toggleIcon.classList.toggle('fa-eye');
-                    toggleIcon.classList.toggle('fa-eye-slash');
-                    
-                    // Предотвращаем всплытие, чтобы случайно не отправить форму
-                    e.preventDefault();
-                }
-            });
-            
-            // Сброс таймеров при загрузке
-            if (resendTimeout) clearInterval(resendTimeout);
-        });
     </script>
     <style>
-        /* ==================== СТИЛИ ==================== */
         :root {
             --bg-dark: #0b0f19;
             --bg-card: #1a2332;
@@ -467,7 +1576,7 @@
 
         #app {
             width: 100%;
-            max-width: 450px;
+            max-width: 550px;
             position: relative;
         }
 
@@ -487,16 +1596,15 @@
 
         .card {
             background: var(--bg-card);
-            padding: 32px 28px;
+            padding: 24px 20px;
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
             text-align: center;
-            backdrop-filter: blur(5px);
         }
 
         h1 {
             margin-bottom: 30px;
-            color: #fff;
+            color: var(--text-light);
             font-size: 32px;
             font-weight: 800;
             text-shadow: 3px 3px 0 var(--primary-dark);
@@ -505,150 +1613,238 @@
 
         h2 {
             margin-bottom: 24px;
-            color: #fff;
-            font-size: 26px;
+            color: var(--text-light);
+            font-size: 24px;
             font-weight: 700;
-            text-shadow: 2px 2px 0 var(--primary-dark);
         }
 
         h3 {
-            color: #fff;
+            color: var(--text-light);
             margin: 10px 0 5px;
         }
 
         .btn {
             border: none;
             border-radius: 40px;
-            padding: 14px 24px;
-            font-size: 16px;
+            padding: 12px 20px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin: 8px 0;
+            margin: 5px 0;
             background: transparent;
             color: var(--text-light);
             display: inline-block;
-            text-align: center;
         }
         
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
-            box-shadow: 0 3px 0 var(--primary-dark) !important;
         }
 
         .btn.primary {
             background: var(--primary);
             color: white;
-            box-shadow: 0 5px 0 var(--primary-dark);
-        }
-        .btn.primary:hover:not(:disabled) {
-            background: #ff4d6d;
-            transform: translateY(-2px);
-            box-shadow: 0 7px 0 var(--primary-dark);
-        }
-        .btn.primary:active:not(:disabled) {
-            transform: translateY(2px);
-            box-shadow: 0 3px 0 var(--primary-dark);
+            box-shadow: 0 4px 0 var(--primary-dark);
         }
 
         .btn.secondary {
             background: var(--secondary);
-            border: 1px solid #1f4a7a;
+            border: 1px solid var(--border-color);
         }
-        .btn.secondary:hover:not(:disabled) {
-            background: #1a4070;
+
+        .btn.danger {
+            background: var(--error);
+            color: white;
         }
 
         .btn.link {
-            color: #7aa5ff;
+            color: var(--primary);
             text-decoration: underline;
-            background: none;
-            padding: 10px;
-        }
-        .btn.link:hover {
-            color: #a5c4ff;
         }
 
         .btn.text {
             color: var(--text-muted);
-            background: none;
-        }
-        .btn.text:hover {
-            color: white;
         }
 
         .full-width {
             width: 100%;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 15px 18px;
-            margin: 10px 0;
-            background: #0d1421;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: color-mix(in srgb, var(--bg-card) 80%, black);
             border: 2px solid var(--border-color);
             border-radius: 40px;
-            color: white;
-            font-size: 15px;
+            color: var(--text-light);
+            font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
         }
-        input:focus {
+        
+        input:focus, select:focus {
             border-color: var(--primary);
-        }
-        input::placeholder {
-            color: #6a7c94;
         }
 
         .password-wrapper {
             position: relative;
             display: flex;
             align-items: center;
-            margin: 10px 0;
+            margin: 8px 0;
         }
+        
         .password-wrapper input {
             margin: 0;
-            padding-right: 50px;
+            padding-right: 45px;
         }
+        
         .toggle-password {
             position: absolute;
-            right: 18px;
+            right: 15px;
             cursor: pointer;
             color: var(--text-muted);
-            font-size: 20px;
-            transition: color 0.2s;
-        }
-        .toggle-password:hover {
-            color: white;
+            font-size: 18px;
         }
 
         .avatar-placeholder {
-            width: 90px;
-            height: 90px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: linear-gradient(145deg, var(--primary), #ff6b8b);
+            background: linear-gradient(145deg, var(--primary), color-mix(in srgb, var(--primary) 70%, white));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 38px;
+            font-size: 28px;
             font-weight: bold;
             color: white;
-            margin: 0 auto 12px;
+            margin: 0 auto 10px;
             text-transform: uppercase;
-            box-shadow: 0 6px 0 var(--primary-dark), 0 10px 20px rgba(0,0,0,0.3);
-            border: 3px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 0 var(--primary-dark);
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
-        .avatar-section {
-            margin-bottom: 10px;
+        .avatar-large {
+            width: 100px;
+            height: 100px;
+            font-size: 40px;
+            margin: 15px auto;
         }
 
-        .hint {
-            font-size: 13px;
-            color: var(--text-muted);
+        .hidden {
+            display: none !important;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 24px;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .tabs-container {
+            display: flex;
+            background: color-mix(in srgb, var(--bg-card) 80%, black);
+            border-radius: 40px;
+            padding: 5px;
             margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 5px;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .saved-account-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: color-mix(in srgb, var(--bg-card) 80%, black);
+            border-radius: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .saved-account-item:hover {
+            border-color: var(--primary);
+        }
+
+        .saved-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .saved-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .saved-nickname {
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .saved-email {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .settings-section {
+            background: color-mix(in srgb, var(--bg-card) 80%, black);
+            border-radius: 16px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .settings-section h4 {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .danger-zone {
+            border: 2px solid var(--error);
+            background: rgba(244, 67, 54, 0.1);
         }
 
         .error-text {
@@ -669,58 +1865,34 @@
             padding-left: 10px;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
+        .color-picker-row {
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: var(--primary);
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
+            gap: 10px;
+            margin: 10px 0;
         }
 
-        #gameScreen .card {
-            padding: 30px 25px;
-        }
-
-        #userProfile {
-            margin: 25px 0;
-        }
-
-        #gameNickname {
-            font-size: 28px;
-            color: var(--primary);
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        #gameEmail {
+        .color-picker-row label {
+            flex: 1;
             color: var(--text-muted);
-            margin-bottom: 20px;
         }
 
-        #verificationSection, #resetCodeSection {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed var(--border-color);
+        .color-picker-row input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 2px;
         }
 
         @media (max-width: 480px) {
             .card {
-                padding: 24px 18px;
+                padding: 20px 15px;
             }
             h1 {
                 font-size: 26px;
+            }
+            .tab-btn {
+                font-size: 10px;
+                padding: 8px 2px;
             }
         }
     </style>
@@ -730,7 +1902,7 @@
         <div id="loader" class="hidden">
             <div style="text-align: center;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 40px; margin-bottom: 15px;"></i><br>
-                Загрузка...
+                <span data-i18n="loading">Загрузка...</span>
             </div>
         </div>
         
@@ -738,11 +1910,11 @@
         <div id="landing" class="screen active">
             <div class="card">
                 <h1>⚔️ CLASH OF MAS ⚔️</h1>
-                <p style="margin-bottom: 25px; color: var(--text-muted);">Добро пожаловать в битву!</p>
-                <button id="showRegisterBtn" class="btn primary full-width">
+                <p style="margin-bottom: 25px; color: var(--text-muted);" data-i18n="welcome">Добро пожаловать в битву!</p>
+                <button id="showRegisterBtn" class="btn primary full-width" data-i18n-html="register">
                     <i class="fas fa-user-plus" style="margin-right: 8px;"></i>Зарегистрироваться
                 </button>
-                <button id="showLoginBtn" class="btn secondary full-width">
+                <button id="showLoginBtn" class="btn secondary full-width" data-i18n-html="login">
                     <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Войти
                 </button>
             </div>
@@ -751,17 +1923,17 @@
         <!-- Экран Входа -->
         <div id="loginScreen" class="screen">
             <div class="card">
-                <h2><i class="fas fa-key" style="margin-right: 10px;"></i>Вход</h2>
+                <h2 data-i18n="loginTitle">Вход</h2>
                 <form id="loginForm">
-                    <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
+                    <input type="email" id="loginEmail" data-i18n="email" placeholder="Email" required>
                     <div class="password-wrapper">
-                        <input type="password" id="loginPassword" placeholder="Пароль" required autocomplete="current-password">
+                        <input type="password" id="loginPassword" data-i18n="password" placeholder="Пароль" required>
                         <i class="far fa-eye toggle-password" data-target="loginPassword"></i>
                     </div>
-                    <button type="submit" class="btn primary full-width">Войти в аккаунт</button>
+                    <button type="submit" class="btn primary full-width" data-i18n="loginBtn">Войти в аккаунт</button>
                 </form>
-                <button id="forgotPasswordBtn" class="btn link">🤔 Забыл(а) пароль?</button>
-                <button id="backFromLoginBtn" class="btn text">
+                <button id="forgotPasswordBtn" class="btn link" data-i18n="forgotPassword">🤔 Забыл(а) пароль?</button>
+                <button id="backFromLoginBtn" class="btn text" data-i18n-html="backToHome">
                     <i class="fas fa-arrow-left"></i> На главную
                 </button>
             </div>
@@ -770,38 +1942,38 @@
         <!-- Экран Регистрации -->
         <div id="registerScreen" class="screen">
             <div class="card">
-                <h2><i class="fas fa-user-plus"></i> Регистрация</h2>
+                <h2 data-i18n="registerTitle">Регистрация</h2>
                 <form id="registerForm">
                     <div class="avatar-section">
                         <div id="avatarPreview" class="avatar-placeholder">👤</div>
-                        <p class="hint">Аватар создаётся из первых букв ника</p>
+                        <p class="hint" style="color: var(--text-muted);" data-i18n="avatarHint">Аватар создаётся из первых букв ника</p>
                     </div>
                     
-                    <input type="text" id="regNickname" placeholder="Никнейм" required minlength="3" autocomplete="off">
+                    <input type="text" id="regNickname" data-i18n="nickname" placeholder="Никнейм" required minlength="3">
                     <span id="nicknameStatus" class="validation-hint"></span>
                     
-                    <input type="email" id="regEmail" placeholder="Email" required autocomplete="email">
+                    <input type="email" id="regEmail" data-i18n="email" placeholder="Email" required>
                     
                     <div class="password-wrapper">
-                        <input type="password" id="regPassword" placeholder="Пароль" required minlength="6" autocomplete="new-password">
+                        <input type="password" id="regPassword" data-i18n="password" placeholder="Пароль" required minlength="6">
                         <i class="far fa-eye toggle-password" data-target="regPassword"></i>
                     </div>
                     <div class="password-wrapper">
-                        <input type="password" id="regPasswordConfirm" placeholder="Подтвердите пароль" required autocomplete="new-password">
+                        <input type="password" id="regPasswordConfirm" data-i18n="confirmPassword" placeholder="Подтвердите пароль" required>
                         <i class="far fa-eye toggle-password" data-target="regPasswordConfirm"></i>
                     </div>
                     <span id="passwordMatchError" class="error-text"></span>
 
                     <div id="verificationSection" class="hidden">
-                        <p style="margin: 15px 0 10px; color: var(--text-muted);">Введите код из письма</p>
-                        <input type="text" id="verificationCode" placeholder="123456" maxlength="6" inputmode="numeric">
-                        <button type="button" id="verifyEmailBtn" class="btn secondary full-width">✅ Подтвердить Email</button>
-                        <button type="button" id="resendCodeBtn" class="btn text">📧 Отправить код повторно</button>
+                        <p style="margin: 15px 0 10px; color: var(--text-muted);" data-i18n="enterCode">Введите код из письма</p>
+                        <input type="text" id="verificationCode" placeholder="123456" maxlength="6">
+                        <button type="button" id="verifyEmailBtn" class="btn secondary full-width" data-i18n="confirmEmail">✅ Подтвердить Email</button>
+                        <button type="button" id="resendCodeBtn" class="btn text" data-i18n="resendCode">📧 Отправить код повторно</button>
                     </div>
 
-                    <button type="submit" id="registerSubmitBtn" class="btn primary full-width">📝 Продолжить</button>
+                    <button type="submit" id="registerSubmitBtn" class="btn primary full-width" data-i18n="continue">📝 Продолжить</button>
                 </form>
-                <button id="backFromRegBtn" class="btn text">
+                <button id="backFromRegBtn" class="btn text" data-i18n-html="backToHome">
                     <i class="fas fa-arrow-left"></i> На главную
                 </button>
             </div>
@@ -810,45 +1982,234 @@
         <!-- Экран Сброса пароля -->
         <div id="resetPasswordScreen" class="screen">
             <div class="card">
-                <h2><i class="fas fa-lock"></i> Сброс пароля</h2>
+                <h2 data-i18n="resetTitle">Сброс пароля</h2>
                 <form id="resetForm">
-                    <input type="email" id="resetEmail" placeholder="Ваш Email" required autocomplete="email">
+                    <input type="email" id="resetEmail" data-i18n="yourEmail" placeholder="Ваш Email" required>
                     
                     <div id="resetCodeSection" class="hidden">
-                        <input type="text" id="resetCode" placeholder="Код из письма" inputmode="numeric" maxlength="6">
+                        <input type="text" id="resetCode" data-i18n="codeFromEmail" placeholder="Код из письма" maxlength="6">
                         <div class="password-wrapper">
-                            <input type="password" id="newPassword" placeholder="Новый пароль" minlength="6" autocomplete="new-password">
+                            <input type="password" id="newPassword" data-i18n="newPassword" placeholder="Новый пароль" minlength="6">
                             <i class="far fa-eye toggle-password" data-target="newPassword"></i>
                         </div>
-                        <button type="button" id="resendResetCodeBtn" class="btn text">📧 Отправить код повторно</button>
+                        <button type="button" id="resendResetCodeBtn" class="btn text" data-i18n="resendCode">📧 Отправить код повторно</button>
                     </div>
                     
-                    <button type="submit" id="resetActionBtn" class="btn primary full-width">
+                    <button type="submit" id="resetActionBtn" class="btn primary full-width" data-i18n="sendCode">
                         📤 Отправить код
                     </button>
                 </form>
-                <button id="backFromResetBtn" class="btn text">
+                <button id="backFromResetBtn" class="btn text" data-i18n-html="backToLogin">
                     <i class="fas fa-arrow-left"></i> Назад ко входу
                 </button>
             </div>
         </div>
 
-        <!-- Игровой экран -->
-        <div id="gameScreen" class="screen">
+        <!-- Экран добавления аккаунта -->
+        <div id="addAccountScreen" class="screen">
             <div class="card">
-                <h2>🏰 CLASH OF MAS</h2>
-                <div id="userProfile">
-                    <div id="gameAvatar" class="avatar-placeholder">👤</div>
-                    <h3 id="gameNickname">Игрок</h3>
-                    <p id="gameEmail">email@example.com</p>
+                <h2 data-i18n="addAccount">Добавить аккаунт</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: var(--text-muted); margin-bottom: 15px;" data-i18n="savedAccounts">Сохраненные аккаунты</h4>
+                    <div id="savedAccountsList"></div>
                 </div>
-                <div style="background: rgba(233,69,96,0.1); padding: 20px; border-radius: 16px; margin: 20px 0;">
-                    <i class="fas fa-gamepad" style="font-size: 40px; color: var(--primary);"></i>
-                    <p style="margin-top: 10px;">Добро пожаловать в игру!<br>Здесь будет ваш геймплей.</p>
+                
+                <div style="border-top: 1px solid var(--border-color); padding-top: 20px;">
+                    <h4 style="color: var(--text-muted); margin-bottom: 15px;" data-i18n="loginOther">Войти в другой аккаунт</h4>
+                    <form id="addAccountLoginForm">
+                        <input type="email" id="addAccountEmail" data-i18n="email" placeholder="Email" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="addAccountPassword" data-i18n="password" placeholder="Пароль" required>
+                            <i class="far fa-eye toggle-password" data-target="addAccountPassword"></i>
+                        </div>
+                        <button type="submit" class="btn primary full-width" data-i18n="login">Войти</button>
+                    </form>
                 </div>
-                <button id="logoutBtn" class="btn secondary full-width">
-                    <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
+                
+                <button id="backFromAddAccountBtn" class="btn text" data-i18n-html="back">
+                    <i class="fas fa-arrow-left"></i> Назад
                 </button>
+            </div>
+        </div>
+
+        <!-- Игровой экран с вкладками -->
+        <div id="gameScreen" class="screen">
+            <div class="card" style="padding: 20px 15px;">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <div id="gameAvatar" class="avatar-placeholder" style="width: 50px; height: 50px; font-size: 20px; margin: 0 12px 0 0;">👤</div>
+                    <div style="text-align: left;">
+                        <h3 id="gameNickname" style="margin: 0;">Игрок</h3>
+                    </div>
+                </div>
+                
+                <div class="tabs-container">
+                    <button class="tab-btn active" data-tab="home" data-i18n="home">🏠 Главная</button>
+                    <button class="tab-btn" data-tab="characters" data-i18n="characters">⚔️ Персонажи</button>
+                    <button class="tab-btn" data-tab="clan" data-i18n="clan">🏰 Клан</button>
+                    <button class="tab-btn" data-tab="account" data-i18n="account">👤 Аккаунт</button>
+                    <button class="tab-btn" data-tab="settings" data-i18n="settings">⚙️ Настройки</button>
+                </div>
+                
+                <div id="tab-home" class="tab-content active">
+                    <div style="padding: 20px 0;">
+                        <i class="fas fa-gamepad" style="font-size: 50px; color: var(--primary);"></i>
+                        <h3 style="margin: 15px 0;" data-i18n="welcomeGame">Добро пожаловать в игру!</h3>
+                        <p style="color: var(--text-muted);" data-i18n="gameplayHere">Здесь будет основной геймплей</p>
+                    </div>
+                </div>
+                
+                <div id="tab-characters" class="tab-content">
+                    <div style="padding: 20px 0;">
+                        <i class="fas fa-users" style="font-size: 50px; color: var(--primary);"></i>
+                        <h3 style="margin: 15px 0;" data-i18n="yourCharacters">Ваши персонажи</h3>
+                        <p style="color: var(--text-muted);" data-i18n="charactersHere">Здесь будут ваши персонажи</p>
+                    </div>
+                </div>
+                
+                <div id="tab-clan" class="tab-content">
+                    <div style="padding: 20px 0;">
+                        <i class="fas fa-flag" style="font-size: 50px; color: var(--primary);"></i>
+                        <h3 style="margin: 15px 0;" data-i18n="clan">Клан</h3>
+                        <p style="color: var(--text-muted);" data-i18n="clanHere">Здесь будет информация о клане</p>
+                    </div>
+                </div>
+                
+                <div id="tab-account" class="tab-content">
+                    <div style="padding: 10px 0;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div id="accountAvatarLarge" class="avatar-placeholder avatar-large">👤</div>
+                            <h3 id="accountNickname">Игрок</h3>
+                            <p id="accountEmail" style="color: var(--text-muted);">email@example.com</p>
+                        </div>
+                        
+                        <button id="addAccountBtn" class="btn secondary full-width" data-i18n-html="addAccount">
+                            <i class="fas fa-user-plus"></i> Добавить аккаунт
+                        </button>
+                        
+                        <div class="settings-section">
+                            <h4 data-i18n="changeEmail">Изменить Email</h4>
+                            <button id="changeEmailBtn" class="btn secondary full-width" data-i18n="changeEmailBtn">Сменить Email</button>
+                            
+                            <div id="emailChangeSection" class="hidden" style="margin-top: 15px;">
+                                <input type="email" id="newEmail" data-i18n="newEmail" placeholder="Новый Email">
+                                <button id="sendEmailChangeCodeBtn" class="btn primary full-width" data-i18n="sendCode">Отправить код</button>
+                                
+                                <div id="emailChangeCodeSection" class="hidden">
+                                    <input type="text" id="emailChangeCode" data-i18n="codeFromEmail" placeholder="Код подтверждения" maxlength="6">
+                                    <div class="password-wrapper">
+                                        <input type="password" id="currentPasswordForEmail" data-i18n="currentPassword" placeholder="Текущий пароль">
+                                        <i class="far fa-eye toggle-password" data-target="currentPasswordForEmail"></i>
+                                    </div>
+                                    <button id="confirmEmailChangeBtn" class="btn primary full-width" data-i18n="confirmEmailChange">Подтвердить смену Email</button>
+                                    <button type="button" id="resendEmailChangeCodeBtn" class="btn text" data-i18n="resendCode">📧 Отправить код повторно</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 data-i18n="changePassword">Изменить пароль</h4>
+                            <button id="changePasswordBtn" class="btn secondary full-width" data-i18n="changePasswordBtn">Сменить пароль</button>
+                            
+                            <div id="passwordChangeSection" class="hidden" style="margin-top: 15px;">
+                                <div class="password-wrapper">
+                                    <input type="password" id="currentPassword" data-i18n="currentPassword" placeholder="Текущий пароль">
+                                    <i class="far fa-eye toggle-password" data-target="currentPassword"></i>
+                                </div>
+                                <div class="password-wrapper">
+                                    <input type="password" id="newAccountPassword" data-i18n="newPassword" placeholder="Новый пароль">
+                                    <i class="far fa-eye toggle-password" data-target="newAccountPassword"></i>
+                                </div>
+                                <div class="password-wrapper">
+                                    <input type="password" id="confirmNewPassword" data-i18n="confirmNewPassword" placeholder="Подтвердите новый пароль">
+                                    <i class="far fa-eye toggle-password" data-target="confirmNewPassword"></i>
+                                </div>
+                                <button id="confirmPasswordChangeBtn" class="btn primary full-width" data-i18n="confirmPasswordChange">Подтвердить смену пароля</button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 data-i18n="logout">Выйти из аккаунта</h4>
+                            <button id="logoutBtn" class="btn secondary full-width" data-i18n="logout">Выйти из аккаунта</button>
+                        </div>
+                        
+                        <div class="settings-section danger-zone">
+                            <h4 style="color: var(--error);" data-i18n="deleteAccount">Удалить аккаунт</h4>
+                            <button id="deleteAccountBtn" class="btn danger full-width" data-i18n="deleteAccountBtn">Удалить аккаунт</button>
+                            
+                            <div id="deleteConfirmSection" class="hidden" style="margin-top: 15px;">
+                                <p id="deleteConfirmText" style="color: var(--error); margin-bottom: 10px;"></p>
+                                <div class="password-wrapper">
+                                    <input type="password" id="deletePassword" data-i18n="enterPasswordConfirm" placeholder="Введите пароль для подтверждения">
+                                    <i class="far fa-eye toggle-password" data-target="deletePassword"></i>
+                                </div>
+                                <button id="confirmDeleteBtn" class="btn danger full-width" data-i18n="confirmDelete">Да, я уверен (1/2)</button>
+                                <button id="cancelDeleteBtn" class="btn text full-width" data-i18n="cancel">Отмена</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tab-settings" class="tab-content">
+                    <div style="padding: 10px 0;">
+                        <div class="settings-section">
+                            <h4 data-i18n="themeSettings">Настройки темы</h4>
+                            <select id="themeSelect" class="full-width" style="margin-bottom: 15px;">
+                                <option value="dark" data-i18n="darkTheme">Темная тема</option>
+                                <option value="light" data-i18n="lightTheme">Светлая тема</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            
+                            <div id="customColorsSection" class="hidden">
+                                <h5 style="color: var(--text-muted); margin: 15px 0 10px;" data-i18n="customColors">Настройка цветов</h5>
+                                <div class="color-picker-row">
+                                    <label data-i18n="backgroundColor">Цвет фона</label>
+                                    <input type="color" id="bgColorPicker" value="#0b0f19">
+                                </div>
+                                <div class="color-picker-row">
+                                    <label data-i18n="primaryColor">Основной цвет</label>
+                                    <input type="color" id="primaryColorPicker" value="#e94560">
+                                </div>
+                                <div class="color-picker-row">
+                                    <label data-i18n="secondaryColor">Вторичный цвет</label>
+                                    <input type="color" id="secondaryColorPicker" value="#0f3460">
+                                </div>
+                                <button id="saveCustomColorsBtn" class="btn primary full-width" data-i18n="saveSettings">Сохранить настройки</button>
+                                <button id="resetColorsBtn" class="btn text full-width" data-i18n="resetColors">Сбросить цвета</button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 data-i18n="languageSettings">Язык</h4>
+                            <select id="languageSelect" class="full-width">
+                                <option value="ru">Русский</option>
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                                <option value="zh">中文</option>
+                                <option value="ar">العربية</option>
+                                <option value="pt">Português</option>
+                                <option value="hi">हिन्दी</option>
+                                <option value="ja">日本語</option>
+                            </select>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 data-i18n="soundSettings">Звук</h4>
+                            <label style="display: flex; align-items: center; gap: 10px; color: var(--text-light);">
+                                <input type="checkbox" checked> <span data-i18n="enableSound">Включить звук</span>
+                            </label>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h4 data-i18n="notifications">Уведомления</h4>
+                            <label style="display: flex; align-items: center; gap: 10px; color: var(--text-light);">
+                                <input type="checkbox" checked> <span data-i18n="enableNotifications">Включить уведомления</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
