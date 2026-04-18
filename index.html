@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚔️ Clash of MAS · Вход и Регистрация</title>
-    <!-- Font Awesome для иконок (глазки) -->
+    <!-- Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Firebase SDK -->
     <script type="module">
@@ -19,9 +19,6 @@
         } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         // ---------- НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ) ----------
-        // 1. Firebase конфигурация (возьмите из консоли Firebase)
-        // ---------- НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ) ----------
-        // 1. Firebase конфигурация (возьмите из консоли Firebase)
         const firebaseConfig = {
             apiKey: "AIzaSyCgx-V8GP_cgCZLGws2e1pHZ5OnMy20nxk",
             authDomain: "clash-of-mas.firebaseapp.com",
@@ -31,10 +28,10 @@
             appId: "1:403759349179:web:62c2c68604b1c0334a589e"
         };
 
-        // 2. EmailJS настройки (замените на свои из EmailJS)
-        const EMAILJS_PUBLIC_KEY = "NpbBqnbjRAYFfBZc5";      // ваш публичный ключ
-        const EMAILJS_SERVICE_ID = "service_unkraqr";              // ID сервиса
-        const EMAILJS_TEMPLATE_ID = "template_zsa2enw";            // ID шаблона
+        // 2. EmailJS настройки
+        const EMAILJS_PUBLIC_KEY = "NpbBqnbjRAYFfBZc5";
+        const EMAILJS_SERVICE_ID = "service_unkraqr";
+        const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
 
         // ---------- ИНИЦИАЛИЗАЦИЯ ----------
         const app = initializeApp(firebaseConfig);
@@ -51,9 +48,15 @@
 
         // Глобальные переменные состояния
         let currentScreen = 'landing';
-        let tempRegData = null;           // временные данные до подтверждения email
-        let generatedCode = null;         // сгенерированный код подтверждения
-        let resetEmail = '';              // email для сброса пароля
+        let tempRegData = null;
+        let generatedCode = null;
+        let resetEmail = '';
+        
+        // Таймер для повторной отправки кода
+        let resendTimeout = null;
+        let resendSecondsLeft = 0;
+        const resendBtn = document.getElementById('resendCodeBtn');
+        const resendBtnReset = document.getElementById('resendResetCodeBtn');
 
         // DOM элементы
         const screens = {
@@ -76,7 +79,6 @@
             loader.classList.toggle('hidden', !show);
         }
 
-        // Генерация аватарки по нику (первые буквы)
         function generateAvatar(nickname) {
             if (!nickname) return '👤';
             const words = nickname.trim().split(/\s+/);
@@ -85,11 +87,36 @@
             return (first + second).toUpperCase() || '👤';
         }
 
-        // Проверка уникальности ника в Firestore
         async function isNicknameUnique(nickname) {
             const q = query(collection(db, "users"), where("nickname", "==", nickname));
             const snapshot = await getDocs(q);
             return snapshot.empty;
+        }
+
+        // Функция запуска таймера для кнопки повторной отправки
+        function startResendTimer(btnElement, seconds = 120) {
+            if (resendTimeout) clearInterval(resendTimeout);
+            resendSecondsLeft = seconds;
+            
+            const originalText = btnElement.innerHTML;
+            btnElement.disabled = true;
+            
+            const updateTimer = () => {
+                if (resendSecondsLeft <= 0) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '📧 Отправить код повторно';
+                    clearInterval(resendTimeout);
+                    resendTimeout = null;
+                    return;
+                }
+                const mins = Math.floor(resendSecondsLeft / 60);
+                const secs = resendSecondsLeft % 60;
+                btnElement.innerHTML = `⏳ Повтор через ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                resendSecondsLeft--;
+            };
+            
+            updateTimer();
+            resendTimeout = setInterval(updateTimer, 1000);
         }
 
         // Отправка кода подтверждения через EmailJS
@@ -105,14 +132,12 @@
             };
             
             try {
-                // Реальная отправка через EmailJS (если ключи указаны)
                 if (EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
                     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
                     alert(`📧 Код отправлен на ${email}`);
                 } else {
-                    // Демо-режим (EmailJS не настроен)
-                    console.warn('EmailJS не настроен. Используйте демо-код:', code);
-                    alert(`🔐 ДЕМО-РЕЖИМ\nEmailJS не настроен.\nВаш код подтверждения: ${code}`);
+                    console.warn('EmailJS не настроен. Демо-код:', code);
+                    alert(`🔐 ДЕМО-РЕЖИМ\nКод подтверждения: ${code}`);
                 }
                 return code;
             } catch (error) {
@@ -122,29 +147,14 @@
             }
         }
 
-        // Переключение видимости пароля
-        function setupPasswordToggles() {
-            document.querySelectorAll('.toggle-password').forEach(icon => {
-                icon.addEventListener('click', (e) => {
-                    const targetId = e.currentTarget.dataset.target;
-                    const input = document.getElementById(targetId);
-                    if (input) {
-                        const isPassword = input.type === 'password';
-                        input.type = isPassword ? 'text' : 'password';
-                        e.currentTarget.classList.toggle('fa-eye');
-                        e.currentTarget.classList.toggle('fa-eye-slash');
-                    }
-                });
-            });
-        }
-
-        // ---------- НАВИГАЦИЯ (КНОПКИ) ----------
+        // ---------- НАВИГАЦИЯ ----------
         document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('register'));
         document.getElementById('showLoginBtn')?.addEventListener('click', () => showScreen('login'));
         document.getElementById('backFromLoginBtn')?.addEventListener('click', () => showScreen('landing'));
         document.getElementById('backFromRegBtn')?.addEventListener('click', () => {
             document.getElementById('verificationSection')?.classList.add('hidden');
             document.getElementById('registerSubmitBtn')?.classList.remove('hidden');
+            if (resendTimeout) clearInterval(resendTimeout);
             showScreen('landing');
         });
         document.getElementById('forgotPasswordBtn')?.addEventListener('click', () => {
@@ -152,7 +162,10 @@
             document.getElementById('resetEmail').value = emailInput?.value || '';
             showScreen('reset');
         });
-        document.getElementById('backFromResetBtn')?.addEventListener('click', () => showScreen('login'));
+        document.getElementById('backFromResetBtn')?.addEventListener('click', () => {
+            if (resendTimeout) clearInterval(resendTimeout);
+            showScreen('login');
+        });
         document.getElementById('logoutBtn')?.addEventListener('click', () => signOut(auth));
 
         // ---------- РЕГИСТРАЦИЯ ----------
@@ -201,12 +214,15 @@
             errorSpan.textContent = '';
             showLoader(true);
             
-            // Отправляем код подтверждения
             const code = await sendEmailCode(email, 'verify');
             tempRegData = { nickname, email, password, avatar: generateAvatar(nickname) };
             
             document.getElementById('verificationSection')?.classList.remove('hidden');
             document.getElementById('registerSubmitBtn')?.classList.add('hidden');
+            
+            // Запускаем таймер для кнопки повторной отправки
+            startResendTimer(resendBtn);
+            
             showLoader(false);
         });
 
@@ -224,10 +240,7 @@
             
             showLoader(true);
             try {
-                // Создаём пользователя в Firebase Auth
                 const userCred = await createUserWithEmailAndPassword(auth, tempRegData.email, tempRegData.password);
-                
-                // Сохраняем дополнительные данные в Firestore
                 await setDoc(doc(db, "users", userCred.user.uid), {
                     nickname: tempRegData.nickname,
                     email: tempRegData.email,
@@ -237,13 +250,13 @@
                 
                 alert('✅ Регистрация успешна! Добро пожаловать в Clash of MAS!');
                 
-                // Очистка формы
                 document.getElementById('registerForm').reset();
                 document.getElementById('verificationSection')?.classList.add('hidden');
                 document.getElementById('registerSubmitBtn')?.classList.remove('hidden');
                 avatarPreview.textContent = '👤';
                 tempRegData = null;
                 generatedCode = null;
+                if (resendTimeout) clearInterval(resendTimeout);
                 
                 showScreen('game');
             } catch (error) {
@@ -256,10 +269,22 @@
             }
         });
 
-        document.getElementById('resendCodeBtn')?.addEventListener('click', async () => {
+        resendBtn?.addEventListener('click', async () => {
             if (tempRegData?.email) {
                 showLoader(true);
                 await sendEmailCode(tempRegData.email, 'verify');
+                startResendTimer(resendBtn); // Перезапускаем таймер
+                showLoader(false);
+            }
+        });
+
+        // Кнопка повторной отправки для сброса пароля (добавим ниже в reset логике)
+        const resendResetBtn = document.getElementById('resendResetCodeBtn');
+        resendResetBtn?.addEventListener('click', async () => {
+            if (resetEmail) {
+                showLoader(true);
+                await sendEmailCode(resetEmail, 'reset');
+                startResendTimer(resendResetBtn);
                 showLoader(false);
             }
         });
@@ -297,7 +322,6 @@
             const btn = document.getElementById('resetActionBtn');
             
             if (!resetCodeSent) {
-                // Шаг 1: Отправка кода
                 showLoader(true);
                 resetEmail = email;
                 const code = await sendEmailCode(email, 'reset');
@@ -306,9 +330,12 @@
                 
                 codeSection?.classList.remove('hidden');
                 btn.textContent = 'Сменить пароль';
+                
+                // Запускаем таймер для кнопки повторной отправки
+                startResendTimer(resendResetBtn);
+                
                 showLoader(false);
             } else {
-                // Шаг 2: Проверка кода и смена пароля
                 const userCode = document.getElementById('resetCode').value;
                 const newPass = document.getElementById('newPassword').value;
                 
@@ -324,16 +351,15 @@
                 
                 showLoader(true);
                 try {
-                    // Отправляем письмо для сброса пароля через Firebase
                     await sendPasswordResetEmail(auth, resetEmail);
                     alert(`✅ Инструкция по сбросу пароля отправлена на ${resetEmail}`);
                     
-                    // Сброс формы
                     document.getElementById('resetForm').reset();
                     codeSection?.classList.add('hidden');
                     btn.textContent = 'Отправить код';
                     resetCodeSent = false;
                     generatedCode = null;
+                    if (resendTimeout) clearInterval(resendTimeout);
                     
                     showScreen('login');
                 } catch (error) {
@@ -348,7 +374,6 @@
         // ---------- ОТСЛЕЖИВАНИЕ АВТОРИЗАЦИИ ----------
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Загружаем данные профиля из Firestore
                 try {
                     const docRef = doc(db, "users", user.uid);
                     const docSnap = await getDoc(docRef);
@@ -359,7 +384,6 @@
                         document.getElementById('gameEmail').textContent = data.email || user.email;
                         document.getElementById('gameAvatar').textContent = data.avatar || '👤';
                     } else {
-                        // Если профиля нет в Firestore, создаём базовый
                         const defaultData = {
                             nickname: user.email?.split('@')[0] || 'Игрок',
                             email: user.email,
@@ -381,17 +405,32 @@
             }
         });
 
-        // Инициализация переключателей паролей после загрузки DOM
+        // ---------- ИСПРАВЛЕНИЕ ГЛАЗКОВ (УНИВЕРСАЛЬНОЕ РЕШЕНИЕ) ----------
         window.addEventListener('DOMContentLoaded', () => {
-            setupPasswordToggles();
+            // Используем делегирование событий через document, чтобы работало при любых изменениях DOM
+            document.body.addEventListener('click', (e) => {
+                const toggleIcon = e.target.closest('.toggle-password');
+                if (!toggleIcon) return;
+                
+                const targetId = toggleIcon.dataset.target;
+                const input = document.getElementById(targetId);
+                
+                if (input) {
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    
+                    // Меняем иконку
+                    toggleIcon.classList.toggle('fa-eye');
+                    toggleIcon.classList.toggle('fa-eye-slash');
+                    
+                    // Предотвращаем всплытие, чтобы случайно не отправить форму
+                    e.preventDefault();
+                }
+            });
             
-            // Повторная настройка при смене экранов
-            const observer = new MutationObserver(() => setupPasswordToggles());
-            observer.observe(document.getElementById('app'), { childList: true, subtree: true });
+            // Сброс таймеров при загрузке
+            if (resendTimeout) clearInterval(resendTimeout);
         });
-
-        // Глобальный экспорт для отладки (опционально)
-        window.app = { auth, db, showScreen };
     </script>
     <style>
         /* ==================== СТИЛИ ==================== */
@@ -491,18 +530,25 @@
             display: inline-block;
             text-align: center;
         }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 3px 0 var(--primary-dark) !important;
+        }
 
         .btn.primary {
             background: var(--primary);
             color: white;
             box-shadow: 0 5px 0 var(--primary-dark);
         }
-        .btn.primary:hover {
+        .btn.primary:hover:not(:disabled) {
             background: #ff4d6d;
             transform: translateY(-2px);
             box-shadow: 0 7px 0 var(--primary-dark);
         }
-        .btn.primary:active {
+        .btn.primary:active:not(:disabled) {
             transform: translateY(2px);
             box-shadow: 0 3px 0 var(--primary-dark);
         }
@@ -511,7 +557,7 @@
             background: var(--secondary);
             border: 1px solid #1f4a7a;
         }
-        .btn.secondary:hover {
+        .btn.secondary:hover:not(:disabled) {
             background: #1a4070;
         }
 
@@ -663,13 +709,12 @@
             margin-bottom: 20px;
         }
 
-        #verificationSection {
+        #verificationSection, #resetCodeSection {
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px dashed var(--border-color);
         }
 
-        /* Адаптация для мобильных */
         @media (max-width: 480px) {
             .card {
                 padding: 24px 18px;
@@ -682,7 +727,6 @@
 </head>
 <body>
     <div id="app">
-        <!-- Анимация загрузки -->
         <div id="loader" class="hidden">
             <div style="text-align: center;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 40px; margin-bottom: 15px;"></i><br>
@@ -690,7 +734,7 @@
             </div>
         </div>
         
-        <!-- Главный экран выбора (Вход / Регистрация) -->
+        <!-- Главный экран -->
         <div id="landing" class="screen active">
             <div class="card">
                 <h1>⚔️ CLASH OF MAS ⚔️</h1>
@@ -728,7 +772,6 @@
             <div class="card">
                 <h2><i class="fas fa-user-plus"></i> Регистрация</h2>
                 <form id="registerForm">
-                    <!-- Аватар по умолчанию (генерируется динамически) -->
                     <div class="avatar-section">
                         <div id="avatarPreview" class="avatar-placeholder">👤</div>
                         <p class="hint">Аватар создаётся из первых букв ника</p>
@@ -749,7 +792,6 @@
                     </div>
                     <span id="passwordMatchError" class="error-text"></span>
 
-                    <!-- Секция подтверждения Email (показывается после отправки формы) -->
                     <div id="verificationSection" class="hidden">
                         <p style="margin: 15px 0 10px; color: var(--text-muted);">Введите код из письма</p>
                         <input type="text" id="verificationCode" placeholder="123456" maxlength="6" inputmode="numeric">
@@ -778,6 +820,7 @@
                             <input type="password" id="newPassword" placeholder="Новый пароль" minlength="6" autocomplete="new-password">
                             <i class="far fa-eye toggle-password" data-target="newPassword"></i>
                         </div>
+                        <button type="button" id="resendResetCodeBtn" class="btn text">📧 Отправить код повторно</button>
                     </div>
                     
                     <button type="submit" id="resetActionBtn" class="btn primary full-width">
@@ -790,7 +833,7 @@
             </div>
         </div>
 
-        <!-- Игровой экран (после входа) -->
+        <!-- Игровой экран -->
         <div id="gameScreen" class="screen">
             <div class="card">
                 <h2>🏰 CLASH OF MAS</h2>
@@ -809,27 +852,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Дополнительная инициализация после загрузки -->
-    <script>
-        // Небольшой хелпер для переключения иконок глазика (дублируется для надёжности)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Убедимся, что все глазики работают
-            document.querySelectorAll('.toggle-password').forEach(icon => {
-                // Удаляем старые обработчики, чтобы не дублировались
-                icon.removeEventListener('click', icon.click);
-                icon.addEventListener('click', function(e) {
-                    const targetId = this.dataset.target;
-                    const input = document.getElementById(targetId);
-                    if (input) {
-                        const isPassword = input.type === 'password';
-                        input.type = isPassword ? 'text' : 'password';
-                        this.classList.toggle('fa-eye');
-                        this.classList.toggle('fa-eye-slash');
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
