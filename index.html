@@ -36,7 +36,7 @@
         const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
         const DEV_PASSWORD = "MAS007";
 
-        // ---------- СИСТЕМА ПЕРЕВОДОВ ----------
+        // ---------- СИСТЕМА ПЕРЕВОДОВ (RU и EN) ----------
         const translations = {
             ru: {
                 welcome: 'Добро пожаловать в битву!',
@@ -73,6 +73,7 @@
                 characters: 'Персонажи',
                 clan: 'Клан',
                 friends: 'Друзья',
+                news: 'Новости',
                 account: 'Аккаунт',
                 settings: 'Настройки',
                 developer: 'Разработчик',
@@ -85,7 +86,10 @@
                 characterAbility: 'Способность',
                 characterTrait: 'Особенность (необязательно)',
                 characterRarity: 'Редкость',
+                characterClass: 'Класс',
+                characterAttack: 'Атака (фото/видео)',
                 selectImage: 'Выбрать изображение',
+                selectAttackMedia: 'Выбрать медиа атаки',
                 saveCharacter: 'Сохранить персонажа',
                 common: 'Обычный',
                 rare: 'Редкий',
@@ -97,12 +101,42 @@
                 ability: 'Способность',
                 trait: 'Особенность',
                 rarity: 'Редкость',
+                class: 'Класс',
+                attack: 'Атака',
+                tank: 'Танк',
+                shooter: 'Стрелок',
+                support: 'Помощник',
+                control: 'Контроль',
+                damageDealer: 'Урон',
+                bonus: 'Бонус',
+                assassin: 'Убийца',
+                artillery: 'Артиллерия',
+                filter: 'Фильтр',
+                all: 'Все',
+                byRarity: 'По редкости',
+                byClass: 'По классу',
+                favorites: 'Избранные',
+                addToFavorites: 'В избранное',
+                removeFromFavorites: 'Убрать из избранного',
+                createNews: 'Создать новость',
+                newsTitle: 'Заголовок',
+                newsContent: 'Содержание',
+                newsImage: 'Изображение (необязательно)',
+                newsVideo: 'Ссылка на видео (YouTube)',
+                newsLink: 'Ссылка',
+                publish: 'Опубликовать',
+                noNews: 'Нет новостей',
                 welcomeGame: 'Добро пожаловать в игру!',
                 gameplayHere: 'Здесь будет основной геймплей',
                 yourCharacters: 'Ваши персонажи',
                 friendsHere: 'Здесь будут ваши друзья',
                 friendsList: 'Список друзей',
+                addFriend: 'Добавить друга',
+                searchFriend: 'Поиск друзей по нику...',
                 noFriends: 'У вас пока нет друзей',
+                friendRequestSent: 'Заявка в друзья отправлена',
+                alreadyFriends: 'Вы уже друзья',
+                requestPending: 'Заявка уже отправлена',
                 showQrCode: 'Показать QR-код',
                 scanQrCode: 'Сканировать QR-код',
                 shareLink: 'Поделиться ссылкой',
@@ -232,6 +266,7 @@
                 characters: 'Characters',
                 clan: 'Clan',
                 friends: 'Friends',
+                news: 'News',
                 account: 'Account',
                 settings: 'Settings',
                 developer: 'Developer',
@@ -244,7 +279,10 @@
                 characterAbility: 'Ability',
                 characterTrait: 'Trait (optional)',
                 characterRarity: 'Rarity',
+                characterClass: 'Class',
+                characterAttack: 'Attack (photo/video)',
                 selectImage: 'Select image',
+                selectAttackMedia: 'Select attack media',
                 saveCharacter: 'Save character',
                 common: 'Common',
                 rare: 'Rare',
@@ -256,12 +294,42 @@
                 ability: 'Ability',
                 trait: 'Trait',
                 rarity: 'Rarity',
+                class: 'Class',
+                attack: 'Attack',
+                tank: 'Tank',
+                shooter: 'Shooter',
+                support: 'Support',
+                control: 'Control',
+                damageDealer: 'Damage',
+                bonus: 'Bonus',
+                assassin: 'Assassin',
+                artillery: 'Artillery',
+                filter: 'Filter',
+                all: 'All',
+                byRarity: 'By rarity',
+                byClass: 'By class',
+                favorites: 'Favorites',
+                addToFavorites: 'Add to favorites',
+                removeFromFavorites: 'Remove from favorites',
+                createNews: 'Create news',
+                newsTitle: 'Title',
+                newsContent: 'Content',
+                newsImage: 'Image (optional)',
+                newsVideo: 'Video link (YouTube)',
+                newsLink: 'Link',
+                publish: 'Publish',
+                noNews: 'No news',
                 welcomeGame: 'Welcome to the game!',
                 gameplayHere: 'Main gameplay will be here',
                 yourCharacters: 'Your characters',
                 friendsHere: 'Your friends will be here',
                 friendsList: 'Friends list',
+                addFriend: 'Add friend',
+                searchFriend: 'Search friends by nickname...',
                 noFriends: 'You have no friends yet',
+                friendRequestSent: 'Friend request sent',
+                alreadyFriends: 'Already friends',
+                requestPending: 'Request already sent',
                 showQrCode: 'Show QR code',
                 scanQrCode: 'Scan QR code',
                 shareLink: 'Share link',
@@ -368,13 +436,15 @@
         let clansListener = null;
         let clanChatListener = null;
         let charactersListener = null;
+        let newsListener = null;
         let qrScannerStream = null;
         let tempRegData = null;
         let addAccountTempRegData = null;
         let generatedCode = null;
         let addAccountMode = 'login';
-        
-        // Режим разработчика сохраняется в localStorage
+        let currentFilter = 'all';
+        let currentFilterValue = '';
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         let isDeveloperMode = localStorage.getItem('isDeveloperMode') === 'true';
 
         function t(key) {
@@ -597,9 +667,13 @@
             }
             if (tabId === 'friends' && currentUser) {
                 loadFriendsData();
+                loadFriendRequests();
             }
             if (tabId === 'characters') {
                 loadCharacters();
+            }
+            if (tabId === 'news') {
+                loadNews();
             }
         }
 
@@ -620,15 +694,18 @@
             const devBtn = document.getElementById('developerModeBtn');
             const devSection = document.getElementById('developerSection');
             const createCharSection = document.getElementById('createCharacterSection');
+            const createNewsSection = document.getElementById('createNewsSection');
             
             if (isDeveloperMode) {
                 if (devBtn) devBtn.innerHTML = `<i class="fas fa-code"></i> ${t('devModeActive')}`;
                 if (devSection) devSection.classList.remove('hidden');
                 if (createCharSection) createCharSection.classList.remove('hidden');
+                if (createNewsSection) createNewsSection.classList.remove('hidden');
             } else {
                 if (devBtn) devBtn.innerHTML = `<i class="fas fa-code"></i> ${t('developer')}`;
                 if (devSection) devSection.classList.add('hidden');
                 if (createCharSection) createCharSection.classList.add('hidden');
+                if (createNewsSection) createNewsSection.classList.add('hidden');
             }
         }
 
@@ -651,12 +728,14 @@
 
         window.createCharacter = async function() {
             const file = document.getElementById('characterImage').files[0];
+            const attackFile = document.getElementById('characterAttackMedia').files[0];
             const name = document.getElementById('newCharacterName').value.trim();
             const health = document.getElementById('newCharacterHealth').value;
             const damage = document.getElementById('newCharacterDamage').value;
             const ability = document.getElementById('newCharacterAbility').value.trim();
             const trait = document.getElementById('newCharacterTrait').value.trim();
             const rarity = document.getElementById('newCharacterRarity').value;
+            const charClass = document.getElementById('newCharacterClass').value;
             
             if (!file || !name || !health || !damage || !ability) {
                 alert(t('error') + ': Заполните все обязательные поля');
@@ -665,29 +744,44 @@
             
             showLoader(true);
             try {
-                // Конвертируем изображение в Base64
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     const imageBase64 = e.target.result;
+                    let attackBase64 = null;
                     
-                    await addDoc(collection(db, "characters"), {
-                        name, health: parseInt(health), damage: parseInt(damage),
-                        ability, trait: trait || null, rarity, imageBase64,
-                        createdBy: currentUser.uid,
-                        createdAt: serverTimestamp()
-                    });
+                    if (attackFile) {
+                        const attackReader = new FileReader();
+                        attackReader.onload = async (ae) => {
+                            attackBase64 = ae.target.result;
+                            await saveCharacterToDB();
+                        };
+                        attackReader.readAsDataURL(attackFile);
+                    } else {
+                        await saveCharacterToDB();
+                    }
                     
-                    document.getElementById('createCharacterForm').classList.add('hidden');
-                    document.getElementById('newCharacterName').value = '';
-                    document.getElementById('newCharacterHealth').value = '';
-                    document.getElementById('newCharacterDamage').value = '';
-                    document.getElementById('newCharacterAbility').value = '';
-                    document.getElementById('newCharacterTrait').value = '';
-                    document.getElementById('characterImage').value = '';
-                    
-                    alert(t('success'));
-                    loadCharacters();
-                    showLoader(false);
+                    async function saveCharacterToDB() {
+                        await addDoc(collection(db, "characters"), {
+                            name, health: parseInt(health), damage: parseInt(damage),
+                            ability, trait: trait || null, rarity, class: charClass,
+                            imageBase64, attackBase64,
+                            createdBy: currentUser.uid,
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        document.getElementById('createCharacterForm').classList.add('hidden');
+                        document.getElementById('newCharacterName').value = '';
+                        document.getElementById('newCharacterHealth').value = '';
+                        document.getElementById('newCharacterDamage').value = '';
+                        document.getElementById('newCharacterAbility').value = '';
+                        document.getElementById('newCharacterTrait').value = '';
+                        document.getElementById('characterImage').value = '';
+                        document.getElementById('characterAttackMedia').value = '';
+                        
+                        alert(t('success'));
+                        loadCharacters();
+                        showLoader(false);
+                    }
                 };
                 reader.readAsDataURL(file);
             } catch (error) {
@@ -702,42 +796,134 @@
             
             if (charactersListener) charactersListener();
             
-            charactersListener = onSnapshot(
-                query(collection(db, "characters"), orderBy('createdAt', 'desc')),
-                (snapshot) => {
-                    if (snapshot.empty) {
-                        container.innerHTML = `<p style="color: var(--text-muted); text-align: center;" data-i18n="noCharacters">${t('noCharacters')}</p>`;
-                        updateAllTexts();
-                        return;
-                    }
-                    
-                    const rarityColors = { common: '#9e9e9e', rare: '#4caf50', epic: '#9c27b0', legendary: '#ff9800' };
-                    const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
-                    
-                    container.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const char = { id: doc.id, ...doc.data() };
-                        const card = document.createElement('div');
-                        card.className = 'character-card';
-                        card.onclick = () => showCharacterDetails(char);
-                        card.innerHTML = `
-                            <div class="character-name">${char.name}</div>
-                            <div class="character-image-container">
-                                <img src="${char.imageBase64}" alt="${char.name}" class="character-image">
-                            </div>
-                            <div class="character-rarity" style="background: ${rarityColors[char.rarity] || '#9e9e9e'};">
-                                ${rarityNames[char.rarity] || char.rarity}
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
+            let q = query(collection(db, "characters"), orderBy('createdAt', 'desc'));
+            
+            charactersListener = onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center;" data-i18n="noCharacters">${t('noCharacters')}</p>`;
                     updateAllTexts();
+                    return;
                 }
-            );
+                
+                const rarityColors = { common: '#9e9e9e', rare: '#4caf50', epic: '#9c27b0', legendary: '#ff9800' };
+                const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
+                const classNames = {
+                    tank: t('tank'), shooter: t('shooter'), support: t('support'),
+                    control: t('control'), damage: t('damageDealer'), bonus: t('bonus'),
+                    assassin: t('assassin'), artillery: t('artillery')
+                };
+                
+                let characters = [];
+                snapshot.forEach(doc => {
+                    characters.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (currentFilter === 'rarity' && currentFilterValue) {
+                    characters = characters.filter(c => c.rarity === currentFilterValue);
+                } else if (currentFilter === 'class' && currentFilterValue) {
+                    characters = characters.filter(c => c.class === currentFilterValue);
+                } else if (currentFilter === 'favorites') {
+                    characters = characters.filter(c => favorites.includes(c.id));
+                }
+                
+                if (characters.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center;">${t('noCharacters')}</p>`;
+                    updateAllTexts();
+                    return;
+                }
+                
+                container.innerHTML = '';
+                characters.forEach(char => {
+                    const isFavorite = favorites.includes(char.id);
+                    const card = document.createElement('div');
+                    card.className = 'character-card';
+                    card.innerHTML = `
+                        <div class="character-name">${char.name}</div>
+                        <div class="character-image-container">
+                            <img src="${char.imageBase64}" alt="${char.name}" class="character-image">
+                        </div>
+                        <div class="character-class">${classNames[char.class] || char.class}</div>
+                        <div class="character-rarity" style="background: ${rarityColors[char.rarity] || '#9e9e9e'};">
+                            ${rarityNames[char.rarity] || char.rarity}
+                        </div>
+                        <button class="favorite-btn" onclick="event.stopPropagation(); window.toggleFavorite('${char.id}')" style="color: ${isFavorite ? 'gold' : 'var(--text-muted)'};">
+                            ${isFavorite ? '★' : '☆'}
+                        </button>
+                    `;
+                    card.onclick = () => showCharacterDetails(char);
+                    container.appendChild(card);
+                });
+                updateAllTexts();
+            });
         }
+
+        window.toggleFavorite = function(charId) {
+            if (favorites.includes(charId)) {
+                favorites = favorites.filter(id => id !== charId);
+            } else {
+                favorites.push(charId);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            loadCharacters();
+        };
+
+        window.setFilter = function(type, value = '') {
+            currentFilter = type;
+            currentFilterValue = value;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (type === 'all') {
+                document.querySelector('[data-filter="all"]').classList.add('active');
+            } else if (type === 'favorites') {
+                document.querySelector('[data-filter="favorites"]').classList.add('active');
+            }
+            
+            document.getElementById('filterDropdown').classList.add('hidden');
+            loadCharacters();
+        };
+
+        window.showFilterDropdown = function() {
+            const dropdown = document.getElementById('filterDropdown');
+            dropdown.classList.toggle('hidden');
+            
+            const filterOptions = document.getElementById('filterOptions');
+            const filterType = document.getElementById('filterType').value;
+            
+            if (filterType === 'rarity') {
+                filterOptions.innerHTML = `
+                    <option value="common">${t('common')}</option>
+                    <option value="rare">${t('rare')}</option>
+                    <option value="epic">${t('epic')}</option>
+                    <option value="legendary">${t('legendary')}</option>
+                `;
+            } else if (filterType === 'class') {
+                filterOptions.innerHTML = `
+                    <option value="tank">${t('tank')}</option>
+                    <option value="shooter">${t('shooter')}</option>
+                    <option value="support">${t('support')}</option>
+                    <option value="control">${t('control')}</option>
+                    <option value="damage">${t('damageDealer')}</option>
+                    <option value="bonus">${t('bonus')}</option>
+                    <option value="assassin">${t('assassin')}</option>
+                    <option value="artillery">${t('artillery')}</option>
+                `;
+            }
+        };
+
+        window.applyFilter = function() {
+            const filterType = document.getElementById('filterType').value;
+            const filterValue = document.getElementById('filterOptions').value;
+            setFilter(filterType, filterValue);
+        };
 
         function showCharacterDetails(char) {
             const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
+            const classNames = {
+                tank: t('tank'), shooter: t('shooter'), support: t('support'),
+                control: t('control'), damage: t('damageDealer'), bonus: t('bonus'),
+                assassin: t('assassin'), artillery: t('artillery')
+            };
+            
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
@@ -750,6 +936,16 @@
                         <p><strong>${t('ability')}:</strong> ${char.ability}</p>
                         ${char.trait ? `<p><strong>${t('trait')}:</strong> ${char.trait}</p>` : ''}
                         <p><strong>${t('rarity')}:</strong> ${rarityNames[char.rarity] || char.rarity}</p>
+                        <p><strong>${t('class')}:</strong> ${classNames[char.class] || char.class}</p>
+                        ${char.attackBase64 ? `
+                            <div style="margin-top: 15px;">
+                                <strong>${t('attack')}:</strong><br>
+                                ${char.attackBase64.startsWith('data:video') ? 
+                                    `<video src="${char.attackBase64}" controls style="width: 100%; max-width: 300px; border-radius: 12px; margin-top: 10px;"></video>` : 
+                                    `<img src="${char.attackBase64}" style="width: 100%; max-width: 300px; border-radius: 12px; margin-top: 10px;">`
+                                }
+                            </div>
+                        ` : ''}
                     </div>
                     <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">${t('closeClan')}</button>
                 </div>
@@ -757,6 +953,115 @@
             document.body.appendChild(modal);
             modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
             updateAllTexts();
+        }
+
+        // ---------- ФУНКЦИИ НОВОСТЕЙ ----------
+        window.toggleCreateNews = function() {
+            const form = document.getElementById('createNewsForm');
+            form.classList.toggle('hidden');
+        };
+
+        window.createNews = async function() {
+            const title = document.getElementById('newsTitle').value.trim();
+            const content = document.getElementById('newsContent').value.trim();
+            const imageFile = document.getElementById('newsImage').files[0];
+            const videoUrl = document.getElementById('newsVideo').value.trim();
+            const link = document.getElementById('newsLink').value.trim();
+            
+            if (!title || !content) {
+                alert(t('error') + ': Заполните заголовок и содержание');
+                return;
+            }
+            
+            showLoader(true);
+            try {
+                let imageBase64 = null;
+                if (imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        imageBase64 = e.target.result;
+                        await saveNewsToDB();
+                    };
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    await saveNewsToDB();
+                }
+                
+                async function saveNewsToDB() {
+                    await addDoc(collection(db, "news"), {
+                        title, content, imageBase64, videoUrl: videoUrl || null, link: link || null,
+                        createdBy: currentUser.uid,
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    document.getElementById('createNewsForm').classList.add('hidden');
+                    document.getElementById('newsTitle').value = '';
+                    document.getElementById('newsContent').value = '';
+                    document.getElementById('newsImage').value = '';
+                    document.getElementById('newsVideo').value = '';
+                    document.getElementById('newsLink').value = '';
+                    
+                    alert(t('success'));
+                    loadNews();
+                    showLoader(false);
+                }
+            } catch (error) {
+                alert(`${t('error')}: ${error.message}`);
+                showLoader(false);
+            }
+        };
+
+        function loadNews() {
+            const container = document.getElementById('newsContainer');
+            if (!container) return;
+            
+            if (newsListener) newsListener();
+            
+            newsListener = onSnapshot(
+                query(collection(db, "news"), orderBy('createdAt', 'desc')),
+                (snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `<p style="color: var(--text-muted); text-align: center;" data-i18n="noNews">${t('noNews')}</p>`;
+                        updateAllTexts();
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const news = { id: doc.id, ...doc.data() };
+                        const newsCard = document.createElement('div');
+                        newsCard.className = 'news-card';
+                        
+                        let videoEmbed = '';
+                        if (news.videoUrl) {
+                            const videoId = extractYouTubeId(news.videoUrl);
+                            if (videoId) {
+                                videoEmbed = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="border-radius: 12px; margin: 10px 0;"></iframe>`;
+                            }
+                        }
+                        
+                        const date = news.createdAt?.toDate();
+                        const dateStr = date ? date.toLocaleDateString(currentLanguage === 'ru' ? 'ru-RU' : 'en-US') : '';
+                        
+                        newsCard.innerHTML = `
+                            <h3 class="news-title">${news.title}</h3>
+                            ${news.imageBase64 ? `<img src="${news.imageBase64}" class="news-image">` : ''}
+                            ${videoEmbed}
+                            <p class="news-content">${news.content}</p>
+                            ${news.link ? `<a href="${news.link}" target="_blank" class="news-link">${news.link}</a>` : ''}
+                            <div class="news-date">${dateStr}</div>
+                        `;
+                        container.appendChild(newsCard);
+                    });
+                    updateAllTexts();
+                }
+            );
+        }
+
+        function extractYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
         }
 
         // ---------- ФУНКЦИИ КЛАНОВ ----------
@@ -1068,15 +1373,139 @@
         };
 
         // ---------- ФУНКЦИИ ДРУЗЕЙ ----------
-        function loadFriendsData() {
-            document.getElementById('friendsList').innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <i class="fas fa-users" style="font-size: 40px; color: var(--text-muted);"></i>
-                    <p style="margin-top: 10px;" data-i18n="noFriends">У вас пока нет друзей</p>
-                </div>
-            `;
+        async function loadFriendsData() {
+            if (!currentUser) return;
+            
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
+            const friends = userData.friends || [];
+            
+            const friendsList = document.getElementById('friendsList');
+            if (friends.length === 0) {
+                friendsList.innerHTML = `<p style="color: var(--text-muted); text-align: center;" data-i18n="noFriends">${t('noFriends')}</p>`;
+                updateAllTexts();
+                return;
+            }
+            
+            friendsList.innerHTML = '';
+            for (const friendId of friends) {
+                const friendDoc = await getDoc(doc(db, "users", friendId));
+                if (friendDoc.exists()) {
+                    const friend = friendDoc.data();
+                    const friendItem = document.createElement('div');
+                    friendItem.className = 'friend-item';
+                    friendItem.innerHTML = `
+                        <div class="friend-avatar">${friend.avatar || '👤'}</div>
+                        <div class="friend-info">
+                            <span class="friend-nickname">${friend.nickname}</span>
+                        </div>
+                    `;
+                    friendsList.appendChild(friendItem);
+                }
+            }
             updateAllTexts();
         }
+
+        async function loadFriendRequests() {
+            if (!currentUser) return;
+            
+            const requestsQuery = query(collection(db, "friendRequests"), where("to", "==", currentUser.uid));
+            const snapshot = await getDocs(requestsQuery);
+            
+            const requestsContainer = document.getElementById('friendRequestsList');
+            if (snapshot.empty) {
+                requestsContainer.innerHTML = `<p style="color: var(--text-muted);" data-i18n="noFriends">${t('noFriends')}</p>`;
+                updateAllTexts();
+                return;
+            }
+            
+            requestsContainer.innerHTML = '';
+            snapshot.forEach(doc => {
+                const request = { id: doc.id, ...doc.data() };
+                const requestItem = document.createElement('div');
+                requestItem.className = 'request-item';
+                requestItem.innerHTML = `
+                    <span>${request.fromNickname}</span>
+                    <div style="margin-left: auto; display: flex; gap: 8px;">
+                        <button class="btn success" onclick="window.handleFriendRequest('${doc.id}', 'accept')" data-i18n="accept">${t('accept')}</button>
+                        <button class="btn danger" onclick="window.handleFriendRequest('${doc.id}', 'decline')" data-i18n="decline">${t('decline')}</button>
+                    </div>
+                `;
+                requestsContainer.appendChild(requestItem);
+            });
+            updateAllTexts();
+        }
+
+        window.searchFriend = async function() {
+            const searchInput = document.getElementById('friendSearchInput');
+            const nickname = searchInput.value.trim();
+            if (!nickname) return;
+            
+            const q = query(collection(db, "users"), where("nickname", "==", nickname));
+            const snapshot = await getDocs(q);
+            
+            if (snapshot.empty) {
+                alert(t('noFriends'));
+                return;
+            }
+            
+            const friend = snapshot.docs[0];
+            const friendData = friend.data();
+            
+            if (friend.id === currentUser.uid) {
+                alert('Это вы!');
+                return;
+            }
+            
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
+            const friends = userData.friends || [];
+            
+            if (friends.includes(friend.id)) {
+                alert(t('alreadyFriends'));
+                return;
+            }
+            
+            const existingRequest = query(
+                collection(db, "friendRequests"),
+                where("from", "==", currentUser.uid),
+                where("to", "==", friend.id)
+            );
+            const requestSnapshot = await getDocs(existingRequest);
+            
+            if (!requestSnapshot.empty) {
+                alert(t('requestPending'));
+                return;
+            }
+            
+            await addDoc(collection(db, "friendRequests"), {
+                from: currentUser.uid,
+                fromNickname: userData.nickname,
+                to: friend.id,
+                createdAt: serverTimestamp()
+            });
+            
+            alert(t('friendRequestSent'));
+            searchInput.value = '';
+        };
+
+        window.handleFriendRequest = async function(requestId, action) {
+            const requestDoc = await getDoc(doc(db, "friendRequests", requestId));
+            const request = requestDoc.data();
+            
+            if (action === 'accept') {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    friends: arrayUnion(request.from)
+                });
+                await updateDoc(doc(db, "users", request.from), {
+                    friends: arrayUnion(currentUser.uid)
+                });
+            }
+            
+            await deleteDoc(doc(db, "friendRequests", requestId));
+            loadFriendRequests();
+            loadFriendsData();
+        };
 
         window.showMyQrCode = function() {
             const modal = document.createElement('div');
@@ -1638,14 +2067,36 @@
         document.getElementById('savedAccountsList')?.addEventListener('click', async (e) => {
             const item = e.target.closest('.saved-account-item');
             if (!item) return;
-            const password = prompt(`${t('enterPasswordConfirm')} ${item.dataset.email}:`);
-            if (!password) return;
+            const email = item.dataset.email;
+            const savedPassword = localStorage.getItem(`pwd_${email}`);
+            
             showLoader(true);
             try {
-                await signInWithEmailAndPassword(auth, item.dataset.email, password);
+                if (savedPassword) {
+                    await signInWithEmailAndPassword(auth, email, savedPassword);
+                } else {
+                    const password = prompt(`${t('enterPasswordConfirm')} ${email}:`);
+                    if (!password) {
+                        showLoader(false);
+                        return;
+                    }
+                    await signInWithEmailAndPassword(auth, email, password);
+                    localStorage.setItem(`pwd_${email}`, password);
+                }
                 showScreen('game');
             } catch {
-                alert(t('wrongCode'));
+                const password = prompt(`${t('enterPasswordConfirm')} ${email}:`);
+                if (!password) {
+                    showLoader(false);
+                    return;
+                }
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    localStorage.setItem(`pwd_${email}`, password);
+                    showScreen('game');
+                } catch {
+                    alert(t('wrongCode'));
+                }
             } finally {
                 showLoader(false);
             }
@@ -1702,8 +2153,6 @@
 
             applyTheme();
             updateAllTexts();
-            
-            // Обновляем UI режима разработчика при загрузке
             updateDevModeUI();
         });
 
@@ -2226,7 +2675,6 @@
             color: var(--text-muted);
         }
 
-        /* Стили для персонажей */
         .characters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -2243,6 +2691,7 @@
             border: 2px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .character-card:hover {
@@ -2283,6 +2732,16 @@
             object-fit: cover;
         }
 
+        .character-class {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            background: var(--secondary);
+            color: white;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
         .character-rarity {
             padding: 8px 10px;
             border-radius: 20px;
@@ -2292,6 +2751,125 @@
             text-align: center;
             text-transform: uppercase;
             margin-top: auto;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 100;
+            margin-top: 5px;
+            max-width: 250px;
+        }
+
+        .news-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .news-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .news-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 10px 0;
+        }
+
+        .news-content {
+            color: var(--text-light);
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .news-link {
+            color: var(--primary);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .news-date {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: color-mix(in srgb, var(--bg-card) 80%, black);
+            border-radius: 16px;
+            margin: 10px 0;
+        }
+
+        .friend-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-nickname {
+            font-weight: bold;
+            color: var(--text-light);
         }
 
         @media (max-width: 480px) {
@@ -2314,7 +2892,6 @@
             </div>
         </div>
         
-        <!-- Главный экран -->
         <div id="landing" class="screen active">
             <div class="card">
                 <h1>⚔️ CLASH OF MAS ⚔️</h1>
@@ -2324,7 +2901,6 @@
             </div>
         </div>
 
-        <!-- Экран Входа -->
         <div id="loginScreen" class="screen">
             <div class="card">
                 <h2 data-i18n="loginTitle">Вход</h2>
@@ -2341,7 +2917,6 @@
             </div>
         </div>
 
-        <!-- Экран Регистрации -->
         <div id="registerScreen" class="screen">
             <div class="card">
                 <h2 data-i18n="registerTitle">Регистрация</h2>
@@ -2379,7 +2954,6 @@
             </div>
         </div>
 
-        <!-- Экран Сброса пароля -->
         <div id="resetPasswordScreen" class="screen">
             <div class="card">
                 <h2 data-i18n="resetTitle">Сброс пароля</h2>
@@ -2401,7 +2975,6 @@
             </div>
         </div>
 
-        <!-- Экран добавления аккаунта -->
         <div id="addAccountScreen" class="screen">
             <div class="card">
                 <h2 data-i18n="addAccount">Добавить аккаунт</h2>
@@ -2462,7 +3035,6 @@
             </div>
         </div>
 
-        <!-- Игровой экран с вкладками -->
         <div id="gameScreen" class="screen">
             <div class="card" style="padding: 20px 15px;">
                 <div style="display: flex; align-items: center; margin-bottom: 15px;">
@@ -2475,6 +3047,7 @@
                     <button class="tab-btn" data-tab="characters" data-i18n="characters">⚔️</button>
                     <button class="tab-btn" data-tab="clan" data-i18n="clan">🏰</button>
                     <button class="tab-btn" data-tab="friends" data-i18n="friends">👥</button>
+                    <button class="tab-btn" data-tab="news" data-i18n="news">📰</button>
                     <button class="tab-btn" data-tab="account" data-i18n="account">👤</button>
                     <button class="tab-btn" data-tab="settings" data-i18n="settings">⚙️</button>
                 </div>
@@ -2484,9 +3057,23 @@
                     <p data-i18n="gameplayHere">Здесь будет основной геймплей</p>
                 </div>
                 
-                <!-- Вкладка Персонажи -->
                 <div id="tab-characters" class="tab-content">
                     <h3 data-i18n="yourCharacters">Ваши персонажи</h3>
+                    
+                    <div class="filter-bar">
+                        <button class="filter-btn active" data-filter="all" onclick="window.setFilter('all')" data-i18n="all">Все</button>
+                        <button class="filter-btn" data-filter="favorites" onclick="window.setFilter('favorites')" data-i18n="favorites">★ Избранные</button>
+                        <button class="filter-btn" onclick="window.showFilterDropdown()" data-i18n="filter">🔽 Фильтр</button>
+                    </div>
+                    
+                    <div id="filterDropdown" class="filter-dropdown hidden">
+                        <select id="filterType" style="margin-bottom: 10px;">
+                            <option value="rarity" data-i18n="byRarity">По редкости</option>
+                            <option value="class" data-i18n="byClass">По классу</option>
+                        </select>
+                        <select id="filterOptions" style="margin-bottom: 10px;"></select>
+                        <button class="btn primary full-width" onclick="window.applyFilter()" data-i18n="apply">Применить</button>
+                    </div>
                     
                     <div id="createCharacterSection" class="hidden">
                         <button class="btn primary full-width" onclick="window.toggleCreateCharacter()" data-i18n="createCharacter">Создать персонажа</button>
@@ -2504,6 +3091,18 @@
                                 <option value="epic" data-i18n="epic">Эпический</option>
                                 <option value="legendary" data-i18n="legendary">Легендарный</option>
                             </select>
+                            <select id="newCharacterClass" required>
+                                <option value="tank" data-i18n="tank">Танк</option>
+                                <option value="shooter" data-i18n="shooter">Стрелок</option>
+                                <option value="support" data-i18n="support">Помощник</option>
+                                <option value="control" data-i18n="control">Контроль</option>
+                                <option value="damage" data-i18n="damageDealer">Урон</option>
+                                <option value="bonus" data-i18n="bonus">Бонус</option>
+                                <option value="assassin" data-i18n="assassin">Убийца</option>
+                                <option value="artillery" data-i18n="artillery">Артиллерия</option>
+                            </select>
+                            <label style="display: block; margin: 10px 0; color: var(--text-muted);" data-i18n="characterAttack">Атака (фото/видео):</label>
+                            <input type="file" id="characterAttackMedia" accept="image/*,video/*">
                             <button class="btn primary full-width" onclick="window.createCharacter()" data-i18n="saveCharacter">Сохранить персонажа</button>
                             <button class="btn text full-width" onclick="window.toggleCreateCharacter()" data-i18n="cancel">Отмена</button>
                         </div>
@@ -2514,7 +3113,6 @@
                     </div>
                 </div>
                 
-                <!-- Вкладка Клан -->
                 <div id="tab-clan" class="tab-content">
                     <div id="myClanSection" class="hidden">
                         <div class="clan-header" onclick="window.toggleClanDetails()">
@@ -2575,7 +3173,6 @@
                     </div>
                 </div>
                 
-                <!-- Вкладка Друзья -->
                 <div id="tab-friends" class="tab-content">
                     <div class="friends-actions">
                         <button class="btn secondary" onclick="window.showMyQrCode()" data-i18n="showQrCode">
@@ -2589,11 +3186,16 @@
                         </button>
                     </div>
                     
-                    <input type="search" data-i18n="searchFriend" placeholder="Поиск друзей...">
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="friendSearchInput" data-i18n="searchFriend" placeholder="Поиск друзей по нику..." style="flex: 1;">
+                        <button class="btn primary" onclick="window.searchFriend()" data-i18n="addFriend">Добавить</button>
+                    </div>
                     
                     <div class="settings-section">
                         <h4 data-i18n="friendRequests">Заявки в друзья</h4>
-                        <p style="color: var(--text-muted);" data-i18n="noFriends">У вас пока нет заявок</p>
+                        <div id="friendRequestsList">
+                            <p style="color: var(--text-muted);" data-i18n="noFriends">У вас пока нет заявок</p>
+                        </div>
                     </div>
                     
                     <div class="settings-section">
@@ -2604,7 +3206,29 @@
                     </div>
                 </div>
                 
-                <!-- Вкладка Аккаунт -->
+                <div id="tab-news" class="tab-content">
+                    <h3 data-i18n="news">Новости</h3>
+                    
+                    <div id="createNewsSection" class="hidden">
+                        <button class="btn primary full-width" onclick="window.toggleCreateNews()" data-i18n="createNews">Создать новость</button>
+                        
+                        <div id="createNewsForm" class="hidden settings-section">
+                            <input type="text" id="newsTitle" data-i18n="newsTitle" placeholder="Заголовок" required>
+                            <textarea id="newsContent" data-i18n="newsContent" placeholder="Содержание" required rows="4"></textarea>
+                            <label style="display: block; margin: 10px 0; color: var(--text-muted);" data-i18n="newsImage">Изображение (необязательно):</label>
+                            <input type="file" id="newsImage" accept="image/*">
+                            <input type="text" id="newsVideo" data-i18n="newsVideo" placeholder="Ссылка на видео (YouTube)">
+                            <input type="text" id="newsLink" data-i18n="newsLink" placeholder="Ссылка">
+                            <button class="btn primary full-width" onclick="window.createNews()" data-i18n="publish">Опубликовать</button>
+                            <button class="btn text full-width" onclick="window.toggleCreateNews()" data-i18n="cancel">Отмена</button>
+                        </div>
+                    </div>
+                    
+                    <div id="newsContainer">
+                        <p style="color: var(--text-muted); text-align: center;" data-i18n="noNews">Нет новостей</p>
+                    </div>
+                </div>
+                
                 <div id="tab-account" class="tab-content">
                     <div style="padding: 10px 0;">
                         <div style="text-align: center; margin-bottom: 20px;">
@@ -2687,7 +3311,6 @@
                     </div>
                 </div>
                 
-                <!-- Вкладка Настройки -->
                 <div id="tab-settings" class="tab-content">
                     <div style="padding: 10px 0;">
                         <div class="settings-section">
