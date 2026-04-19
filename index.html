@@ -36,7 +36,7 @@
         const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
         const DEV_PASSWORD = "MAS007";
 
-        // ---------- СИСТЕМА ПЕРЕВОДОВ (RU и EN) ----------
+        // ---------- СИСТЕМА ПЕРЕВОДОВ ----------
         const translations = {
             ru: {
                 welcome: 'Добро пожаловать в битву!',
@@ -88,9 +88,11 @@
                 characterRarity: 'Редкость',
                 characterClass: 'Класс',
                 characterAttack: 'Атака (фото/видео)',
+                elixirCost: 'Стоимость в эликсирах',
                 selectImage: 'Выбрать изображение',
                 selectAttackMedia: 'Выбрать медиа атаки',
                 saveCharacter: 'Сохранить персонажа',
+                deleteCharacter: 'Удалить персонажа',
                 common: 'Обычный',
                 rare: 'Редкий',
                 epic: 'Эпический',
@@ -127,6 +129,26 @@
                 publish: 'Опубликовать',
                 noNews: 'Нет новостей',
                 welcomeGame: 'Добро пожаловать в игру!',
+                play: 'Играть',
+                event: 'Событие',
+                classicMode: 'Классический режим',
+                yourSide: 'Ваша сторона',
+                enemySide: 'Сторона противника',
+                elixir: 'Эликсир',
+                waiting: 'Ожидание...',
+                battle: 'Битва',
+                startBattle: 'Начать битву',
+                placeCards: 'Расставьте карты',
+                yourCards: 'Ваши карты',
+                purchasedCards: 'Купленные карты',
+                enemyCards: 'Карты противника',
+                turn: 'Ход',
+                victory: 'Победа!',
+                defeat: 'Поражение!',
+                ready: 'Готов',
+                waitingOpponent: 'Ожидание противника...',
+                buy: 'Купить',
+                place: 'Поставить',
                 gameplayHere: 'Здесь будет основной геймплей',
                 yourCharacters: 'Ваши персонажи',
                 friendsHere: 'Здесь будут ваши друзья',
@@ -281,9 +303,11 @@
                 characterRarity: 'Rarity',
                 characterClass: 'Class',
                 characterAttack: 'Attack (photo/video)',
+                elixirCost: 'Elixir cost',
                 selectImage: 'Select image',
                 selectAttackMedia: 'Select attack media',
                 saveCharacter: 'Save character',
+                deleteCharacter: 'Delete character',
                 common: 'Common',
                 rare: 'Rare',
                 epic: 'Epic',
@@ -320,6 +344,26 @@
                 publish: 'Publish',
                 noNews: 'No news',
                 welcomeGame: 'Welcome to the game!',
+                play: 'Play',
+                event: 'Event',
+                classicMode: 'Classic mode',
+                yourSide: 'Your side',
+                enemySide: 'Enemy side',
+                elixir: 'Elixir',
+                waiting: 'Waiting...',
+                battle: 'Battle',
+                startBattle: 'Start battle',
+                placeCards: 'Place your cards',
+                yourCards: 'Your cards',
+                purchasedCards: 'Purchased cards',
+                enemyCards: 'Enemy cards',
+                turn: 'Turn',
+                victory: 'Victory!',
+                defeat: 'Defeat!',
+                ready: 'Ready',
+                waitingOpponent: 'Waiting for opponent...',
+                buy: 'Buy',
+                place: 'Place',
                 gameplayHere: 'Main gameplay will be here',
                 yourCharacters: 'Your characters',
                 friendsHere: 'Your friends will be here',
@@ -446,6 +490,29 @@
         let currentFilterValue = '';
         let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         let isDeveloperMode = localStorage.getItem('isDeveloperMode') === 'true';
+        
+        // Переменные для игры
+        let gameState = {
+            mode: null,
+            playerElixir: 10,
+            enemyElixir: 10,
+            playerField: Array(12).fill(null),
+            enemyField: Array(12).fill(null),
+            playerHand: [],
+            enemyHand: [],
+            playerPurchased: [],
+            enemyPurchased: [],
+            playerDeck: [],
+            enemyDeck: [],
+            turn: 0,
+            timer: null,
+            timeLeft: 30,
+            isPlayerTurn: true,
+            battleStarted: false,
+            playerReady: false,
+            enemyReady: false,
+            cardsRevealed: false
+        };
 
         function t(key) {
             return translations[currentLanguage]?.[key] || translations.ru[key] || key;
@@ -736,6 +803,7 @@
             const trait = document.getElementById('newCharacterTrait').value.trim();
             const rarity = document.getElementById('newCharacterRarity').value;
             const charClass = document.getElementById('newCharacterClass').value;
+            const elixirCost = parseInt(document.getElementById('newCharacterElixirCost').value) || 3;
             
             if (!file || !name || !health || !damage || !ability) {
                 alert(t('error') + ': Заполните все обязательные поля');
@@ -764,6 +832,7 @@
                         await addDoc(collection(db, "characters"), {
                             name, health: parseInt(health), damage: parseInt(damage),
                             ability, trait: trait || null, rarity, class: charClass,
+                            elixirCost: elixirCost,
                             imageBase64, attackBase64,
                             createdBy: currentUser.uid,
                             createdAt: serverTimestamp()
@@ -775,6 +844,7 @@
                         document.getElementById('newCharacterDamage').value = '';
                         document.getElementById('newCharacterAbility').value = '';
                         document.getElementById('newCharacterTrait').value = '';
+                        document.getElementById('newCharacterElixirCost').value = '3';
                         document.getElementById('characterImage').value = '';
                         document.getElementById('characterAttackMedia').value = '';
                         
@@ -786,6 +856,21 @@
                 reader.readAsDataURL(file);
             } catch (error) {
                 alert(`${t('error')}: ${error.message}`);
+                showLoader(false);
+            }
+        };
+
+        window.deleteCharacter = async function(charId) {
+            if (!confirm('Удалить персонажа?')) return;
+            showLoader(true);
+            try {
+                await deleteDoc(doc(db, "characters", charId));
+                alert(t('success'));
+                document.querySelector('.modal-overlay')?.remove();
+                loadCharacters();
+            } catch (error) {
+                alert(t('error') + ': ' + error.message);
+            } finally {
                 showLoader(false);
             }
         };
@@ -845,6 +930,9 @@
                         <div class="character-class">${classNames[char.class] || char.class}</div>
                         <div class="character-rarity" style="background: ${rarityColors[char.rarity] || '#9e9e9e'};">
                             ${rarityNames[char.rarity] || char.rarity}
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
+                            <i class="fas fa-flask"></i> ${char.elixirCost || 3}
                         </div>
                         <button class="favorite-btn" onclick="event.stopPropagation(); window.toggleFavorite('${char.id}')" style="color: ${isFavorite ? 'gold' : 'var(--text-muted)'};">
                             ${isFavorite ? '★' : '☆'}
@@ -937,6 +1025,7 @@
                         ${char.trait ? `<p><strong>${t('trait')}:</strong> ${char.trait}</p>` : ''}
                         <p><strong>${t('rarity')}:</strong> ${rarityNames[char.rarity] || char.rarity}</p>
                         <p><strong>${t('class')}:</strong> ${classNames[char.class] || char.class}</p>
+                        <p><strong>${t('elixirCost')}:</strong> <i class="fas fa-flask"></i> ${char.elixirCost || 3}</p>
                         ${char.attackBase64 ? `
                             <div style="margin-top: 15px;">
                                 <strong>${t('attack')}:</strong><br>
@@ -947,7 +1036,10 @@
                             </div>
                         ` : ''}
                     </div>
-                    <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">${t('closeClan')}</button>
+                    ${isDeveloperMode ? `
+                        <button class="btn danger full-width" onclick="window.deleteCharacter('${char.id}')" style="margin-top: 10px;" data-i18n="deleteCharacter">Удалить персонажа</button>
+                    ` : ''}
+                    <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()" style="margin-top: 10px;">${t('closeClan')}</button>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -1063,8 +1155,7 @@
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
-
-        // ---------- ФУНКЦИИ КЛАНОВ ----------
+                // ---------- ФУНКЦИИ КЛАНОВ ----------
         async function loadClanData() {
             if (!currentUser) return;
             
@@ -1653,6 +1744,432 @@
                 showLoader(false);
             }
         };
+
+        // ---------- ФУНКЦИИ ИГРЫ ----------
+        window.showEventModal = function() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 data-i18n="classicMode">Классический режим</h3>
+                    <p style="color: var(--text-muted); margin: 15px 0;">Сразитесь с противником в классическом режиме! Расставьте карты на поле и победите врага.</p>
+                    <button class="btn primary full-width" onclick="window.startClassicMode(); this.closest('.modal-overlay').remove();" data-i18n="play">Играть</button>
+                    <button class="btn text full-width" onclick="this.closest('.modal-overlay').remove()" data-i18n="cancel">Отмена</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+            updateAllTexts();
+        };
+
+        window.startClassicMode = function() {
+            gameState = {
+                mode: 'classic',
+                playerElixir: 10,
+                enemyElixir: 10,
+                playerField: Array(12).fill(null),
+                enemyField: Array(12).fill(null),
+                playerHand: [],
+                enemyHand: [],
+                playerPurchased: [],
+                enemyPurchased: [],
+                playerDeck: [],
+                enemyDeck: [],
+                turn: 0,
+                timer: null,
+                timeLeft: 30,
+                isPlayerTurn: true,
+                battleStarted: false,
+                playerReady: false,
+                enemyReady: false,
+                cardsRevealed: false
+            };
+            
+            loadDeckAndStart();
+        };
+
+        async function loadDeckAndStart() {
+            showLoader(true);
+            try {
+                const snapshot = await getDocs(collection(db, "characters"));
+                const allCharacters = [];
+                snapshot.forEach(doc => {
+                    allCharacters.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Раздаём по 3 случайные карты с учётом редкости
+                gameState.playerHand = drawRandomCards(allCharacters, 3);
+                gameState.enemyHand = drawRandomCards(allCharacters, 3);
+                
+                showBattleField();
+            } catch (error) {
+                console.error('Error loading deck:', error);
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function drawRandomCards(deck, count) {
+            const weights = { common: 40, rare: 30, epic: 20, legendary: 10 };
+            const cards = [];
+            const availableDeck = [...deck];
+            
+            for (let i = 0; i < count; i++) {
+                if (availableDeck.length === 0) break;
+                
+                const weightedDeck = [];
+                availableDeck.forEach(card => {
+                    const weight = weights[card.rarity] || 25;
+                    for (let j = 0; j < weight; j++) {
+                        weightedDeck.push(card);
+                    }
+                });
+                
+                const selectedCard = weightedDeck[Math.floor(Math.random() * weightedDeck.length)];
+                cards.push(selectedCard);
+                
+                // Удаляем выбранную карту из доступных
+                const index = availableDeck.findIndex(c => c.id === selectedCard.id);
+                if (index > -1) availableDeck.splice(index, 1);
+            }
+            
+            return cards;
+        }
+
+        function showBattleField() {
+            const homeTab = document.getElementById('tab-home');
+            homeTab.innerHTML = `
+                <h3 data-i18n="classicMode">Классический режим</h3>
+                
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: var(--bg-card); border-radius: 12px;">
+                    <span><i class="fas fa-flask" style="color: #9b59b6;"></i> <span id="playerElixir">${gameState.playerElixir}</span></span>
+                    <span style="font-weight: bold;">
+                        <span id="timerDisplay">${gameState.timeLeft}</span>с
+                        <span id="readyStatus"></span>
+                    </span>
+                    <span><i class="fas fa-flask" style="color: #9b59b6;"></i> <span id="enemyElixir">${gameState.enemyElixir}</span></span>
+                </div>
+                
+                <div id="battleFieldContainer" style="margin: 15px 0;">
+                    <!-- Сторона противника (синяя) -->
+                    <div style="background: linear-gradient(135deg, #1a5c8c, #0f3a5c); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(26, 92, 140, 0.3);">
+                        <p style="text-align: center; margin-bottom: 10px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);" data-i18n="enemySide">Сторона противника</p>
+                        <div id="enemyFieldGrid" class="battle-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                            ${renderFieldCells('enemy')}
+                        </div>
+                    </div>
+                    
+                    <!-- Сторона игрока (зелёная) -->
+                    <div style="background: linear-gradient(135deg, #1a8c5c, #0f5c3a); border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(26, 140, 92, 0.3);">
+                        <p style="text-align: center; margin-bottom: 10px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);" data-i18n="yourSide">Ваша сторона</p>
+                        <div id="playerFieldGrid" class="battle-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                            ${renderFieldCells('player')}
+                        </div>
+                    </div>
+                </div>
+                
+                ${!gameState.battleStarted ? `
+                    <div style="margin-top: 15px;">
+                        <p data-i18n="yourCards" style="margin-bottom: 10px;">Ваши карты (выберите для покупки):</p>
+                        <div id="playerHand" style="display: flex; gap: 10px; overflow-x: auto; padding: 10px 0;">
+                            ${renderHand()}
+                        </div>
+                        
+                        <p data-i18n="purchasedCards" style="margin: 15px 0 10px;">Купленные карты (нажмите чтобы поставить):</p>
+                        <div id="playerPurchased" style="display: flex; gap: 10px; overflow-x: auto; padding: 10px 0;">
+                            ${renderPurchased()}
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="btn success full-width" onclick="window.setReady()" data-i18n="ready" id="readyBtn">Готов</button>
+                        </div>
+                    </div>
+                ` : `
+                    <div style="margin-top: 15px;">
+                        <button class="btn primary full-width" onclick="window.endTurn()" data-i18n="turn">Завершить ход</button>
+                    </div>
+                `}
+            `;
+            
+            if (!gameState.battleStarted) {
+                startPlacementTimer();
+            }
+            
+            updateAllTexts();
+        }
+
+        function renderFieldCells(side) {
+            const field = side === 'player' ? gameState.playerField : gameState.enemyField;
+            const isPlayerSide = side === 'player';
+            const cardsRevealed = gameState.cardsRevealed || gameState.battleStarted;
+            
+            let html = '';
+            for (let i = 0; i < 12; i++) {
+                const card = field[i];
+                const showCard = cardsRevealed || (isPlayerSide && card);
+                
+                html += `
+                    <div class="field-cell ${isPlayerSide ? 'player-cell' : 'enemy-cell'}" 
+                         onclick="${isPlayerSide && !gameState.battleStarted ? `window.placeCardFromPurchased(${i})` : ''}"
+                         style="aspect-ratio: 1; border: 2px solid ${isPlayerSide ? '#2ecc71' : '#3498db'}; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: ${card ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'}; cursor: ${isPlayerSide && !gameState.battleStarted ? 'pointer' : 'default'};">
+                        ${card && showCard ? `
+                            <img src="${card.imageBase64}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                            ${!cardsRevealed && !isPlayerSide ? '' : `
+                                <div style="position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; padding: 2px 5px; border-radius: 4px; font-size: 10px;">
+                                    ${card.health}❤️ ${card.damage}⚔️
+                                </div>
+                            `}
+                        ` : (card && !showCard ? '<i class="fas fa-question" style="font-size: 24px; color: var(--text-muted);"></i>' : '')}
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        function renderHand() {
+            let html = '';
+            gameState.playerHand.forEach((card, index) => {
+                const cost = card.elixirCost || 3;
+                const canAfford = gameState.playerElixir >= cost;
+                html += `
+                    <div class="hand-card" onclick="window.buyCard(${index})" 
+                         style="min-width: 90px; padding: 8px; background: var(--bg-card); border-radius: 10px; cursor: ${canAfford ? 'pointer' : 'not-allowed'}; opacity: ${canAfford ? '1' : '0.5'}; border: 2px solid ${canAfford ? '#2ecc71' : 'var(--border-color)'};">
+                        <img src="${card.imageBase64}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px;">
+                        <p style="font-size: 11px; text-align: center; margin-top: 5px; font-weight: bold;">${card.name}</p>
+                        <p style="font-size: 10px; text-align: center; color: #9b59b6;"><i class="fas fa-flask"></i> ${cost}</p>
+                        <p style="font-size: 9px; text-align: center; color: var(--text-muted);">${card.health}❤️ ${card.damage}⚔️</p>
+                    </div>
+                `;
+            });
+            return html || `<p style="color: var(--text-muted);">${t('noCharacters')}</p>`;
+        }
+
+        function renderPurchased() {
+            let html = '';
+            gameState.playerPurchased.forEach((card, index) => {
+                html += `
+                    <div class="purchased-card" onclick="window.selectPurchasedCard(${index})" 
+                         style="min-width: 90px; padding: 8px; background: var(--bg-card); border-radius: 10px; cursor: pointer; border: 2px solid #2ecc71;">
+                        <img src="${card.imageBase64}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px;">
+                        <p style="font-size: 11px; text-align: center; margin-top: 5px; font-weight: bold;">${card.name}</p>
+                        <p style="font-size: 9px; text-align: center; color: var(--text-muted);">${card.health}❤️ ${card.damage}⚔️</p>
+                    </div>
+                `;
+            });
+            return html || `<p style="color: var(--text-muted);">Нет купленных карт</p>`;
+        }
+
+        let selectedPurchasedIndex = null;
+
+        window.buyCard = function(index) {
+            if (gameState.battleStarted) return;
+            
+            const card = gameState.playerHand[index];
+            const cost = card.elixirCost || 3;
+            
+            if (gameState.playerElixir < cost) {
+                alert('Недостаточно эликсира!');
+                return;
+            }
+            
+            gameState.playerElixir -= cost;
+            gameState.playerPurchased.push(card);
+            gameState.playerHand.splice(index, 1);
+            
+            showBattleField();
+        };
+
+        window.selectPurchasedCard = function(index) {
+            selectedPurchasedIndex = index;
+            alert(`Выбрана карта: ${gameState.playerPurchased[index].name}. Нажмите на клетку поля чтобы поставить.`);
+        };
+
+        window.placeCardFromPurchased = function(cellIndex) {
+            if (gameState.battleStarted) return;
+            if (selectedPurchasedIndex === null) {
+                alert('Сначала выберите карту из купленных!');
+                return;
+            }
+            if (gameState.playerField[cellIndex] !== null) {
+                alert('Эта клетка уже занята!');
+                return;
+            }
+            
+            const card = gameState.playerPurchased[selectedPurchasedIndex];
+            gameState.playerField[cellIndex] = card;
+            gameState.playerPurchased.splice(selectedPurchasedIndex, 1);
+            selectedPurchasedIndex = null;
+            
+            showBattleField();
+        };
+
+        function startPlacementTimer() {
+            if (gameState.timer) clearInterval(gameState.timer);
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (timerDisplay) timerDisplay.textContent = gameState.timeLeft;
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    startBattle();
+                }
+            }, 1000);
+        }
+
+        window.setReady = function() {
+            gameState.playerReady = true;
+            document.getElementById('readyBtn').disabled = true;
+            document.getElementById('readyBtn').textContent = t('waitingOpponent');
+            
+            // Имитация готовности противника через 2-5 секунд
+            setTimeout(() => {
+                gameState.enemyReady = true;
+                
+                // Противник автоматически расставляет карты
+                for (let i = 0; i < 12; i++) {
+                    if (gameState.enemyField[i] === null && gameState.enemyPurchased.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * gameState.enemyPurchased.length);
+                        gameState.enemyField[i] = gameState.enemyPurchased[randomIndex];
+                        gameState.enemyPurchased.splice(randomIndex, 1);
+                    }
+                }
+                
+                if (gameState.playerReady && gameState.enemyReady) {
+                    clearInterval(gameState.timer);
+                    startBattle();
+                }
+            }, 2000 + Math.random() * 3000);
+        };
+
+        function startBattle() {
+            gameState.battleStarted = true;
+            gameState.cardsRevealed = true;
+            gameState.turn = 1;
+            
+            showBattleField();
+            startTurnTimer();
+        };
+
+        function startTurnTimer() {
+            if (gameState.timer) clearInterval(gameState.timer);
+            
+            let timeLeft = 30;
+            gameState.timer = setInterval(() => {
+                timeLeft--;
+                
+                const timerDisplay = document.getElementById('timerDisplay');
+                if (timerDisplay) timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    if (gameState.turn >= 3) {
+                        processAttacks();
+                    }
+                    nextTurn();
+                }
+            }, 1000);
+        }
+
+        function processAttacks() {
+            for (let i = 0; i < 12; i++) {
+                const playerCard = gameState.playerField[i];
+                const enemyCard = gameState.enemyField[i];
+                
+                if (playerCard && enemyCard) {
+                    const playerDamage = playerCard.damage || 0;
+                    const enemyDamage = enemyCard.damage || 0;
+                    
+                    playerCard.health = (playerCard.health || 0) - enemyDamage;
+                    enemyCard.health = (enemyCard.health || 0) - playerDamage;
+                    
+                    if (playerCard.health <= 0) {
+                        gameState.playerField[i] = null;
+                    }
+                    if (enemyCard.health <= 0) {
+                        gameState.enemyField[i] = null;
+                    }
+                }
+            }
+        }
+
+        function nextTurn() {
+            gameState.turn++;
+            gameState.playerElixir = Math.min(gameState.playerElixir + 1, 10);
+            gameState.enemyElixir = Math.min(gameState.enemyElixir + 1, 10);
+            
+            // Выдаём новые карты
+            const snapshot = getDocs(collection(db, "characters"));
+            snapshot.then(snap => {
+                const allCharacters = [];
+                snap.forEach(doc => allCharacters.push({ id: doc.id, ...doc.data() }));
+                
+                const newPlayerCard = drawRandomCards(allCharacters, 1)[0];
+                const newEnemyCard = drawRandomCards(allCharacters, 1)[0];
+                
+                if (newPlayerCard) gameState.playerHand.push(newPlayerCard);
+                if (newEnemyCard) gameState.enemyHand.push(newEnemyCard);
+            });
+            
+            // Проверяем условие победы
+            if (gameState.enemyField.every(cell => cell === null)) {
+                alert(t('victory'));
+                resetGame();
+                return;
+            }
+            if (gameState.playerField.every(cell => cell === null)) {
+                alert(t('defeat'));
+                resetGame();
+                return;
+            }
+            
+            showBattleField();
+            startTurnTimer();
+        }
+
+        window.endTurn = function() {
+            clearInterval(gameState.timer);
+            if (gameState.turn >= 3) {
+                processAttacks();
+            }
+            nextTurn();
+        };
+
+        function resetGame() {
+            gameState = {
+                mode: null,
+                playerElixir: 10,
+                enemyElixir: 10,
+                playerField: Array(12).fill(null),
+                enemyField: Array(12).fill(null),
+                playerHand: [],
+                enemyHand: [],
+                playerPurchased: [],
+                enemyPurchased: [],
+                playerDeck: [],
+                enemyDeck: [],
+                turn: 0,
+                timer: null,
+                timeLeft: 30,
+                isPlayerTurn: true,
+                battleStarted: false,
+                playerReady: false,
+                enemyReady: false,
+                cardsRevealed: false
+            };
+            
+            const homeTab = document.getElementById('tab-home');
+            homeTab.innerHTML = `
+                <h3 data-i18n="welcomeGame">Добро пожаловать в игру!</h3>
+                <div style="margin: 20px 0;">
+                    <button class="btn primary full-width" onclick="window.showEventModal()" style="margin-bottom: 15px; font-size: 18px; padding: 15px;" data-i18n="event">🎉 Событие</button>
+                    <button class="btn success full-width" onclick="window.startClassicMode()" style="font-size: 18px; padding: 15px;" data-i18n="play">⚔️ Играть</button>
+                </div>
+            `;
+            updateAllTexts();
+        }
 
         // Навигация
         document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('register'));
@@ -2872,6 +3389,47 @@
             color: var(--text-light);
         }
 
+        .battle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .field-cell {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .player-cell {
+            border: 2px solid #2ecc71 !important;
+            cursor: pointer;
+        }
+
+        .player-cell:hover {
+            background: rgba(46, 204, 113, 0.2) !important;
+            transform: scale(1.02);
+        }
+
+        .enemy-cell {
+            border: 2px solid #3498db !important;
+            cursor: default;
+        }
+
+        .hand-card, .purchased-card {
+            transition: all 0.2s;
+        }
+
+        .hand-card:hover, .purchased-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
         @media (max-width: 480px) {
             .card { padding: 20px 15px; }
             h1 { font-size: 26px; }
@@ -3054,7 +3612,10 @@
                 
                 <div id="tab-home" class="tab-content active">
                     <h3 data-i18n="welcomeGame">Добро пожаловать в игру!</h3>
-                    <p data-i18n="gameplayHere">Здесь будет основной геймплей</p>
+                    <div style="margin: 20px 0;">
+                        <button class="btn primary full-width" onclick="window.showEventModal()" style="margin-bottom: 15px; font-size: 18px; padding: 15px;" data-i18n="event">🎉 Событие</button>
+                        <button class="btn success full-width" onclick="window.startClassicMode()" style="font-size: 18px; padding: 15px;" data-i18n="play">⚔️ Играть</button>
+                    </div>
                 </div>
                 
                 <div id="tab-characters" class="tab-content">
@@ -3101,6 +3662,7 @@
                                 <option value="assassin" data-i18n="assassin">Убийца</option>
                                 <option value="artillery" data-i18n="artillery">Артиллерия</option>
                             </select>
+                            <input type="number" id="newCharacterElixirCost" data-i18n="elixirCost" placeholder="Стоимость в эликсирах" required min="1" value="3">
                             <label style="display: block; margin: 10px 0; color: var(--text-muted);" data-i18n="characterAttack">Атака (фото/видео):</label>
                             <input type="file" id="characterAttackMedia" accept="image/*,video/*">
                             <button class="btn primary full-width" onclick="window.createCharacter()" data-i18n="saveCharacter">Сохранить персонажа</button>
