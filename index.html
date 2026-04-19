@@ -34,8 +34,9 @@
         const EMAILJS_PUBLIC_KEY = "NpbBqnbjRAYFfBZc5";
         const EMAILJS_SERVICE_ID = "service_unkraqr";
         const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
+        const DEV_PASSWORD = "MAS007";
 
-        // ---------- СИСТЕМА ПЕРЕВОДОВ (только RU и EN) ----------
+        // ---------- СИСТЕМА ПЕРЕВОДОВ ----------
         const translations = {
             ru: {
                 welcome: 'Добро пожаловать в битву!',
@@ -74,14 +75,33 @@
                 friends: 'Друзья',
                 account: 'Аккаунт',
                 settings: 'Настройки',
+                developer: 'Разработчик',
+                enterDevPassword: 'Введите пароль разработчика',
+                devModeActive: 'Режим разработчика активен',
+                createCharacter: 'Создать персонажа',
+                characterName: 'Имя персонажа',
+                characterHealth: 'Здоровье',
+                characterDamage: 'Урон',
+                characterAbility: 'Способность',
+                characterTrait: 'Особенность (необязательно)',
+                characterRarity: 'Редкость',
+                selectImage: 'Выбрать изображение',
+                saveCharacter: 'Сохранить персонажа',
+                common: 'Обычный',
+                rare: 'Редкий',
+                epic: 'Эпический',
+                legendary: 'Легендарный',
+                noCharacters: 'Нет созданных персонажей',
+                health: 'Здоровье',
+                damage: 'Урон',
+                ability: 'Способность',
+                trait: 'Особенность',
+                rarity: 'Редкость',
                 welcomeGame: 'Добро пожаловать в игру!',
                 gameplayHere: 'Здесь будет основной геймплей',
                 yourCharacters: 'Ваши персонажи',
-                charactersHere: 'Здесь будут ваши персонажи',
                 friendsHere: 'Здесь будут ваши друзья',
                 friendsList: 'Список друзей',
-                addFriend: 'Добавить друга',
-                searchFriend: 'Поиск друзей...',
                 noFriends: 'У вас пока нет друзей',
                 showQrCode: 'Показать QR-код',
                 scanQrCode: 'Сканировать QR-код',
@@ -214,14 +234,33 @@
                 friends: 'Friends',
                 account: 'Account',
                 settings: 'Settings',
+                developer: 'Developer',
+                enterDevPassword: 'Enter developer password',
+                devModeActive: 'Developer mode active',
+                createCharacter: 'Create character',
+                characterName: 'Character name',
+                characterHealth: 'Health',
+                characterDamage: 'Damage',
+                characterAbility: 'Ability',
+                characterTrait: 'Trait (optional)',
+                characterRarity: 'Rarity',
+                selectImage: 'Select image',
+                saveCharacter: 'Save character',
+                common: 'Common',
+                rare: 'Rare',
+                epic: 'Epic',
+                legendary: 'Legendary',
+                noCharacters: 'No characters created',
+                health: 'Health',
+                damage: 'Damage',
+                ability: 'Ability',
+                trait: 'Trait',
+                rarity: 'Rarity',
                 welcomeGame: 'Welcome to the game!',
                 gameplayHere: 'Main gameplay will be here',
                 yourCharacters: 'Your characters',
-                charactersHere: 'Your characters will be here',
                 friendsHere: 'Your friends will be here',
                 friendsList: 'Friends list',
-                addFriend: 'Add friend',
-                searchFriend: 'Search friends...',
                 noFriends: 'You have no friends yet',
                 showQrCode: 'Show QR code',
                 scanQrCode: 'Scan QR code',
@@ -328,11 +367,15 @@
         let userClan = null;
         let clansListener = null;
         let clanChatListener = null;
+        let charactersListener = null;
         let qrScannerStream = null;
         let tempRegData = null;
         let addAccountTempRegData = null;
         let generatedCode = null;
         let addAccountMode = 'login';
+        
+        // Режим разработчика сохраняется в localStorage
+        let isDeveloperMode = localStorage.getItem('isDeveloperMode') === 'true';
 
         function t(key) {
             return translations[currentLanguage]?.[key] || translations.ru[key] || key;
@@ -457,6 +500,9 @@
             if (screenId === 'addAccount') {
                 updateSavedAccountsList();
             }
+            if (screenId === 'game' && currentUser) {
+                updateDevModeUI();
+            }
         }
 
         function showLoader(show = true) {
@@ -552,6 +598,9 @@
             if (tabId === 'friends' && currentUser) {
                 loadFriendsData();
             }
+            if (tabId === 'characters') {
+                loadCharacters();
+            }
         }
 
         async function loadAccountProfile(user) {
@@ -564,6 +613,150 @@
                     document.getElementById('accountAvatarLarge').textContent = data.avatar || '👤';
                 }
             } catch (error) {}
+        }
+
+        // ---------- ФУНКЦИИ РАЗРАБОТЧИКА ----------
+        function updateDevModeUI() {
+            const devBtn = document.getElementById('developerModeBtn');
+            const devSection = document.getElementById('developerSection');
+            const createCharSection = document.getElementById('createCharacterSection');
+            
+            if (isDeveloperMode) {
+                if (devBtn) devBtn.innerHTML = `<i class="fas fa-code"></i> ${t('devModeActive')}`;
+                if (devSection) devSection.classList.remove('hidden');
+                if (createCharSection) createCharSection.classList.remove('hidden');
+            } else {
+                if (devBtn) devBtn.innerHTML = `<i class="fas fa-code"></i> ${t('developer')}`;
+                if (devSection) devSection.classList.add('hidden');
+                if (createCharSection) createCharSection.classList.add('hidden');
+            }
+        }
+
+        window.showDevPasswordPrompt = function() {
+            const password = prompt(t('enterDevPassword'));
+            if (password === DEV_PASSWORD) {
+                isDeveloperMode = true;
+                localStorage.setItem('isDeveloperMode', 'true');
+                updateDevModeUI();
+                alert(t('devModeActive'));
+            } else if (password !== null) {
+                alert(t('wrongCode'));
+            }
+        };
+
+        window.toggleCreateCharacter = function() {
+            const form = document.getElementById('createCharacterForm');
+            form.classList.toggle('hidden');
+        };
+
+        window.createCharacter = async function() {
+            const file = document.getElementById('characterImage').files[0];
+            const name = document.getElementById('newCharacterName').value.trim();
+            const health = document.getElementById('newCharacterHealth').value;
+            const damage = document.getElementById('newCharacterDamage').value;
+            const ability = document.getElementById('newCharacterAbility').value.trim();
+            const trait = document.getElementById('newCharacterTrait').value.trim();
+            const rarity = document.getElementById('newCharacterRarity').value;
+            
+            if (!file || !name || !health || !damage || !ability) {
+                alert(t('error') + ': Заполните все обязательные поля');
+                return;
+            }
+            
+            showLoader(true);
+            try {
+                // Конвертируем изображение в Base64
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const imageBase64 = e.target.result;
+                    
+                    await addDoc(collection(db, "characters"), {
+                        name, health: parseInt(health), damage: parseInt(damage),
+                        ability, trait: trait || null, rarity, imageBase64,
+                        createdBy: currentUser.uid,
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    document.getElementById('createCharacterForm').classList.add('hidden');
+                    document.getElementById('newCharacterName').value = '';
+                    document.getElementById('newCharacterHealth').value = '';
+                    document.getElementById('newCharacterDamage').value = '';
+                    document.getElementById('newCharacterAbility').value = '';
+                    document.getElementById('newCharacterTrait').value = '';
+                    document.getElementById('characterImage').value = '';
+                    
+                    alert(t('success'));
+                    loadCharacters();
+                    showLoader(false);
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                alert(`${t('error')}: ${error.message}`);
+                showLoader(false);
+            }
+        };
+
+        function loadCharacters() {
+            const container = document.getElementById('charactersContainer');
+            if (!container) return;
+            
+            if (charactersListener) charactersListener();
+            
+            charactersListener = onSnapshot(
+                query(collection(db, "characters"), orderBy('createdAt', 'desc')),
+                (snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `<p style="color: var(--text-muted); text-align: center;" data-i18n="noCharacters">${t('noCharacters')}</p>`;
+                        updateAllTexts();
+                        return;
+                    }
+                    
+                    const rarityColors = { common: '#9e9e9e', rare: '#4caf50', epic: '#9c27b0', legendary: '#ff9800' };
+                    const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
+                    
+                    container.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const char = { id: doc.id, ...doc.data() };
+                        const card = document.createElement('div');
+                        card.className = 'character-card';
+                        card.onclick = () => showCharacterDetails(char);
+                        card.innerHTML = `
+                            <div class="character-name">${char.name}</div>
+                            <div class="character-image-container">
+                                <img src="${char.imageBase64}" alt="${char.name}" class="character-image">
+                            </div>
+                            <div class="character-rarity" style="background: ${rarityColors[char.rarity] || '#9e9e9e'};">
+                                ${rarityNames[char.rarity] || char.rarity}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                    updateAllTexts();
+                }
+            );
+        }
+
+        function showCharacterDetails(char) {
+            const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="text-align: center;">
+                    <img src="${char.imageBase64}" alt="${char.name}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 15px;">
+                    <h3>${char.name}</h3>
+                    <div style="text-align: left; margin: 15px 0;">
+                        <p><strong>${t('health')}:</strong> ${char.health}</p>
+                        <p><strong>${t('damage')}:</strong> ${char.damage}</p>
+                        <p><strong>${t('ability')}:</strong> ${char.ability}</p>
+                        ${char.trait ? `<p><strong>${t('trait')}:</strong> ${char.trait}</p>` : ''}
+                        <p><strong>${t('rarity')}:</strong> ${rarityNames[char.rarity] || char.rarity}</p>
+                    </div>
+                    <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">${t('closeClan')}</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+            updateAllTexts();
         }
 
         // ---------- ФУНКЦИИ КЛАНОВ ----------
@@ -597,7 +790,6 @@
             document.getElementById('clanType').textContent = userClan.isOpen ? t('openClan') : t('closedClan');
             document.getElementById('clanMembersCount').textContent = `${userClan.members?.length || 0} ${t('members')}`;
             
-            // Скрываем детали по умолчанию
             document.getElementById('clanDetailsSection').classList.add('hidden');
             
             loadClanChat();
@@ -612,7 +804,6 @@
             const isHidden = detailsSection.classList.contains('hidden');
             
             if (isHidden) {
-                // Загружаем детали
                 document.getElementById('detailClanDescription').textContent = userClan.description || t('noDescription');
                 await loadClanMembers();
                 detailsSection.classList.remove('hidden');
@@ -993,7 +1184,6 @@
             }
         };
 
-        // Создание клана
         window.toggleCreateClan = function() {
             document.getElementById('createClanSection').classList.toggle('hidden');
         };
@@ -1054,7 +1244,6 @@
         });
         document.getElementById('backFromAddAccountBtn')?.addEventListener('click', () => showScreen('game'));
 
-        // Переключение режима в добавлении аккаунта
         document.getElementById('showAddAccountLogin')?.addEventListener('click', () => {
             addAccountMode = 'login';
             document.getElementById('addAccountLoginSection').classList.remove('hidden');
@@ -1088,7 +1277,6 @@
             }
         });
 
-        // Добавление аккаунта - вход
         document.getElementById('addAccountLoginForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoader(true);
@@ -1109,7 +1297,6 @@
             }
         });
 
-        // Добавление аккаунта - регистрация
         const addAccountNickname = document.getElementById('addAccountRegNickname');
         addAccountNickname?.addEventListener('input', async (e) => {
             const nickname = e.target.value.trim();
@@ -1185,7 +1372,6 @@
             }
         });
 
-        // Регистрация
         const nicknameInput = document.getElementById('regNickname');
         nicknameInput?.addEventListener('input', async (e) => {
             const nickname = e.target.value.trim();
@@ -1261,7 +1447,6 @@
             }
         });
 
-        // Сброс пароля
         let resetCodeSent = false;
         document.getElementById('resetForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1309,7 +1494,6 @@
             }
         });
 
-        // Управление аккаунтом
         document.getElementById('changeEmailBtn')?.addEventListener('click', () => {
             document.getElementById('emailChangeSection').classList.remove('hidden');
         });
@@ -1435,7 +1619,6 @@
             document.getElementById('deleteConfirmSection').classList.add('hidden');
         });
 
-        // Отправка сообщения в чат
         document.getElementById('sendClanMessageBtn')?.addEventListener('click', () => {
             const input = document.getElementById('clanMessageInput');
             sendClanMessage(input.value);
@@ -1448,12 +1631,10 @@
             }
         });
 
-        // Поиск кланов
         document.getElementById('searchClanInput')?.addEventListener('input', (e) => {
             loadClansList(e.target.value);
         });
 
-        // Сохраненные аккаунты
         document.getElementById('savedAccountsList')?.addEventListener('click', async (e) => {
             const item = e.target.closest('.saved-account-item');
             if (!item) return;
@@ -1482,7 +1663,6 @@
                 }
             });
 
-            // Настройки темы
             const themeSelect = document.getElementById('themeSelect');
             const customColorsDiv = document.getElementById('customColorsSection');
             
@@ -1506,7 +1686,6 @@
             document.getElementById('saveCustomColorsBtn')?.addEventListener('click', saveCustomColors);
             document.getElementById('resetColorsBtn')?.addEventListener('click', resetColors);
 
-            // Настройки звука
             document.getElementById('volumeSlider').value = soundSettings.volume;
             document.getElementById('volumeValue').textContent = soundSettings.volume + '%';
             document.getElementById('volumeSlider').addEventListener('input', (e) => {
@@ -1514,7 +1693,6 @@
             });
             document.getElementById('soundModeSelect').value = soundSettings.mode;
             
-            // Язык
             document.getElementById('languageSelect').value = currentLanguage;
             document.getElementById('languageSelect').addEventListener('change', (e) => {
                 currentLanguage = e.target.value;
@@ -1524,6 +1702,9 @@
 
             applyTheme();
             updateAllTexts();
+            
+            // Обновляем UI режима разработчика при загрузке
+            updateDevModeUI();
         });
 
         onAuthStateChanged(auth, async (user) => {
@@ -1801,7 +1982,6 @@
             padding: 2px;
         }
 
-        /* Стили кланов */
         .clan-header {
             display: flex;
             align-items: center;
@@ -1899,7 +2079,6 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        /* Чат клана */
         .clan-chat {
             margin-top: 20px;
             border-top: 1px solid var(--border-color);
@@ -1974,7 +2153,6 @@
             margin: 0;
         }
 
-        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -1995,7 +2173,6 @@
             overflow-y: auto;
         }
 
-        /* Друзья */
         .friends-actions {
             display: flex;
             gap: 10px;
@@ -2049,16 +2226,82 @@
             color: var(--text-muted);
         }
 
-        .tap-hint {
+        /* Стили для персонажей */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .character-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .character-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .character-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+            text-align: center;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: color-mix(in srgb, var(--bg-card) 80%, black);
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .character-image-container {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .character-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .character-rarity {
+            padding: 8px 10px;
+            border-radius: 20px;
             font-size: 12px;
-            color: var(--text-muted);
-            margin-left: auto;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            text-transform: uppercase;
+            margin-top: auto;
         }
 
         @media (max-width: 480px) {
             .card { padding: 20px 15px; }
             h1 { font-size: 26px; }
             .tab-btn { font-size: 9px; padding: 8px 2px; }
+            .characters-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -2171,7 +2414,6 @@
                     </div>
                 </div>
                 
-                <!-- Секция входа -->
                 <div id="addAccountLoginSection">
                     <form id="addAccountLoginForm">
                         <input type="email" id="addAccountEmail" data-i18n="email" placeholder="Email" required>
@@ -2183,7 +2425,6 @@
                     </form>
                 </div>
                 
-                <!-- Секция регистрации -->
                 <div id="addAccountRegisterSection" class="hidden">
                     <form id="addAccountRegisterForm">
                         <div class="avatar-section">
@@ -2243,16 +2484,39 @@
                     <p data-i18n="gameplayHere">Здесь будет основной геймплей</p>
                 </div>
                 
+                <!-- Вкладка Персонажи -->
                 <div id="tab-characters" class="tab-content">
                     <h3 data-i18n="yourCharacters">Ваши персонажи</h3>
-                    <p data-i18n="charactersHere">Здесь будут ваши персонажи</p>
+                    
+                    <div id="createCharacterSection" class="hidden">
+                        <button class="btn primary full-width" onclick="window.toggleCreateCharacter()" data-i18n="createCharacter">Создать персонажа</button>
+                        
+                        <div id="createCharacterForm" class="hidden settings-section">
+                            <input type="file" id="characterImage" accept="image/*" required>
+                            <input type="text" id="newCharacterName" data-i18n="characterName" placeholder="Имя персонажа" required>
+                            <input type="number" id="newCharacterHealth" data-i18n="characterHealth" placeholder="Здоровье" required min="1">
+                            <input type="number" id="newCharacterDamage" data-i18n="characterDamage" placeholder="Урон" required min="1">
+                            <input type="text" id="newCharacterAbility" data-i18n="characterAbility" placeholder="Способность" required>
+                            <input type="text" id="newCharacterTrait" data-i18n="characterTrait" placeholder="Особенность (необязательно)">
+                            <select id="newCharacterRarity" required>
+                                <option value="common" data-i18n="common">Обычный</option>
+                                <option value="rare" data-i18n="rare">Редкий</option>
+                                <option value="epic" data-i18n="epic">Эпический</option>
+                                <option value="legendary" data-i18n="legendary">Легендарный</option>
+                            </select>
+                            <button class="btn primary full-width" onclick="window.createCharacter()" data-i18n="saveCharacter">Сохранить персонажа</button>
+                            <button class="btn text full-width" onclick="window.toggleCreateCharacter()" data-i18n="cancel">Отмена</button>
+                        </div>
+                    </div>
+                    
+                    <div id="charactersContainer" class="characters-grid">
+                        <p style="color: var(--text-muted);" data-i18n="noCharacters">Нет созданных персонажей</p>
+                    </div>
                 </div>
                 
                 <!-- Вкладка Клан -->
                 <div id="tab-clan" class="tab-content">
-                    <!-- Мой клан -->
                     <div id="myClanSection" class="hidden">
-                        <!-- Кликабельный заголовок клана -->
                         <div class="clan-header" onclick="window.toggleClanDetails()">
                             <div id="myClanAvatar" class="clan-avatar">🏰</div>
                             <div class="clan-info">
@@ -2264,7 +2528,6 @@
                             <i class="fas fa-chevron-down" style="color: var(--text-muted);"></i>
                         </div>
                         
-                        <!-- Детали клана (скрыты по умолчанию) -->
                         <div id="clanDetailsSection" class="hidden">
                             <p id="detailClanDescription" style="color: var(--text-muted); margin-bottom: 15px;"></p>
                             
@@ -2293,7 +2556,6 @@
                         <button id="leaveClanBtn" class="btn danger full-width" onclick="window.leaveClan()" data-i18n="leaveClan">Покинуть клан</button>
                     </div>
                     
-                    <!-- Поиск клана -->
                     <div id="findClanSection">
                         <button class="btn primary full-width" onclick="window.toggleCreateClan()" data-i18n="createClan">Создать клан</button>
                         
@@ -2349,6 +2611,15 @@
                             <div id="accountAvatarLarge" class="avatar-placeholder avatar-large">👤</div>
                             <h3 id="accountNickname">Игрок</h3>
                             <p id="accountEmail" style="color: var(--text-muted);">email@example.com</p>
+                        </div>
+                        
+                        <button id="developerModeBtn" class="btn secondary full-width" onclick="window.showDevPasswordPrompt()">
+                            <i class="fas fa-code"></i> <span data-i18n="developer">Разработчик</span>
+                        </button>
+                        
+                        <div id="developerSection" class="hidden settings-section">
+                            <h4 style="color: var(--primary);">👑 Режим разработчика</h4>
+                            <p style="color: var(--text-muted);" data-i18n="devModeActive">Режим разработчика активен</p>
                         </div>
                         
                         <button id="addAccountBtn" class="btn secondary full-width" data-i18n="addAccount">Добавить аккаунт</button>
