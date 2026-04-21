@@ -276,14 +276,6 @@
             background: rgba(244,67,54,0.1);
         }
         
-        .validation-hint {
-            font-size: 13px;
-            display: block;
-            margin-top: -5px;
-            margin-bottom: 8px;
-            padding-left: 10px;
-        }
-        
         .color-picker-row {
             display: flex;
             align-items: center;
@@ -461,12 +453,6 @@
             gap: 5px;
         }
         
-        .news-actions .btn {
-            padding: 5px 10px;
-            font-size: 11px;
-            margin: 0;
-        }
-        
         .friend-item {
             display: flex;
             align-items: center;
@@ -492,20 +478,10 @@
             flex: 1;
         }
         
-        .friend-nickname {
-            font-weight: bold;
-        }
-        
         .friends-actions {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
-        }
-        
-        .friends-actions .btn {
-            flex: 1;
-            padding: 10px;
-            font-size: 12px;
         }
         
         .saved-account-item {
@@ -533,15 +509,6 @@
         .saved-info {
             flex: 1;
             text-align: left;
-        }
-        
-        .saved-nickname {
-            font-weight: bold;
-        }
-        
-        .saved-email {
-            font-size: 12px;
-            color: var(--text-muted);
         }
         
         .clan-header {
@@ -580,10 +547,6 @@
         .clan-info {
             flex: 1;
             text-align: left;
-        }
-        
-        .clan-name {
-            font-weight: bold;
         }
         
         .clan-members-count {
@@ -702,11 +665,6 @@
             gap: 10px;
         }
         
-        .chat-input-container input {
-            flex: 1;
-            margin: 0;
-        }
-        
         .delete-message-btn {
             display: none;
             position: absolute;
@@ -779,14 +737,14 @@
             border: 2px solid #3498db !important;
         }
         
-        .hand-card, .purchased-card {
+        .field-cell.selectable {
             cursor: pointer;
-            width: 90px;
-            min-width: 90px;
+            box-shadow: 0 0 10px #f1c40f;
         }
         
-        .hand-card.selected, .purchased-card.selected {
-            border: 3px solid #f1c40f !important;
+        .field-cell.stunned {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .mechanics-dual-grid {
@@ -830,6 +788,11 @@
         
         .mech-cell.selected {
             border: 3px solid #f1c40f;
+        }
+        
+        .mech-cell.current-position {
+            border: 3px solid #f1c40f;
+            background: rgba(241, 196, 15, 0.2);
         }
         
         .effect-badge {
@@ -932,14 +895,6 @@
             padding: 10px 0;
         }
         
-        .email-change-modal .modal-content {
-            max-width: 400px;
-        }
-        
-        .password-change-modal .modal-content {
-            max-width: 400px;
-        }
-        
         .battle-side {
             border-radius: 16px;
             padding: 10px;
@@ -951,6 +906,33 @@
         
         .battle-side.player {
             background: linear-gradient(135deg, #1a8c5c, #0f5c3a);
+        }
+        
+        .coin-flip-animation {
+            font-size: 50px;
+            animation: coinFlip 0.5s infinite;
+        }
+        
+        @keyframes coinFlip {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        .turn-indicator {
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .turn-indicator.your-turn {
+            background: var(--success);
+        }
+        
+        .turn-indicator.enemy-turn {
+            background: var(--error);
         }
         
         @media (max-width: 480px) {
@@ -1015,12 +997,6 @@
                         <input type="password" id="regPasswordConfirm" data-i18n="confirmPassword" placeholder="Подтвердите пароль" required>
                         <i class="far fa-eye toggle-password" data-target="regPasswordConfirm"></i>
                     </div>
-                    <div id="verificationSection" class="hidden">
-                        <p style="margin:15px 0 10px;color:var(--text-muted);" data-i18n="enterCode">Введите код из письма</p>
-                        <input type="text" id="verificationCode" placeholder="123456" maxlength="6">
-                        <button type="button" id="verifyEmailBtn" class="btn secondary full-width" data-i18n="confirmEmail">✅ Подтвердить Email</button>
-                        <button type="button" id="resendCodeBtn" class="btn text" data-i18n="resendCode">📧 Отправить код повторно</button>
-                    </div>
                     <button type="submit" id="registerSubmitBtn" class="btn primary full-width" data-i18n="continue">📝 Продолжить</button>
                 </form>
                 <button id="backFromRegBtn" class="btn text" data-i18n="backToHome">На главную</button>
@@ -1083,12 +1059,6 @@
                         <div class="password-wrapper">
                             <input type="password" id="addAccountRegPasswordConfirm" data-i18n="confirmPassword" placeholder="Подтвердите пароль" required>
                             <i class="far fa-eye toggle-password" data-target="addAccountRegPasswordConfirm"></i>
-                        </div>
-                        <div id="addAccountVerificationSection" class="hidden">
-                            <p style="margin:15px 0 10px;color:var(--text-muted);" data-i18n="enterCode">Введите код из письма</p>
-                            <input type="text" id="addAccountVerificationCode" placeholder="123456" maxlength="6">
-                            <button type="button" id="addAccountVerifyEmailBtn" class="btn secondary full-width" data-i18n="confirmEmail">✅ Подтвердить Email</button>
-                            <button type="button" id="addAccountResendCodeBtn" class="btn text" data-i18n="resendCode">📧 Отправить код повторно</button>
                         </div>
                         <button type="submit" id="addAccountRegisterSubmitBtn" class="btn primary full-width" data-i18n="register">📝 Зарегистрироваться</button>
                     </form>
@@ -1391,13 +1361,12 @@
     import { 
         getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
         signOut, onAuthStateChanged, sendPasswordResetEmail,
-        updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential,
-        deleteUser
+        updateEmail, updatePassword
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
     import { 
         getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs,
         deleteDoc, updateDoc, addDoc, arrayUnion, arrayRemove, onSnapshot,
-        orderBy, limit, serverTimestamp, writeBatch, increment
+        orderBy, limit, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
     // ========== КОНФИГУРАЦИЯ ==========
@@ -1415,6 +1384,8 @@
     const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
     const DEV_PASSWORD = "MAS007";
     const MAX_CLAN_MEMBERS = 30;
+    const MAX_ELIXIR = 15;
+    const HAND_SIZE = 5;
 
     // ========== СИСТЕМА ПЕРЕВОДОВ ==========
     const translations = {
@@ -1449,7 +1420,7 @@
             classicMode: 'Классический режим', searchingOpponent: 'Поиск соперника...',
             yourSide: 'Ваша сторона', enemySide: 'Противник', elixir: 'Эликсир', battle: 'Битва',
             yourCards: 'Ваши карты', purchasedCards: 'Купленные', turn: 'Ход', victory: 'Победа!',
-            defeat: 'Поражение!', ready: 'Готов', buy: 'Купить', place: 'Поставить', cancel: 'Отмена',
+            defeat: 'Поражение!', ready: 'Готово', buy: 'Купить', place: 'Поставить', cancel: 'Отмена',
             close: 'Закрыть', friendsList: 'Друзья', addFriend: 'Добавить', searchFriend: 'Поиск по нику...',
             noFriends: 'Нет друзей', friendRequestSent: 'Заявка отправлена', alreadyFriends: 'Уже друзья',
             requestPending: 'Заявка отправлена', showQrCode: 'QR-код', scanQrCode: 'Сканировать',
@@ -1474,15 +1445,18 @@
             cameraDenied: 'Нет доступа', invalidQr: 'Неверный QR', friendAdded: 'Друг добавлен!',
             clanDetails: 'Подробности', position: 'Позиция', effects: 'Эффекты', clearCell: 'Очистить',
             saveMechanics: 'Сохранить', selectEffect: 'Выберите эффект', value: 'Значение', duration: 'Длительность',
-            greenSideOnly: 'Зелёное поле (позиции 12-23)', selectPosition: 'Выберите позицию',
-            apply: 'Применить', event: 'Событие', characterAttack: 'Атака (фото/видео)',
-            confirmLogout: 'Выйти из аккаунта?', enterNewEmail: 'Введите новый Email', enterNewPassword: 'Введите новый пароль',
+            selectPosition: 'Выберите позицию', apply: 'Применить', event: 'Событие', 
+            characterAttack: 'Атака (фото/видео)', confirmLogout: 'Выйти из аккаунта?', 
+            enterNewEmail: 'Введите новый Email', enterNewPassword: 'Введите новый пароль',
             repeatNewPassword: 'Повторите новый пароль', codeSent: 'Код отправлен на', demoMode: 'Демо-режим. Код:',
             editNews: 'Редактировать', deleteNews: 'Удалить', save: 'Сохранить', edit: 'Изменить',
             clanFull: 'Клан полон (макс. 30)', deleteMessage: 'Удалить сообщение', maxMembers: 'Макс. 30 участников',
             enemyField: 'Поле противника', allyField: 'Поле союзников', addEffect: 'Добавить эффект',
             damagePerTurn: 'Урон за ход', healPerTurn: 'Лечение за ход', shieldStrength: 'Прочность щита',
-            damageReduction: 'Снижение урона', damageIncrease: 'Увеличение урона'
+            damageReduction: 'Снижение урона', damageIncrease: 'Увеличение урона',
+            yourTurn: 'ВАШ ХОД', enemyTurn: 'ХОД ПРОТИВНИКА', selectCharacter: 'Выберите персонажа для атаки',
+            coinFlip: 'Бросаем монетку...', youGoFirst: 'Вы ходите первым!', enemyGoesFirst: 'Противник ходит первым!',
+            waitingOpponent: 'Ожидание противника...', bothReady: 'Оба игрока готовы!'
         },
         en: {
             welcome: 'Welcome!', register: 'Register', login: 'Login', loginTitle: 'Login', email: 'Email',
@@ -1534,15 +1508,18 @@
             makeOwner: 'Make owner', cameraDenied: 'Camera denied', invalidQr: 'Invalid QR',
             friendAdded: 'Friend added!', clanDetails: 'Details', position: 'Position', effects: 'Effects',
             clearCell: 'Clear', saveMechanics: 'Save', selectEffect: 'Select effect', value: 'Value',
-            duration: 'Duration', greenSideOnly: 'Green field (12-23)', selectPosition: 'Select position',
-            apply: 'Apply', event: 'Event', characterAttack: 'Attack (photo/video)',
-            confirmLogout: 'Logout?', enterNewEmail: 'Enter new Email', enterNewPassword: 'Enter new password',
+            duration: 'Duration', selectPosition: 'Select position', apply: 'Apply', event: 'Event',
+            characterAttack: 'Attack (photo/video)', confirmLogout: 'Logout?', 
+            enterNewEmail: 'Enter new Email', enterNewPassword: 'Enter new password',
             repeatNewPassword: 'Repeat new password', codeSent: 'Code sent to', demoMode: 'Demo mode. Code:',
             editNews: 'Edit', deleteNews: 'Delete', save: 'Save', edit: 'Edit',
             clanFull: 'Clan full (max 30)', deleteMessage: 'Delete message', maxMembers: 'Max 30 members',
             enemyField: 'Enemy field', allyField: 'Ally field', addEffect: 'Add effect',
             damagePerTurn: 'Damage per turn', healPerTurn: 'Heal per turn', shieldStrength: 'Shield strength',
-            damageReduction: 'Damage reduction', damageIncrease: 'Damage increase'
+            damageReduction: 'Damage reduction', damageIncrease: 'Damage increase',
+            yourTurn: 'YOUR TURN', enemyTurn: 'ENEMY TURN', selectCharacter: 'Select character to attack',
+            coinFlip: 'Flipping coin...', youGoFirst: 'You go first!', enemyGoesFirst: 'Enemy goes first!',
+            waitingOpponent: 'Waiting for opponent...', bothReady: 'Both players ready!'
         }
     };
 
@@ -1559,20 +1536,13 @@
     let charactersListener = null;
     let newsListener = null;
     let qrScannerStream = null;
-    let tempRegData = null;
-    let addAccountTempRegData = null;
     let generatedCode = null;
     let currentFilter = 'all';
     let currentFilterValue = '';
     let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     let isDeveloperMode = localStorage.getItem('isDeveloperMode') === 'true';
     let savedAccounts = JSON.parse(localStorage.getItem('savedAccounts') || '[]');
-    let deleteConfirmStep = 0;
     let pendingEmailChange = null;
-    let resetEmail = '';
-    let resetCodeSent = false;
-    let resendTimeout = null;
-    let resendSecondsLeft = 0;
     let editingNewsId = null;
     
     // Механики персонажа
@@ -1588,8 +1558,11 @@
         mode: null, isPvP: false, roomId: null, playerElixir: 10, enemyElixir: 10,
         playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
         playerHand: [], playerPurchased: [], turn: 0, timer: null, timeLeft: 30,
-        battleStarted: false, playerReady: false, cardsRevealed: false,
-        selectedCard: null, attackQueue: []
+        battleStarted: false, playerReady: false, enemyReady: false,
+        selectedCard: null, attackQueue: [], currentAttacker: null,
+        coinFlipWinner: null, isPlayerTurn: false, turnPhase: 'waiting', // waiting, playerTurn, enemyTurn
+        playerActionsLeft: 0, enemyActionsLeft: 0, maxActionsPerTurn: 0,
+        waitingForOpponent: false
     };
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
@@ -1782,7 +1755,8 @@
             alert(t('wrongCode')); 
         }
     };
-        // ========== РЕДАКТОР МЕХАНИК (ПОЛНАЯ ВЕРСИЯ) ==========
+
+    // ========== РЕДАКТОР МЕХАНИК ==========
     window.openMechanicsEditor = function() {
         const modal = document.createElement('div'); 
         modal.className = 'modal-overlay'; 
@@ -1790,12 +1764,11 @@
         
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 750px;">
-                <h3>⚙️ ${t('mechanics')} - ${t('greenSideOnly')}</h3>
+                <h3>⚙️ ${t('mechanics')}</h3>
                 <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 10px;">
                     ${t('selectPosition')} (12-23) - ${t('enemyField')} 🔵 / ${t('allyField')} 🟢
                 </p>
                 
-                <!-- Выбор позиции персонажа -->
                 <div class="positions-tabs">
                     ${[12,13,14,15,16,17,18,19,20,21,22,23].map(p => `
                         <div class="position-tab ${p === currentCharacterPosition ? 'active' : ''}" 
@@ -1804,35 +1777,24 @@
                 </div>
                 
                 <div class="mechanics-dual-grid">
-                    <!-- Синее поле противника -->
                     <div class="mechanics-side">
-                        <h4 style="color: #3498db;">🔵 ${t('enemyField')} (${t('enemySide')})</h4>
+                        <h4 style="color: #3498db;">🔵 ${t('enemyField')}</h4>
                         <div class="mechanics-grid">
                             ${renderMechanicsGrid('enemy')}
                         </div>
-                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
-                            ☠️ ${t('poisonMechanic')} | 💥 ${t('damageMechanic')} | ⚡ ${t('stunMechanic')} | 🔻 ${t('weakenMechanic')}
-                        </p>
                     </div>
-                    
-                    <!-- Зелёное поле союзников -->
                     <div class="mechanics-side">
-                        <h4 style="color: #2ecc71;">🟢 ${t('allyField')} (${t('yourSide')})</h4>
+                        <h4 style="color: #2ecc71;">🟢 ${t('allyField')}</h4>
                         <div class="mechanics-grid">
                             ${renderMechanicsGrid('player')}
                         </div>
-                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
-                            💚 ${t('healMechanic')} | 🛡️ ${t('shieldMechanic')} | ✨ ${t('buffMechanic')}
-                        </p>
                     </div>
                 </div>
                 
-                <!-- Список эффектов на выбранной клетке -->
                 <div id="selectedCellEffects" class="effect-list">
                     ${renderEffectList()}
                 </div>
                 
-                <!-- Форма добавления эффекта -->
                 <div id="addEffectForm" class="hidden" style="margin-top: 15px; padding: 15px; background: var(--bg-dark); border-radius: 12px;">
                     <h4 id="effectFormTitle">${t('addEffect')}</h4>
                     <select id="effectType">
@@ -1861,9 +1823,11 @@
     function renderMechanicsGrid(side) {
         let html = '';
         for (let i = 0; i < 12; i++) {
+            const actualPos = i + 12;
             const cellEffects = tempMechanics[currentCharacterPosition]?.[`${side}_${i}`] || [];
             const hasEffects = cellEffects.length > 0;
             const isSelected = selectedCell?.side === side && selectedCell?.index === i;
+            const isCurrentPos = actualPos === currentCharacterPosition;
             
             let icon = '';
             if (hasEffects) {
@@ -1877,9 +1841,10 @@
                 else if (lastEffect.type === 'buff') icon = '✨';
             }
             
-            html += `<div class="mech-cell ${side}-side ${isSelected ? 'selected' : ''}" 
+            html += `<div class="mech-cell ${side}-side ${isSelected ? 'selected' : ''} ${isCurrentPos ? 'current-position' : ''}" 
                           onclick="window.selectCell('${side}', ${i})">
                         ${icon}
+                        ${isCurrentPos ? '<span style="position:absolute;top:2px;left:2px;">📍</span>' : ''}
                         ${hasEffects ? `<span class="effect-badge">${cellEffects.length}</span>` : ''}
                      </div>`;
         }
@@ -2101,8 +2066,7 @@
     window.closeMechanicsEditor = () => {
         document.getElementById('mechanicsModal')?.remove();
     };
-
-    // ========== ПЕРСОНАЖИ ==========
+        // ========== ПЕРСОНАЖИ ==========
     window.toggleCreateCharacter = function() {
         document.getElementById('createCharacterForm').classList.toggle('hidden');
         tempMechanics = {};
@@ -2806,7 +2770,8 @@
             navigator.clipboard?.writeText(l).then(() => alert(t('linkCopied')));
         }
     };
-        // ========== НОВОСТИ ==========
+
+    // ========== НОВОСТИ ==========
     window.toggleCreateNews = () => {
         document.getElementById('createNewsForm').classList.toggle('hidden');
         document.getElementById('editNewsForm').classList.add('hidden');
@@ -2968,8 +2933,7 @@
             loadNews();
         }
     };
-
-    // ========== ИГРА: КЛАССИЧЕСКИЙ РЕЖИМ ==========
+        // ========== ИГРА: КЛАССИЧЕСКИЙ РЕЖИМ ==========
     window.showEventModal = () => {
         const m = document.createElement('div');
         m.className = 'modal-overlay';
@@ -3001,7 +2965,7 @@
         const snap = await getDocs(collection(db, "characters"));
         const all = [];
         snap.forEach(d => all.push({ id: d.id, ...d.data() }));
-        gameState.playerHand = drawRandomCards(all, 4);
+        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
         showClassicBattleField();
         showLoader(false);
     }
@@ -3099,6 +3063,39 @@
         showClassicBattleField();
     };
 
+    function showClassicBattleField() {
+        const tab = document.getElementById('tab-home');
+        tab.innerHTML = `
+            <h3>${t('classicMode')}</h3>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;">
+                <span><i class="fas fa-flask" style="color:#9b59b6;"></i> <span id="playerElixir">${gameState.playerElixir}</span>/${MAX_ELIXIR}</span>
+                <span id="timerDisplay">${gameState.timeLeft}с</span>
+                <span><i class="fas fa-flask"></i> <span id="enemyElixir">${gameState.battleStarted ? gameState.enemyElixir : '???'}</span></span>
+            </div>
+            <div style="margin:15px 0;">
+                <div class="battle-side enemy" style="margin-bottom:15px;">
+                    <p style="color:white;">${t('enemySide')}</p>
+                    <div class="battle-grid">${renderFieldCells('enemy')}</div>
+                </div>
+                <div class="battle-side player">
+                    <p style="color:white;">${t('yourSide')}</p>
+                    <div class="battle-grid">${renderFieldCells('player')}</div>
+                </div>
+            </div>
+            ${!gameState.battleStarted ? `
+                <div>
+                    <p>${t('yourCards')} (${gameState.playerHand.length}/${HAND_SIZE})</p>
+                    <div class="hand-container">${renderHand()}</div>
+                    <p>${t('purchasedCards')}</p>
+                    <div class="purchased-container">${renderPurchased()}</div>
+                    <button class="btn success full-width" onclick="window.setClassicReady()">${t('ready')}</button>
+                </div>
+            ` : `<button class="btn primary full-width" onclick="window.endClassicTurn()">${t('turn')}</button>`}
+        `;
+        updateAllTexts();
+        if (!gameState.battleStarted) startTimer();
+    }
+
     function renderFieldCells(side) {
         const f = side === 'player' ? gameState.playerField : gameState.enemyField;
         const isP = side === 'player';
@@ -3115,7 +3112,7 @@
             
             if (c && show) {
                 h += `<img src="${c.imageBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
-                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️ ${c.damage}⚔️</div>`;
+                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️</div>`;
             } else if (c && !show) {
                 h += '<i class="fas fa-question"></i>';
             }
@@ -3124,49 +3121,10 @@
         return h;
     }
 
-    function showClassicBattleField() {
-        const tab = document.getElementById('tab-home');
-        tab.innerHTML = `
-            <h3>${t('classicMode')}</h3>
-            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;">
-                <span><i class="fas fa-flask" style="color:#9b59b6;"></i> <span id="playerElixir">${gameState.playerElixir}</span></span>
-                <span id="timerDisplay">${gameState.timeLeft}с</span>
-                <span><i class="fas fa-flask"></i> <span id="enemyElixir">${gameState.battleStarted ? gameState.enemyElixir : '???'}</span></span>
-            </div>
-            <div style="margin:15px 0;">
-                <div class="battle-side enemy" style="margin-bottom:15px;">
-                    <p style="color:white;">${t('enemySide')}</p>
-                    <div class="battle-grid">${renderFieldCells('enemy')}</div>
-                </div>
-                <div class="battle-side player">
-                    <p style="color:white;">${t('yourSide')}</p>
-                    <div class="battle-grid">${renderFieldCells('player')}</div>
-                </div>
-            </div>
-            ${!gameState.battleStarted ? `
-                <div>
-                    <p>${t('yourCards')}</p>
-                    <div class="hand-container">${renderHand()}</div>
-                    <p>${t('purchasedCards')}</p>
-                    <div class="purchased-container">${renderPurchased()}</div>
-                    <button class="btn success full-width" onclick="window.setClassicReady()">${t('ready')}</button>
-                </div>
-            ` : `<button class="btn primary full-width" onclick="window.endClassicTurn()">${t('turn')}</button>`}
-        `;
-        updateAllTexts();
-        if (!gameState.battleStarted) startTimer();
-    }
-
     window.setClassicReady = () => {
         gameState.playerReady = true;
-        
-        for (let i = 0; i < 12; i++) {
-            if (!gameState.enemyField[i] && gameState.playerHand.length) {
-                const idx = Math.floor(Math.random() * gameState.playerHand.length);
-                gameState.enemyField[i] = { ...gameState.playerHand[idx], currentHealth: gameState.playerHand[idx].health };
-                gameState.playerHand.splice(idx, 1);
-            }
-        }
+        gameState.battleStarted = true;
+        gameState.cardsRevealed = true;
         startClassicBattle();
     };
 
@@ -3184,22 +3142,8 @@
     }
 
     function startClassicBattle() {
-        gameState.battleStarted = true;
-        gameState.cardsRevealed = true;
-        gameState.turn = 1;
-        buildAttackQueue();
         showClassicBattleField();
         startTurnTimer();
-    }
-
-    function buildAttackQueue() {
-        gameState.attackQueue = [];
-        const all = [...gameState.playerField.filter(c => c), ...gameState.enemyField.filter(c => c)];
-        for (let i = all.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [all[i], all[j]] = [all[j], all[i]];
-        }
-        gameState.attackQueue = all;
     }
 
     function startTurnTimer() {
@@ -3218,7 +3162,6 @@
     }
 
     function processAttacks() {
-        // Применяем механики каждого персонажа
         for (let i = 0; i < 12; i++) {
             const playerChar = gameState.playerField[i];
             const enemyChar = gameState.enemyField[i];
@@ -3231,7 +3174,6 @@
             }
         }
         
-        // Обрабатываем периодические эффекты
         processTurnEffects(gameState.playerField);
         processTurnEffects(gameState.enemyField);
     }
@@ -3314,7 +3256,6 @@
         field.forEach((card, index) => {
             if (!card) return;
             
-            // Яд
             if (card.poison) {
                 card.poison = card.poison.filter(p => {
                     applyDamage(card, p.damage);
@@ -3324,7 +3265,6 @@
                 if (card.poison.length === 0) delete card.poison;
             }
             
-            // Лечение
             if (card.heal) {
                 card.heal = card.heal.filter(h => {
                     card.currentHealth = Math.min(card.health, (card.currentHealth || card.health) + h.value);
@@ -3334,7 +3274,6 @@
                 if (card.heal.length === 0) delete card.heal;
             }
             
-            // Усиление
             if (card.buff) {
                 let totalBuff = 0;
                 card.buff = card.buff.filter(b => {
@@ -3349,7 +3288,6 @@
                 }
             }
             
-            // Ослабление
             if (card.weaken) {
                 let totalWeaken = 0;
                 card.weaken = card.weaken.filter(w => {
@@ -3364,19 +3302,16 @@
                 }
             }
             
-            // Оглушение
             if (card.stun) {
                 card.stun.duration--;
                 if (card.stun.duration <= 0) delete card.stun;
             }
             
-            // Щит
             if (card.shield) {
                 card.shield.duration--;
                 if (card.shield.duration <= 0 || card.shield.value <= 0) delete card.shield;
             }
             
-            // Удаление мёртвых
             if (card.currentHealth <= 0) {
                 field[index] = null;
             }
@@ -3385,8 +3320,19 @@
 
     function nextTurn() {
         gameState.turn++;
-        gameState.playerElixir = Math.min(10, gameState.playerElixir + 3);
-        gameState.enemyElixir = Math.min(10, gameState.enemyElixir + 3);
+        gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
+        
+        // Добираем карты до 5
+        while (gameState.playerHand.length < HAND_SIZE) {
+            const allChars = [];
+            // В реальном коде нужно загрузить все карты из базы
+            if (allChars.length > 0) {
+                const newCard = drawRandomCards(allChars, 1)[0];
+                if (newCard) gameState.playerHand.push(newCard);
+            } else {
+                break;
+            }
+        }
         
         if (gameState.enemyField.every(c => !c)) {
             alert(t('victory'));
@@ -3399,7 +3345,6 @@
             return;
         }
         
-        buildAttackQueue();
         showClassicBattleField();
         startTurnTimer();
     }
@@ -3413,13 +3358,17 @@
     function resetGame() {
         if (matchmakingListener) matchmakingListener();
         if (roomListener) roomListener();
+        if (gameState.timer) clearInterval(gameState.timer);
         
         gameState = {
             mode: null, isPvP: false, playerElixir: 10, enemyElixir: 10,
             playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
             playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
-            battleStarted: false, playerReady: false, cardsRevealed: false,
-            selectedCard: null, attackQueue: []
+            battleStarted: false, playerReady: false, enemyReady: false,
+            selectedCard: null, attackQueue: [], currentAttacker: null,
+            coinFlipWinner: null, isPlayerTurn: false, turnPhase: 'waiting',
+            playerActionsLeft: 0, enemyActionsLeft: 0, maxActionsPerTurn: 0,
+            waitingForOpponent: false
         };
         
         document.getElementById('tab-home').innerHTML = `
@@ -3433,14 +3382,17 @@
         updateAllTexts();
     }
 
-    // ========== PvP ==========
+    // ========== PvP С НОВОЙ МЕХАНИКОЙ ==========
     window.startPvPMode = () => {
         gameState = {
             mode: 'pvp', isPvP: true, playerElixir: 10, enemyElixir: 10,
             playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], turn: 0,
-            battleStarted: false, playerReady: false, cardsRevealed: false,
-            selectedCard: null, attackQueue: []
+            playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
+            battleStarted: false, playerReady: false, enemyReady: false,
+            selectedCard: null, attackQueue: [], currentAttacker: null,
+            coinFlipWinner: null, isPlayerTurn: false, turnPhase: 'placing',
+            playerActionsLeft: 0, enemyActionsLeft: 0, maxActionsPerTurn: 0,
+            waitingForOpponent: false
         };
         showSearchingModal();
         startMatchmaking();
@@ -3476,13 +3428,22 @@
                             player1Nickname: currentUserData.nickname,
                             player2: opp.data().userId,
                             player2Nickname: opp.data().nickname,
-                            status: 'placing', turn: 0,
-                            player1Ready: false, player2Ready: false,
+                            status: 'placing',
+                            player1Ready: false,
+                            player2Ready: false,
                             player1Field: Array(12).fill(null),
                             player2Field: Array(12).fill(null),
-                            player1Elixir: 10, player2Elixir: 10,
-                            player1Hand: [], player2Hand: [],
-                            player1Purchased: [], player2Purchased: [],
+                            player1Elixir: 10,
+                            player2Elixir: 10,
+                            player1Hand: [],
+                            player2Hand: [],
+                            player1Purchased: [],
+                            player2Purchased: [],
+                            coinFlipWinner: null,
+                            currentTurn: null,
+                            turnPhase: 'placing',
+                            playerActionsLeft: 0,
+                            enemyActionsLeft: 0,
                             createdAt: serverTimestamp()
                         });
                         
@@ -3496,13 +3457,16 @@
                         const all = [];
                         chars.forEach(d => all.push({ id: d.id, ...d.data() }));
                         
-                        gameState.playerHand = drawRandomCards(all, 4);
+                        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
+                        
+                        const isP1 = true;
                         await updateDoc(doc(db, "rooms", currentRoom), {
-                            player1Hand: gameState.playerHand
+                            player1Hand: gameState.playerHand,
+                            player1Elixir: gameState.playerElixir
                         });
                         
                         listenToRoom();
-                        showPvPBattleField();
+                        showPvPPlacingField();
                     }
                 }
             );
@@ -3534,14 +3498,16 @@
             gameState.enemyElixir = isP1 ? d.player2Elixir : d.player1Elixir;
             gameState.playerHand = isP1 ? d.player1Hand : d.player2Hand;
             gameState.playerPurchased = isP1 ? d.player1Purchased : d.player2Purchased;
+            gameState.playerReady = isP1 ? d.player1Ready : d.player2Ready;
+            gameState.enemyReady = isP1 ? d.player2Ready : d.player1Ready;
+            gameState.coinFlipWinner = d.coinFlipWinner;
+            gameState.isPlayerTurn = d.currentTurn === currentUser.uid;
+            gameState.turnPhase = d.turnPhase || 'placing';
+            gameState.playerActionsLeft = isP1 ? d.playerActionsLeft : d.enemyActionsLeft;
             
-            if (d.status === 'battle' && !gameState.battleStarted) {
-                gameState.battleStarted = true;
-                gameState.cardsRevealed = true;
-                buildAttackQueue();
-                showPvPBattleField();
-                startPvPTurnTimer();
-            } else if (d.status === 'placing') {
+            if (d.status === 'placing') {
+                showPvPPlacingField();
+            } else if (d.status === 'battle') {
                 showPvPBattleField();
             }
             
@@ -3552,14 +3518,16 @@
         });
     }
 
-    function showPvPBattleField() {
+    function showPvPPlacingField() {
         const tab = document.getElementById('tab-home');
+        const bothReady = gameState.playerReady && gameState.enemyReady;
+        
         tab.innerHTML = `
-            <h3>${t('pvpMode')}</h3>
-            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;">
-                <span><i class="fas fa-flask"></i> <span id="playerElixir">${gameState.playerElixir}</span></span>
-                <span id="timerDisplay">${gameState.timeLeft || 30}с</span>
-                <span><i class="fas fa-flask"></i> <span id="enemyElixir">${gameState.battleStarted ? gameState.enemyElixir : '???'}</span></span>
+            <h3>${t('pvpMode')} - ${t('ready')}</h3>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
+                <span><i class="fas fa-flask"></i> <span id="playerElixir">${gameState.playerElixir}</span>/${MAX_ELIXIR}</span>
+                <span>${gameState.playerReady ? '✅ ' + t('ready') : '⏳ ' + t('waitingOpponent')}</span>
+                <span>${gameState.enemyReady ? '✅ ' + t('ready') : '⏳'}</span>
             </div>
             <div style="margin:15px 0;">
                 <div class="battle-side enemy" style="margin-bottom:15px;">
@@ -3571,37 +3539,110 @@
                     <div class="battle-grid">${renderPvPFieldCells('player')}</div>
                 </div>
             </div>
-            ${!gameState.battleStarted ? `
-                <div>
-                    <p>${t('yourCards')}</p>
-                    <div class="hand-container">${renderPvPHand()}</div>
-                    <p>${t('purchasedCards')}</p>
-                    <div class="purchased-container">${renderPvPPurchased()}</div>
+            <div>
+                <p>${t('yourCards')} (${gameState.playerHand.length}/${HAND_SIZE})</p>
+                <div class="hand-container">${renderPvPHand()}</div>
+                <p>${t('purchasedCards')}</p>
+                <div class="purchased-container">${renderPvPPurchased()}</div>
+                ${!gameState.playerReady ? `
                     <button class="btn success full-width" onclick="window.setPvPReady()">${t('ready')}</button>
+                ` : `
+                    <p style="color:var(--success);">${t('waitingOpponent')}</p>
+                `}
+            </div>
+            ${bothReady ? `
+                <div style="margin-top:15px;">
+                    <p style="color:var(--warning);">${t('bothReady')}</p>
                 </div>
-            ` : `<button class="btn primary full-width" onclick="window.endPvPTurn()">${t('turn')}</button>`}
+            ` : ''}
         `;
         updateAllTexts();
+        startPlacingTimer();
+    }
+
+    function startPlacingTimer() {
+        if (gameState.timer) clearInterval(gameState.timer);
+        let tl = 30;
+        gameState.timer = setInterval(async () => {
+            tl--;
+            const d = document.querySelector('#tab-home #timerDisplay');
+            if (!d) {
+                clearInterval(gameState.timer);
+                return;
+            }
+            d.textContent = tl + 'с';
+            
+            if (tl <= 0 || (gameState.playerReady && gameState.enemyReady)) {
+                clearInterval(gameState.timer);
+                if (gameState.playerReady && gameState.enemyReady) {
+                    await startPvPBattle();
+                }
+            }
+        }, 1000);
+    }
+
+    async function startPvPBattle() {
+        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
+        
+        // Бросаем монетку
+        const coinFlip = Math.random() < 0.5 ? 'player1' : 'player2';
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const enemyCount = gameState.enemyField.filter(c => c).length;
+        const maxActions = Math.min(playerCount, enemyCount);
+        
+        await updateDoc(doc(db, "rooms", currentRoom), {
+            status: 'battle',
+            coinFlipWinner: coinFlip,
+            currentTurn: coinFlip === 'player1' ? d.player1 : d.player2,
+            turnPhase: 'playerTurn',
+            playerActionsLeft: maxActions,
+            enemyActionsLeft: maxActions
+        });
+        
+        // Показываем анимацию монетки
+        showCoinFlipAnimation(coinFlip === (isP1 ? 'player1' : 'player2'));
+    }
+
+    function showCoinFlipAnimation(isPlayerWinner) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content" style="text-align:center;">
+                <h3>${t('coinFlip')}</h3>
+                <div class="coin-flip-animation">🪙</div>
+                <p style="margin:20px 0;font-size:18px;">
+                    ${isPlayerWinner ? t('youGoFirst') : t('enemyGoesFirst')}
+                </p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        setTimeout(() => {
+            modal.remove();
+        }, 2000);
     }
 
     function renderPvPFieldCells(side) {
         const f = side === 'player' ? gameState.playerField : gameState.enemyField;
         const isP = side === 'player';
-        const rev = gameState.cardsRevealed || gameState.battleStarted;
+        const canSelect = gameState.isPlayerTurn && isP && gameState.turnPhase === 'playerTurn' && gameState.playerActionsLeft > 0;
         let h = '';
         
         for (let i = 0; i < 12; i++) {
             const c = f[i];
-            const show = rev || (isP && c);
+            const isStunned = c?.stun?.duration > 0;
+            const selectable = canSelect && c && !isStunned;
             
-            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'}" 
-                      onclick="${isP && !gameState.battleStarted ? `window.pvpPlaceCardToField(${i})` : ''}" 
+            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${selectable ? 'selectable' : ''} ${isStunned ? 'stunned' : ''}" 
+                      onclick="${selectable ? `window.selectCharacterToAttack(${i})` : ''}" 
                       style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
             
-            if (c && show) {
+            if (c) {
                 h += `<img src="${c.imageBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
-            } else if (c && !show) {
-                h += '<i class="fas fa-question"></i>';
+                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️</div>`;
+                if (isStunned) {
+                    h += `<div style="position:absolute;top:2px;left:2px;color:#f1c40f;">⚡</div>`;
+                }
             }
             h += '</div>';
         }
@@ -3610,13 +3651,17 @@
 
     function renderPvPHand() {
         let h = '';
-        (gameState.playerHand || []).forEach((c, i) => { h += renderBattleCard(c, 'hand', i); });
+        (gameState.playerHand || []).forEach((c, i) => { 
+            h += renderBattleCard(c, 'hand', i); 
+        });
         return h || `<p>${t('noCharacters')}</p>`;
     }
 
     function renderPvPPurchased() {
         let h = '';
-        (gameState.playerPurchased || []).forEach((c, i) => { h += renderBattleCard(c, 'purchased', i); });
+        (gameState.playerPurchased || []).forEach((c, i) => { 
+            h += renderBattleCard(c, 'purchased', i); 
+        });
         return h || `<p>${t('noCharacters')}</p>`;
     }
 
@@ -3642,17 +3687,17 @@
         });
         
         gameState.selectedCard = null;
-        showPvPBattleField();
+        showPvPPlacingField();
     };
 
     window.pvpSelectHandCard = (i) => {
         gameState.selectedCard = { index: i, card: gameState.playerHand[i], type: 'hand' };
-        showPvPBattleField();
+        showPvPPlacingField();
     };
 
     window.pvpSelectPurchasedCard = (i) => {
         gameState.selectedCard = { index: i, card: gameState.playerPurchased[i], type: 'purchased' };
-        showPvPBattleField();
+        showPvPPlacingField();
     };
 
     window.pvpPlaceCardToField = async (i) => {
@@ -3676,7 +3721,7 @@
         });
         
         gameState.selectedCard = null;
-        showPvPBattleField();
+        showPvPPlacingField();
     };
 
     window.setPvPReady = async () => {
@@ -3686,45 +3731,167 @@
         });
     };
 
-    function startPvPTurnTimer() {
-        if (gameState.timer) clearInterval(gameState.timer);
-        let tl = 30;
-        gameState.timer = setInterval(() => {
-            tl--;
-            const d = document.getElementById('timerDisplay');
-            if (d) d.textContent = tl + 'с';
-            if (tl <= 0) {
-                clearInterval(gameState.timer);
-                window.endPvPTurn();
-            }
-        }, 1000);
+    function showPvPBattleField() {
+        const tab = document.getElementById('tab-home');
+        const turnText = gameState.isPlayerTurn ? t('yourTurn') : t('enemyTurn');
+        
+        tab.innerHTML = `
+            <h3>${t('pvpMode')}</h3>
+            <div class="turn-indicator ${gameState.isPlayerTurn ? 'your-turn' : 'enemy-turn'}">
+                ${turnText} (${gameState.playerActionsLeft} ${t('turn').toLowerCase()})
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
+                <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
+                <span>🪙 ${gameState.coinFlipWinner === currentUser.uid ? 'Вы' : 'Противник'}</span>
+                <span><i class="fas fa-flask"></i> ${gameState.enemyElixir}/${MAX_ELIXIR}</span>
+            </div>
+            <div style="margin:15px 0;">
+                <div class="battle-side enemy" style="margin-bottom:15px;">
+                    <p style="color:white;">${t('enemySide')}</p>
+                    <div class="battle-grid">${renderPvPFieldCells('enemy')}</div>
+                </div>
+                <div class="battle-side player">
+                    <p style="color:white;">${t('yourSide')}</p>
+                    <div class="battle-grid">${renderPvPFieldCells('player')}</div>
+                </div>
+            </div>
+            ${gameState.isPlayerTurn ? `
+                <p style="color:var(--success);">${t('selectCharacter')}</p>
+            ` : `
+                <p style="color:var(--text-muted);">${t('enemyTurn')}...</p>
+            `}
+            <button class="btn secondary full-width" onclick="window.endPvPTurnEarly()">${t('ready')}</button>
+        `;
+        updateAllTexts();
     }
 
-    window.endPvPTurn = async () => {
-        clearInterval(gameState.timer);
-        processAttacks();
+    window.selectCharacterToAttack = async (index) => {
+        if (!gameState.isPlayerTurn || gameState.turnPhase !== 'playerTurn' || gameState.playerActionsLeft <= 0) return;
+        
+        const character = gameState.playerField[index];
+        if (!character || character.stun?.duration > 0) return;
+        
+        // Применяем механику персонажа
+        if (character.mechanics) {
+            applyMechanics(character, index + 12, true);
+        }
+        
+        gameState.playerActionsLeft--;
         
         const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        gameState.turn++;
-        gameState.playerElixir = Math.min(10, gameState.playerElixir + 3);
         
-        await updateDoc(doc(db, "rooms", currentRoom), {
-            turn: gameState.turn,
-            [`player${isP1 ? '1' : '2'}Elixir`]: gameState.playerElixir
-        });
+        if (gameState.playerActionsLeft <= 0) {
+            // Передаем ход противнику
+            await updateDoc(doc(db, "rooms", currentRoom), {
+                currentTurn: isP1 ? 'player2' : 'player1',
+                turnPhase: 'enemyTurn',
+                playerActionsLeft: 0
+            });
+        } else {
+            await updateDoc(doc(db, "rooms", currentRoom), {
+                playerActionsLeft: gameState.playerActionsLeft
+            });
+        }
         
+        // Проверяем окончание раунда
+        const roomData = (await getDoc(doc(db, "rooms", currentRoom))).data();
+        if (roomData.playerActionsLeft === 0 && roomData.enemyActionsLeft === 0) {
+            await endPvPRound();
+        }
+    };
+
+    window.endPvPTurnEarly = async () => {
+        await endPvPRound();
+    };
+
+    async function endPvPRound() {
+        processTurnEffects(gameState.playerField);
+        processTurnEffects(gameState.enemyField);
+        
+        // Проверка на победу
         if (gameState.enemyField.every(c => !c)) {
             await updateDoc(doc(db, "rooms", currentRoom), { winner: currentUser.uid });
             return;
         }
         if (gameState.playerField.every(c => !c)) {
+            const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
             await updateDoc(doc(db, "rooms", currentRoom), { winner: isP1 ? 'player2' : 'player1' });
             return;
         }
         
-        buildAttackQueue();
-        showPvPBattleField();
-        startPvPTurnTimer();
+        // Новый раунд
+        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const enemyCount = gameState.enemyField.filter(c => c).length;
+        const maxActions = Math.min(playerCount, enemyCount);
+        
+        // Восстанавливаем эликсир и карты
+        gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
+        
+        // Добираем карты
+        const allChars = [];
+        const snap = await getDocs(collection(db, "characters"));
+        snap.forEach(d => allChars.push({ id: d.id, ...d.data() }));
+        
+        while (gameState.playerHand.length < HAND_SIZE && allChars.length > 0) {
+            const newCard = drawRandomCards(allChars, 1)[0];
+            if (newCard) gameState.playerHand.push(newCard);
+        }
+        
+        // Бросаем монетку для нового раунда
+        const coinFlip = Math.random() < 0.5 ? 'player1' : 'player2';
+        
+        await updateDoc(doc(db, "rooms", currentRoom), {
+            player1Elixir: isP1 ? gameState.playerElixir : gameState.enemyElixir,
+            player2Elixir: isP1 ? gameState.enemyElixir : gameState.playerElixir,
+            player1Hand: isP1 ? gameState.playerHand : gameState.enemyHand,
+            player2Hand: isP1 ? gameState.enemyHand : gameState.playerHand,
+            coinFlipWinner: coinFlip,
+            currentTurn: coinFlip === 'player1' ? 'player1' : 'player2',
+            playerActionsLeft: maxActions,
+            enemyActionsLeft: maxActions,
+            turnPhase: 'playerTurn'
+        });
+        
+        showCoinFlipAnimation(coinFlip === (isP1 ? 'player1' : 'player2'));
+    }
+
+    // ========== НАСТРОЙКИ ==========
+    function saveCustomColors() {
+        customColors = {
+            bgDark: document.getElementById('bgColorPicker').value,
+            bgCard: '#1a2332',
+            primary: document.getElementById('primaryColorPicker').value,
+            primaryDark: '#b52b45',
+            secondary: document.getElementById('secondaryColorPicker').value,
+            textLight: '#e4e6eb',
+            textMuted: '#8899bb',
+            borderColor: '#2a3a55'
+        };
+        localStorage.setItem('customColors', JSON.stringify(customColors));
+        currentTheme = 'custom';
+        localStorage.setItem('theme', 'custom');
+        applyTheme();
+        alert(t('success'));
+    }
+
+    function resetColors() {
+        customColors = null;
+        localStorage.removeItem('customColors');
+        document.getElementById('bgColorPicker').value = '#0b0f19';
+        document.getElementById('primaryColorPicker').value = '#e94560';
+        document.getElementById('secondaryColorPicker').value = '#0f3460';
+        window.setTheme('dark');
+    }
+
+    window.setTheme = function(theme) {
+        currentTheme = theme;
+        localStorage.setItem('theme', theme);
+        if (theme !== 'custom') {
+            customColors = null;
+            localStorage.removeItem('customColors');
+        }
+        applyTheme();
     };
 
     // ========== СМЕНА EMAIL И ПАРОЛЯ ==========
@@ -3831,44 +3998,6 @@
         }
     };
 
-    // ========== СОХРАНЕНИЕ НАСТРОЕК ТЕМЫ ==========
-    function saveCustomColors() {
-        customColors = {
-            bgDark: document.getElementById('bgColorPicker').value,
-            bgCard: '#1a2332',
-            primary: document.getElementById('primaryColorPicker').value,
-            primaryDark: '#b52b45',
-            secondary: document.getElementById('secondaryColorPicker').value,
-            textLight: '#e4e6eb',
-            textMuted: '#8899bb',
-            borderColor: '#2a3a55'
-        };
-        localStorage.setItem('customColors', JSON.stringify(customColors));
-        currentTheme = 'custom';
-        localStorage.setItem('theme', 'custom');
-        applyTheme();
-        alert(t('success'));
-    }
-
-    function resetColors() {
-        customColors = null;
-        localStorage.removeItem('customColors');
-        document.getElementById('bgColorPicker').value = '#0b0f19';
-        document.getElementById('primaryColorPicker').value = '#e94560';
-        document.getElementById('secondaryColorPicker').value = '#0f3460';
-        window.setTheme('dark');
-    }
-
-    window.setTheme = function(theme) {
-        currentTheme = theme;
-        localStorage.setItem('theme', theme);
-        if (theme !== 'custom') {
-            customColors = null;
-            localStorage.removeItem('customColors');
-        }
-        applyTheme();
-    };
-
     // ========== НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ==========
     document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('register'));
     document.getElementById('showLoginBtn')?.addEventListener('click', () => showScreen('login'));
@@ -3907,7 +4036,7 @@
     document.getElementById('changeEmailBtn')?.addEventListener('click', () => window.showChangeEmailModal());
     document.getElementById('changePasswordBtn')?.addEventListener('click', () => window.showChangePasswordModal());
 
-    // Формы входа и регистрации
+    // Формы
     document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         showLoader(true);
@@ -4000,7 +4129,6 @@
         }
     });
 
-    // Сохраненные аккаунты
     document.getElementById('savedAccountsList')?.addEventListener('click', async (e) => {
         const item = e.target.closest('.saved-account-item');
         if (!item) return;
@@ -4034,7 +4162,6 @@
         }
     });
 
-    // Чат клана
     document.getElementById('sendClanMessageBtn')?.addEventListener('click', () => {
         const inp = document.getElementById('clanMessageInput');
         sendClanMessage(inp.value);
@@ -4047,9 +4174,7 @@
     
     document.getElementById('searchClanInput')?.addEventListener('input', (e) => loadClansList(e.target.value));
 
-    // Инициализация при загрузке
     window.addEventListener('DOMContentLoaded', () => {
-        // Переключение видимости пароля
         document.body.addEventListener('click', (e) => {
             const icon = e.target.closest('.toggle-password');
             if (icon) {
@@ -4062,7 +4187,6 @@
             }
         });
         
-        // Настройки темы
         const ts = document.getElementById('themeSelect');
         ts.value = currentTheme === 'custom' ? 'custom' : currentTheme;
         document.getElementById('customColorsSection').classList.toggle('hidden', ts.value !== 'custom');
@@ -4081,7 +4205,6 @@
         document.getElementById('saveCustomColorsBtn')?.addEventListener('click', saveCustomColors);
         document.getElementById('resetColorsBtn')?.addEventListener('click', resetColors);
         
-        // Настройки звука
         document.getElementById('volumeSlider').value = soundSettings.volume;
         document.getElementById('volumeValue').textContent = soundSettings.volume + '%';
         document.getElementById('volumeSlider').addEventListener('input', (e) => {
@@ -4096,7 +4219,6 @@
             localStorage.setItem('soundSettings', JSON.stringify(soundSettings));
         });
         
-        // Язык
         document.getElementById('languageSelect').value = currentLanguage;
         document.getElementById('languageSelect').addEventListener('change', (e) => {
             currentLanguage = e.target.value;
@@ -4109,7 +4231,6 @@
         updateDevModeUI();
     });
 
-    // Отслеживание авторизации
     onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         if (user) {
