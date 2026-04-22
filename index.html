@@ -84,6 +84,10 @@
             font-size: 24px;
         }
         
+        h3 {
+            margin: 10px 0 5px;
+        }
+        
         .btn {
             border: none;
             border-radius: 40px;
@@ -865,6 +869,13 @@
             flex-direction: column;
             align-items: center;
             position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .battle-card.selected {
+            border: 3px solid #f1c40f !important;
+            transform: scale(1.02);
         }
         
         .battle-card-img {
@@ -949,6 +960,10 @@
             background: var(--error);
         }
         
+        .turn-indicator.waiting {
+            background: var(--warning);
+        }
+        
         .notification-badge {
             position: absolute;
             top: -5px;
@@ -976,6 +991,38 @@
             margin: 0;
         }
         
+        .timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--warning);
+        }
+        
+        .phase-indicator {
+            padding: 8px;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .vs-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .vs-indicator span {
+            font-weight: bold;
+        }
+        
+        .vs-indicator .vs {
+            color: var(--warning);
+            font-size: 18px;
+        }
+        
         @media (max-width: 480px) {
             .card { padding: 20px 15px; }
             h1 { font-size: 26px; }
@@ -987,7 +1034,7 @@
         <div id="loader" class="hidden">
             <div>
                 <i class="fas fa-spinner fa-spin"></i><br>
-                <span data-i18n="loading">Загрузка...</span>
+                <span>Загрузка...</span>
             </div>
         </div>
         
@@ -1028,6 +1075,7 @@
                         <p class="hint" style="color:var(--text-muted);">Аватар создаётся из первых букв ника</p>
                     </div>
                     <input type="text" id="regNickname" placeholder="Никнейм" required minlength="3">
+                    <span id="nicknameStatus" class="validation-hint"></span>
                     <input type="email" id="regEmail" placeholder="Email" required>
                     <div class="password-wrapper">
                         <input type="password" id="regPassword" placeholder="Пароль" required minlength="6">
@@ -1036,6 +1084,12 @@
                     <div class="password-wrapper">
                         <input type="password" id="regPasswordConfirm" placeholder="Подтвердите пароль" required>
                         <i class="far fa-eye toggle-password" data-target="regPasswordConfirm"></i>
+                    </div>
+                    <div id="verificationSection" class="hidden">
+                        <p style="margin:15px 0 10px;color:var(--text-muted);">Введите код из письма</p>
+                        <input type="text" id="verificationCode" placeholder="123456" maxlength="6">
+                        <button type="button" id="verifyEmailBtn" class="btn secondary full-width">✅ Подтвердить Email</button>
+                        <button type="button" id="resendCodeBtn" class="btn text">📧 Отправить код повторно</button>
                     </div>
                     <button type="submit" id="registerSubmitBtn" class="btn primary full-width">📝 Продолжить</button>
                 </form>
@@ -1090,6 +1144,7 @@
                             <div id="addAccountAvatarPreview" class="avatar-placeholder">👤</div>
                         </div>
                         <input type="text" id="addAccountRegNickname" placeholder="Никнейм" required>
+                        <span id="addAccountNicknameStatus" class="validation-hint"></span>
                         <input type="email" id="addAccountRegEmail" placeholder="Email" required>
                         <div class="password-wrapper">
                             <input type="password" id="addAccountRegPassword" placeholder="Пароль" required>
@@ -1098,6 +1153,12 @@
                         <div class="password-wrapper">
                             <input type="password" id="addAccountRegPasswordConfirm" placeholder="Подтвердите пароль" required>
                             <i class="far fa-eye toggle-password" data-target="addAccountRegPasswordConfirm"></i>
+                        </div>
+                        <div id="addAccountVerificationSection" class="hidden">
+                            <p style="margin:15px 0 10px;color:var(--text-muted);">Введите код из письма</p>
+                            <input type="text" id="addAccountVerificationCode" placeholder="123456" maxlength="6">
+                            <button type="button" id="addAccountVerifyEmailBtn" class="btn secondary full-width">✅ Подтвердить Email</button>
+                            <button type="button" id="addAccountResendCodeBtn" class="btn text">📧 Отправить код повторно</button>
                         </div>
                         <button type="submit" id="addAccountRegisterSubmitBtn" class="btn primary full-width">📝 Зарегистрироваться</button>
                     </form>
@@ -1123,13 +1184,13 @@
                 </div>
                 
                 <div class="tabs-container">
-                    <button class="tab-btn active" data-tab="home">🏠</button>
-                    <button class="tab-btn" data-tab="characters">⚔️</button>
-                    <button class="tab-btn" data-tab="clan">🏰</button>
-                    <button class="tab-btn" data-tab="friends">👥</button>
-                    <button class="tab-btn" data-tab="news">📰</button>
-                    <button class="tab-btn" data-tab="account">👤</button>
-                    <button class="tab-btn" data-tab="settings">⚙️</button>
+                    <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+                    <button class="tab-btn" data-tab="characters">⚔️ Персонажи</button>
+                    <button class="tab-btn" data-tab="clan">🏰 Клан</button>
+                    <button class="tab-btn" data-tab="friends">👥 Друзья</button>
+                    <button class="tab-btn" data-tab="news">📰 Новости</button>
+                    <button class="tab-btn" data-tab="account">👤 Аккаунт</button>
+                    <button class="tab-btn" data-tab="settings">⚙️ Настройки</button>
                 </div>
                 
                 <!-- Вкладка Главная -->
@@ -1272,9 +1333,9 @@
                 <!-- Вкладка Друзья -->
                 <div id="tab-friends" class="tab-content">
                     <div class="friends-actions">
-                        <button class="btn secondary" onclick="window.showMyQrCode()"><i class="fas fa-qrcode"></i> QR</button>
-                        <button class="btn secondary" onclick="window.scanQrCode()"><i class="fas fa-camera"></i></button>
-                        <button class="btn secondary" onclick="window.shareFriendLink()"><i class="fas fa-share"></i></button>
+                        <button class="btn secondary" onclick="window.showMyQrCode()"><i class="fas fa-qrcode"></i> QR-код</button>
+                        <button class="btn secondary" onclick="window.scanQrCode()"><i class="fas fa-camera"></i> Сканировать</button>
+                        <button class="btn secondary" onclick="window.shareFriendLink()"><i class="fas fa-share"></i> Поделиться</button>
                     </div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;">
                         <input type="text" id="friendSearchInput" placeholder="Поиск друзей по нику..." style="flex:1;">
@@ -1432,7 +1493,7 @@
     import { 
         getFirestore, doc, setDoc, getDoc, query, collection, where, getDocs,
         deleteDoc, updateDoc, addDoc, arrayUnion, arrayRemove, onSnapshot,
-        orderBy, limit, serverTimestamp
+        orderBy, limit, serverTimestamp, writeBatch
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
     // ========== КОНФИГУРАЦИЯ ==========
@@ -1445,56 +1506,11 @@
         appId: "1:403759349179:web:62c2c68604b1c0334a589e"
     };
     
-    const EMAILJS_PUBLIC_KEY = "NpbBqnbjRAYFfBZc5";
-    const EMAILJS_SERVICE_ID = "service_unkraqr";
-    const EMAILJS_TEMPLATE_ID = "template_zsa2enw";
     const DEV_PASSWORD = "MAS007";
     const MAX_CLAN_MEMBERS = 30;
     const MAX_ELIXIR = 15;
     const HAND_SIZE = 5;
-
-    // ========== ПЕРЕВОДЫ ==========
-    const translations = {
-        ru: {
-            welcome: 'Добро пожаловать в битву!', register: 'Зарегистрироваться', login: 'Войти',
-            loginTitle: 'Вход', email: 'Email', password: 'Пароль', loginBtn: 'Войти в аккаунт',
-            forgotPassword: '🤔 Забыл(а) пароль?', backToHome: 'На главную', registerTitle: 'Регистрация',
-            nickname: 'Никнейм', avatarHint: 'Аватар создаётся из первых букв ника',
-            confirmPassword: 'Подтвердите пароль', continue: 'Продолжить',
-            mechanics: 'Механики', damageMechanic: 'Урон', healMechanic: 'Лечение', poisonMechanic: 'Яд',
-            shieldMechanic: 'Щит', buffMechanic: 'Бафф', stunMechanic: 'Оглушение', weakenMechanic: 'Ослабление',
-            enemyField: 'Поле противника', allyField: 'Поле союзников', addEffect: 'Добавить эффект',
-            damagePerTurn: 'Урон за ход', healPerTurn: 'Лечение за ход', shieldStrength: 'Прочность щита',
-            selectPosition: 'Выберите позицию', position: 'Позиция', effects: 'Эффекты',
-            saveMechanics: 'Сохранить', clearCell: 'Очистить', close: 'Закрыть',
-            yourTurn: 'ВАШ ХОД', enemyTurn: 'ХОД ПРОТИВНИКА', selectCharacter: 'Выберите персонажа для атаки',
-            coinFlip: 'Бросаем монетку...', youGoFirst: 'Вы ходите первым!', enemyGoesFirst: 'Противник ходит первым!',
-            victory: 'Победа!', defeat: 'Поражение!', ready: 'Готово', buy: 'Купить',
-            yourCards: 'Ваши карты', purchasedCards: 'Купленные', noCharacters: 'Нет персонажей',
-            elixir: 'Эликсир', health: 'Здоровье', power: 'Оценка силы'
-        },
-        en: {
-            welcome: 'Welcome!', register: 'Register', login: 'Login',
-            loginTitle: 'Login', email: 'Email', password: 'Password', loginBtn: 'Sign In',
-            forgotPassword: '🤔 Forgot?', backToHome: 'Home', registerTitle: 'Registration',
-            nickname: 'Nickname', avatarHint: 'Avatar from nickname',
-            confirmPassword: 'Confirm', continue: 'Continue',
-            mechanics: 'Mechanics', damageMechanic: 'Damage', healMechanic: 'Heal', poisonMechanic: 'Poison',
-            shieldMechanic: 'Shield', buffMechanic: 'Buff', stunMechanic: 'Stun', weakenMechanic: 'Weaken',
-            enemyField: 'Enemy field', allyField: 'Ally field', addEffect: 'Add effect',
-            damagePerTurn: 'Damage per turn', healPerTurn: 'Heal per turn', shieldStrength: 'Shield strength',
-            selectPosition: 'Select position', position: 'Position', effects: 'Effects',
-            saveMechanics: 'Save', clearCell: 'Clear', close: 'Close',
-            yourTurn: 'YOUR TURN', enemyTurn: 'ENEMY TURN', selectCharacter: 'Select character to attack',
-            coinFlip: 'Flipping coin...', youGoFirst: 'You go first!', enemyGoesFirst: 'Enemy goes first!',
-            victory: 'Victory!', defeat: 'Defeat!', ready: 'Ready', buy: 'Buy',
-            yourCards: 'Your cards', purchasedCards: 'Purchased', noCharacters: 'No characters',
-            elixir: 'Elixir', health: 'Health', power: 'Power rating'
-        }
-    };
-
-    let currentLanguage = localStorage.getItem('language') || 'ru';
-    function t(key) { return translations[currentLanguage]?.[key] || translations.ru[key] || key; }
+    const TURN_TIME = 30;
 
     // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
     const app = initializeApp(firebaseConfig);
@@ -1508,6 +1524,9 @@
     let customColors = JSON.parse(localStorage.getItem('customColors') || 'null');
     let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     let savedAccounts = JSON.parse(localStorage.getItem('savedAccounts') || '[]');
+    let currentFilter = 'all';
+    let currentFilterValue = '';
+    let currentLanguage = localStorage.getItem('language') || 'ru';
     
     // Механики
     let tempMechanics = {};
@@ -1518,12 +1537,22 @@
     
     // Игра
     let gameState = {
-        mode: null, isPvP: false, isAI: false, playerElixir: 10, enemyElixir: 10,
+        mode: null, isAI: false, isPvP: false,
+        playerElixir: 10, enemyElixir: 10,
         playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-        playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
-        battleStarted: false, playerReady: false, enemyReady: false,
-        selectedCard: null, isPlayerTurn: false, playerActionsLeft: 0,
-        coinFlipWinner: null, aiDifficulty: 'expert'
+        playerHand: [], playerPurchased: [],
+        playerDeck: [], enemyDeck: [],
+        phase: 'placing', // placing, battle
+        playerReady: false, enemyReady: false,
+        selectedCard: null,
+        isPlayerTurn: false,
+        coinWinner: null, // 'player' или 'enemy'
+        timer: null, timeLeft: TURN_TIME,
+        playerActionsLeft: 0, enemyActionsLeft: 0,
+        aiDifficulty: 'expert',
+        opponentName: 'Противник',
+        roomId: null,
+        isPlayer1: true
     };
     
     let currentRoom = null;
@@ -1533,6 +1562,8 @@
     let clansListener = null;
     let clanChatListener = null;
     let newsListener = null;
+    let userClan = null;
+    let matchmakingListener = null;
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     function showLoader(show = true) { 
@@ -1656,35 +1687,35 @@
         
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 750px;">
-                <h3>⚙️ ${t('mechanics')}</h3>
+                <h3>⚙️ Механики</h3>
                 <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 10px;">
-                    ${t('selectPosition')} (12-23) - ${t('enemyField')} 🔵 / ${t('allyField')} 🟢
+                    Выберите позицию персонажа на зелёном поле (12-23)
                 </p>
                 
                 <div class="positions-tabs">
                     ${[12,13,14,15,16,17,18,19,20,21,22,23].map(p => `
                         <div class="position-tab ${p === currentCharacterPosition ? 'active' : ''}" 
-                             onclick="window.setCharacterPosition(${p})">${t('position')} ${p}</div>
+                             onclick="window.setCharacterPosition(${p})">Позиция ${p}</div>
                     `).join('')}
                 </div>
                 
                 <div class="mechanics-dual-grid">
                     <div class="mechanics-side">
-                        <h4 style="color: #3498db;">🔵 ${t('enemyField')}</h4>
+                        <h4 style="color: #3498db;">🔵 Поле противника (враги)</h4>
                         <div class="mechanics-grid">
                             ${renderMechanicsGrid('enemy')}
                         </div>
                         <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
-                            ☠️ ${t('poisonMechanic')} | 💥 ${t('damageMechanic')} | ⚡ ${t('stunMechanic')} | 🔻 ${t('weakenMechanic')}
+                            ☠️ Яд | 💥 Урон | ⚡ Оглушение | 🔻 Ослабление
                         </p>
                     </div>
                     <div class="mechanics-side">
-                        <h4 style="color: #2ecc71;">🟢 ${t('allyField')}</h4>
+                        <h4 style="color: #2ecc71;">🟢 Поле союзников</h4>
                         <div class="mechanics-grid">
                             ${renderMechanicsGrid('player')}
                         </div>
                         <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
-                            💚 ${t('healMechanic')} | 🛡️ ${t('shieldMechanic')} | ✨ ${t('buffMechanic')}
+                            💚 Лечение | 🛡️ Щит | ✨ Усиление
                         </p>
                     </div>
                 </div>
@@ -1694,21 +1725,21 @@
                 </div>
                 
                 <div id="addEffectForm" class="hidden" style="margin-top: 15px; padding: 15px; background: var(--bg-dark); border-radius: 12px;">
-                    <h4 id="effectFormTitle">${t('addEffect')}</h4>
+                    <h4 id="effectFormTitle">Добавить эффект</h4>
                     <select id="effectType">
-                        <option value="">${t('selectEffect')}...</option>
+                        <option value="">Выберите тип...</option>
                     </select>
                     <div id="effectParams"></div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn primary full-width" onclick="window.saveEffect()">✅ ${t('addEffect')}</button>
+                        <button class="btn primary full-width" onclick="window.saveEffect()">✅ Добавить</button>
                         <button class="btn text full-width" onclick="window.cancelAddEffect()">❌ Отмена</button>
                     </div>
                 </div>
                 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="btn success full-width" onclick="window.saveMechanicsAndClose()">💾 ${t('saveMechanics')}</button>
-                    <button class="btn danger full-width" onclick="window.clearAllMechanics()">🗑️ ${t('clearCell')}</button>
-                    <button class="btn text full-width" onclick="window.closeMechanicsEditor()">❌ ${t('close')}</button>
+                    <button class="btn success full-width" onclick="window.saveMechanicsAndClose()">💾 Сохранить</button>
+                    <button class="btn danger full-width" onclick="window.clearAllMechanics()">🗑️ Очистить</button>
+                    <button class="btn text full-width" onclick="window.closeMechanicsEditor()">❌ Закрыть</button>
                 </div>
             </div>
         `;
@@ -1751,7 +1782,7 @@
 
     function renderEffectList() {
         if (!selectedCell) {
-            return `<p style="color: var(--text-muted); text-align: center;">${t('selectPosition')}</p>`;
+            return `<p style="color: var(--text-muted); text-align: center;">Выберите клетку</p>`;
         }
         
         const mechanics = editingCharacterId ? editTempMechanics : tempMechanics;
@@ -1759,29 +1790,29 @@
         
         if (cellEffects.length === 0) {
             return `<p style="color: var(--text-muted); text-align: center;">
-                Нет эффектов <button class="btn link" onclick="window.showAddEffectForm()">➕ ${t('addEffect')}</button>
+                Нет эффектов <button class="btn link" onclick="window.showAddEffectForm()">➕ Добавить</button>
             </p>`;
         }
         
-        let html = `<h4>${t('effects')} ${selectedCell.side === 'enemy' ? t('enemyField') : t('allyField')} #${selectedCell.index + 1}</h4>`;
-        html += `<button class="btn secondary full-width" style="margin-bottom: 10px;" onclick="window.showAddEffectForm()">➕ ${t('addEffect')}</button>`;
+        let html = `<h4>Эффекты на клетке ${selectedCell.side === 'enemy' ? 'противника' : 'союзника'} #${selectedCell.index + 1}</h4>`;
+        html += `<button class="btn secondary full-width" style="margin-bottom: 10px;" onclick="window.showAddEffectForm()">➕ Добавить эффект</button>`;
         
         cellEffects.forEach((effect, idx) => {
             let desc = '';
             if (effect.type === 'poison') {
-                desc = `☠️ ${t('poisonMechanic')}: ${effect.damagePerTurn} урона/ход, ${effect.duration} хода(ов)`;
+                desc = `☠️ Яд: ${effect.damagePerTurn} урона/ход, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'damage') {
-                desc = `💥 ${t('damageMechanic')}: ${effect.value} ед.`;
+                desc = `💥 Урон: ${effect.value} ед.`;
             } else if (effect.type === 'stun') {
-                desc = `⚡ ${t('stunMechanic')}: ${effect.duration} хода(ов)`;
+                desc = `⚡ Оглушение: ${effect.duration} хода(ов)`;
             } else if (effect.type === 'weaken') {
-                desc = `🔻 ${t('weakenMechanic')}: -${effect.value} к урону, ${effect.duration} хода(ов)`;
+                desc = `🔻 Ослабление: -${effect.value} к урону, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'heal') {
-                desc = `💚 ${t('healMechanic')}: ${effect.value} здоровья/ход, ${effect.duration} хода(ов)`;
+                desc = `💚 Лечение: ${effect.value} здоровья/ход, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'shield') {
-                desc = `🛡️ ${t('shieldMechanic')}: ${effect.value} прочности, ${effect.duration} хода(ов)`;
+                desc = `🛡️ Щит: ${effect.value} прочности, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'buff') {
-                desc = `✨ ${t('buffMechanic')}: +${effect.value} к урону, ${effect.duration} хода(ов)`;
+                desc = `✨ Усиление: +${effect.value} к урону, ${effect.duration} хода(ов)`;
             }
             
             html += `<div class="effect-item">
@@ -1814,21 +1845,21 @@
         const typeSelect = document.getElementById('effectType');
         const side = selectedCell.side;
         
-        title.textContent = `${t('addEffect')} ${side === 'enemy' ? t('enemyField') : t('allyField')} #${selectedCell.index + 1}`;
+        title.textContent = `Добавить эффект на ${side === 'enemy' ? 'вражескую' : 'союзную'} клетку #${selectedCell.index + 1}`;
         
         let options = '';
         if (side === 'enemy') {
             options = `
-                <option value="poison">☠️ ${t('poisonMechanic')}</option>
-                <option value="damage">💥 ${t('damageMechanic')}</option>
-                <option value="stun">⚡ ${t('stunMechanic')}</option>
-                <option value="weaken">🔻 ${t('weakenMechanic')}</option>
+                <option value="poison">☠️ Яд (урон каждый ход)</option>
+                <option value="damage">💥 Урон (разовый)</option>
+                <option value="stun">⚡ Оглушение (пропуск хода)</option>
+                <option value="weaken">🔻 Ослабление (снижение урона)</option>
             `;
         } else {
             options = `
-                <option value="heal">💚 ${t('healMechanic')}</option>
-                <option value="shield">🛡️ ${t('shieldMechanic')}</option>
-                <option value="buff">✨ ${t('buffMechanic')}</option>
+                <option value="heal">💚 Лечение (восстановление каждый ход)</option>
+                <option value="shield">🛡️ Щит (поглощение урона)</option>
+                <option value="buff">✨ Усиление (повышение урона)</option>
             `;
         }
         typeSelect.innerHTML = options;
@@ -2018,6 +2049,14 @@
             
             let chars = [];
             snap.forEach(d => chars.push({ id: d.id, ...d.data() }));
+            
+            if (currentFilter === 'rarity' && currentFilterValue) {
+                chars = chars.filter(c => c.rarity === currentFilterValue);
+            } else if (currentFilter === 'class' && currentFilterValue) {
+                chars = chars.filter(c => c.class === currentFilterValue);
+            } else if (currentFilter === 'favorites') {
+                chars = chars.filter(c => favorites.includes(c.id));
+            }
             
             container.innerHTML = chars.map(c => {
                 const fav = favorites.includes(c.id);
@@ -2594,6 +2633,19 @@
     };
 
     window.inviteToBattle = async (friendId, friendNickname) => {
+        // Проверяем, нет ли уже активного приглашения
+        const existingInvites = await getDocs(query(
+            collection(db, "battleInvites"),
+            where("from", "==", currentUser.uid),
+            where("to", "==", friendId),
+            where("status", "==", "pending")
+        ));
+        
+        if (!existingInvites.empty) {
+            alert('Приглашение уже отправлено!');
+            return;
+        }
+        
         await addDoc(collection(db, "battleInvites"), {
             from: currentUser.uid,
             fromNickname: currentUserData.nickname,
@@ -2610,13 +2662,18 @@
         if (!currentUser) return;
         if (battleInvitesListener) battleInvitesListener();
         
-        const q = query(collection(db, "battleInvites"), where("to", "==", currentUser.uid), where("status", "==", "pending"));
+        const q = query(
+            collection(db, "battleInvites"), 
+            where("to", "==", currentUser.uid), 
+            where("status", "==", "pending")
+        );
+        
         battleInvitesListener = onSnapshot(q, (snap) => {
             const list = document.getElementById('battleInvitesList');
             const badge = document.getElementById('notificationBadge');
             
             if (snap.empty) {
-                list.innerHTML = '<p>Нет активных приглашений</p>';
+                list.innerHTML = '<p style="color:var(--text-muted);">Нет активных приглашений</p>';
                 badge.classList.add('hidden');
                 return;
             }
@@ -2635,7 +2692,7 @@
                             <span style="font-size:12px;">приглашает на битву!</span>
                         </div>
                         <div class="friend-actions">
-                            <button class="btn success" style="padding:8px 12px;" onclick="window.acceptBattleInvite('${d.id}', '${invite.from}')">
+                            <button class="btn success" style="padding:8px 12px;" onclick="window.acceptBattleInvite('${d.id}', '${invite.from}', '${invite.fromNickname}')">
                                 ✅ Принять
                             </button>
                             <button class="btn danger" style="padding:8px 12px;" onclick="window.declineBattleInvite('${d.id}')">
@@ -2648,12 +2705,15 @@
         });
     }
 
-    window.acceptBattleInvite = async (inviteId, fromUserId) => {
+    window.acceptBattleInvite = async (inviteId, fromUserId, fromNickname) => {
         await deleteDoc(doc(db, "battleInvites", inviteId));
         
+        // Создаем комнату для PvP битвы
         const roomRef = await addDoc(collection(db, "rooms"), {
             player1: fromUserId,
+            player1Nickname: fromNickname,
             player2: currentUser.uid,
+            player2Nickname: currentUserData.nickname,
             status: 'placing',
             player1Ready: false,
             player2Ready: false,
@@ -2663,27 +2723,45 @@
             player2Elixir: 10,
             player1Hand: [],
             player2Hand: [],
+            player1Purchased: [],
+            player2Purchased: [],
+            currentTurn: null,
+            turnPhase: 'placing',
+            coinWinner: null,
+            player1ActionsLeft: 0,
+            player2ActionsLeft: 0,
             createdAt: serverTimestamp()
         });
         
         currentRoom = roomRef.id;
         gameState = {
-            mode: 'pvp', isPvP: true, playerElixir: 10, enemyElixir: 10,
+            mode: 'pvp', isPvP: true, isAI: false,
+            playerElixir: 10, enemyElixir: 10,
             playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], battleStarted: false,
-            playerReady: false, isPlayerTurn: false, playerActionsLeft: 0
+            playerHand: [], playerPurchased: [],
+            phase: 'placing',
+            playerReady: false, enemyReady: false,
+            selectedCard: null,
+            isPlayerTurn: false,
+            coinWinner: null,
+            playerActionsLeft: 0, enemyActionsLeft: 0,
+            opponentName: fromNickname,
+            roomId: currentRoom,
+            isPlayer1: false
         };
         
+        // Загружаем карты
         const chars = await getDocs(collection(db, "characters"));
         const all = [];
         chars.forEach(d => all.push({ id: d.id, ...d.data() }));
         gameState.playerHand = drawRandomCards(all, HAND_SIZE);
         
-        await updateDoc(doc(db, "rooms", currentRoom), { player2Hand: gameState.playerHand });
+        await updateDoc(doc(db, "rooms", currentRoom), {
+            player2Hand: gameState.playerHand
+        });
         
         listenToRoom();
         showPvPPlacingField();
-        alert('Битва начинается!');
     };
 
     window.declineBattleInvite = async (inviteId) => {
@@ -2945,7 +3023,7 @@
             return score;
         }
         
-        findBestMove(field, enemyField, isPlayerField) {
+        selectBestAction(field, enemyField, isPlayerField) {
             const availableMoves = [];
             
             field.forEach((char, index) => {
@@ -2954,42 +3032,330 @@
                 const score = this.evaluatePosition(char, index, field, enemyField, isPlayerField);
                 const powerBonus = (char.power || 50) / 10;
                 
-                availableMoves.push({
-                    index,
-                    character: char,
-                    score: score + powerBonus
-                });
+                availableMoves.push({ index, score: score + powerBonus });
             });
             
+            if (availableMoves.length === 0) return null;
+            
             availableMoves.sort((a, b) => b.score - a.score);
-            return availableMoves;
+            return availableMoves[0].index;
         }
         
-        selectBestAction(field, enemyField, isPlayerField) {
-            const moves = this.findBestMove(field, enemyField, isPlayerField);
+        buyCards(hand, elixir) {
+            const affordable = hand.filter(c => (c.elixirCost || 3) <= elixir);
+            if (affordable.length === 0) return { purchased: [], remainingElixir: elixir };
             
-            if (moves.length === 0) return null;
+            affordable.sort((a, b) => (b.power || 50) - (a.power || 50));
             
-            const totalScore = moves.reduce((sum, m) => sum + m.score, 0);
-            let random = Math.random() * totalScore;
+            const purchased = [];
+            let remaining = elixir;
             
-            for (const move of moves) {
-                random -= move.score;
-                if (random <= 0) return move.index;
+            for (const card of affordable) {
+                const cost = card.elixirCost || 3;
+                if (remaining >= cost) {
+                    purchased.push(card);
+                    remaining -= cost;
+                }
             }
             
-            return moves[0].index;
+            return { purchased, remainingElixir: remaining };
+        }
+        
+        placeCards(purchased, field) {
+            const emptySlots = field.map((c, i) => c ? -1 : i).filter(i => i !== -1);
+            const placed = [...field];
+            
+            purchased.forEach(card => {
+                if (emptySlots.length > 0) {
+                    const slot = emptySlots.shift();
+                    placed[slot] = { ...card, currentHealth: card.health };
+                }
+            });
+            
+            return placed;
         }
     }
 
-    // ========== ИИ РЕЖИМ ==========
+    // ========== PvP СЛУШАТЕЛЬ КОМНАТЫ ==========
+    function listenToRoom() {
+        if (roomListener) roomListener();
+        
+        roomListener = onSnapshot(doc(db, "rooms", currentRoom), (snap) => {
+            if (!snap.exists()) {
+                alert('Комната удалена');
+                resetGame();
+                return;
+            }
+            
+            const d = snap.data();
+            const isPlayer1 = currentUser.uid === d.player1;
+            gameState.isPlayer1 = isPlayer1;
+            gameState.opponentName = isPlayer1 ? d.player2Nickname : d.player1Nickname;
+            
+            // Обновляем состояние из комнаты
+            gameState.playerField = isPlayer1 ? d.player1Field : d.player2Field;
+            gameState.enemyField = isPlayer1 ? d.player2Field : d.player1Field;
+            gameState.playerElixir = isPlayer1 ? d.player1Elixir : d.player2Elixir;
+            gameState.enemyElixir = isPlayer1 ? d.player2Elixir : d.player1Elixir;
+            gameState.playerHand = isPlayer1 ? d.player1Hand : d.player2Hand;
+            gameState.playerPurchased = isPlayer1 ? d.player1Purchased : d.player2Purchased;
+            gameState.playerReady = isPlayer1 ? d.player1Ready : d.player2Ready;
+            gameState.enemyReady = isPlayer1 ? d.player2Ready : d.player1Ready;
+            gameState.phase = d.turnPhase || 'placing';
+            gameState.coinWinner = d.coinWinner;
+            gameState.isPlayerTurn = (d.coinWinner === 'player1' && isPlayer1) || (d.coinWinner === 'player2' && !isPlayer1);
+            gameState.playerActionsLeft = isPlayer1 ? d.player1ActionsLeft : d.player2ActionsLeft;
+            gameState.enemyActionsLeft = isPlayer1 ? d.player2ActionsLeft : d.player1ActionsLeft;
+            
+            if (d.status === 'placing') {
+                showPvPPlacingField();
+            } else if (d.status === 'battle') {
+                showPvPBattleField();
+            }
+            
+            if (d.winner) {
+                alert(d.winner === currentUser.uid ? '🏆 Победа!' : '💀 Поражение!');
+                resetGame();
+            }
+        });
+    }
+
+    function showPvPPlacingField() {
+        const tab = document.getElementById('tab-home');
+        const canPlace = gameState.phase === 'placing';
+        
+        tab.innerHTML = `
+            <h3>⚔️ PvP Битва</h3>
+            <div class="vs-indicator">
+                <span>🟢 ${currentUserData?.nickname || 'Вы'}</span>
+                <span class="vs">VS</span>
+                <span>🔵 ${gameState.opponentName}</span>
+            </div>
+            <div class="phase-indicator">
+                <span class="timer-display" id="timerDisplay">${gameState.timeLeft}с</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
+                <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
+                <span>${gameState.playerReady ? '✅ Готов' : '⏳ Расстановка'}</span>
+                <span>${gameState.enemyReady ? '✅ Готов' : '⏳'}</span>
+            </div>
+            <div style="margin:15px 0;">
+                <div class="battle-side enemy" style="margin-bottom:15px;">
+                    <p style="color:white;">🔵 ${gameState.opponentName}</p>
+                    <div class="battle-grid">${renderFieldCells('enemy', false)}</div>
+                </div>
+                <div class="battle-side player">
+                    <p style="color:white;">🟢 Ваша сторона</p>
+                    <div class="battle-grid">${renderFieldCells('player', canPlace)}</div>
+                </div>
+            </div>
+            <div>
+                <p>Ваши карты (${gameState.playerHand.length}/${HAND_SIZE})</p>
+                <div class="hand-container">${renderHand()}</div>
+                <p>Купленные карты</p>
+                <div class="purchased-container">${renderPurchased()}</div>
+                ${!gameState.playerReady ? `
+                    <button class="btn success full-width" onclick="window.pvpPlayerReady()">✅ Готов</button>
+                ` : `
+                    <p style="color:var(--warning);">Ожидание противника...</p>
+                `}
+            </div>
+        `;
+        
+        startPlacingTimer();
+    }
+
+    function showPvPBattleField() {
+        const tab = document.getElementById('tab-home');
+        const canSelect = gameState.isPlayerTurn && gameState.phase === 'battle' && gameState.playerActionsLeft > 0;
+        
+        let turnText = '';
+        if (gameState.isPlayerTurn) {
+            turnText = '🟢 ВАШ ХОД';
+        } else {
+            turnText = `🔵 ХОД ${gameState.opponentName}`;
+        }
+        
+        tab.innerHTML = `
+            <h3>⚔️ PvP Битва</h3>
+            <div class="vs-indicator">
+                <span>🟢 ${currentUserData?.nickname || 'Вы'}</span>
+                <span class="vs">VS</span>
+                <span>🔵 ${gameState.opponentName}</span>
+            </div>
+            <div class="turn-indicator ${gameState.isPlayerTurn ? 'your-turn' : 'enemy-turn'}">
+                ${turnText}
+            </div>
+            <div class="phase-indicator">
+                <span class="timer-display" id="timerDisplay">${gameState.timeLeft}с</span>
+                <span>Ваших действий: ${gameState.playerActionsLeft}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
+                <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
+                <span>🪙 ${gameState.coinWinner === 'player1' ? 'Вы' : gameState.opponentName}</span>
+                <span><i class="fas fa-flask"></i> ???</span>
+            </div>
+            <div style="margin:15px 0;">
+                <div class="battle-side enemy" style="margin-bottom:15px;">
+                    <p style="color:white;">🔵 ${gameState.opponentName}</p>
+                    <div class="battle-grid">${renderBattleFieldCells('enemy', false)}</div>
+                </div>
+                <div class="battle-side player">
+                    <p style="color:white;">🟢 Ваша сторона</p>
+                    <div class="battle-grid">${renderBattleFieldCells('player', canSelect)}</div>
+                </div>
+            </div>
+            ${gameState.isPlayerTurn ? `
+                <p style="color:var(--success);">Выберите персонажа для атаки</p>
+            ` : `
+                <p style="color:var(--text-muted);">Ожидание хода противника...</p>
+            `}
+        `;
+        
+        if (gameState.isPlayerTurn) {
+            startBattleTimer();
+        }
+    }
+
+    window.pvpPlayerReady = async () => {
+        if (gameState.phase !== 'placing') return;
+        
+        clearInterval(gameState.timer);
+        gameState.playerReady = true;
+        
+        const isPlayer1 = gameState.isPlayer1;
+        await updateDoc(doc(db, "rooms", currentRoom), {
+            [`player${isPlayer1 ? '1' : '2'}Ready`]: true,
+            [`player${isPlayer1 ? '1' : '2'}Field`]: gameState.playerField,
+            [`player${isPlayer1 ? '1' : '2'}Elixir`]: gameState.playerElixir,
+            [`player${isPlayer1 ? '1' : '2'}Purchased`]: gameState.playerPurchased
+        });
+        
+        showPvPPlacingField();
+    };
+
+    window.pvpPlayerAttack = async (index) => {
+        if (!gameState.isPlayerTurn || gameState.phase !== 'battle' || gameState.playerActionsLeft <= 0) return;
+        
+        const character = gameState.playerField[index];
+        if (!character || character.stun?.duration > 0) return;
+        
+        clearInterval(gameState.timer);
+        
+        // Применяем механику
+        applyMechanics(character, index + 12, true);
+        
+        const isPlayer1 = gameState.isPlayer1;
+        const newActionsLeft = gameState.playerActionsLeft - 1;
+        
+        // Определяем, кто ходит следующим
+        let nextTurn;
+        let nextPlayer1Actions = isPlayer1 ? newActionsLeft : gameState.playerActionsLeft;
+        let nextPlayer2Actions = isPlayer1 ? gameState.enemyActionsLeft : newActionsLeft;
+        
+        if (newActionsLeft > 0) {
+            // Передаём ход противнику
+            nextTurn = isPlayer1 ? 'player2' : 'player1';
+        } else if (gameState.enemyActionsLeft > 0) {
+            // У нас закончились действия, ходит противник
+            nextTurn = isPlayer1 ? 'player2' : 'player1';
+        } else {
+            // У обоих закончились действия - конец раунда
+            nextTurn = 'end';
+        }
+        
+        // Обрабатываем эффекты
+        processTurnEffects(gameState.playerField);
+        processTurnEffects(gameState.enemyField);
+        
+        // Проверяем победу
+        const playerHasChars = gameState.playerField.some(c => c);
+        const enemyHasChars = gameState.enemyField.some(c => c);
+        
+        if (!playerHasChars) {
+            await updateDoc(doc(db, "rooms", currentRoom), { winner: isPlayer1 ? 'player2' : 'player1' });
+            return;
+        }
+        if (!enemyHasChars) {
+            await updateDoc(doc(db, "rooms", currentRoom), { winner: isPlayer1 ? 'player1' : 'player2' });
+            return;
+        }
+        
+        if (nextTurn === 'end') {
+            // Начинаем новый раунд
+            await startNewPvPRound();
+        } else {
+            // Обновляем комнату
+            await updateDoc(doc(db, "rooms", currentRoom), {
+                [`player${isPlayer1 ? '1' : '2'}Field`]: gameState.playerField,
+                [`player${isPlayer1 ? '2' : '1'}Field`]: gameState.enemyField,
+                currentTurn: nextTurn,
+                player1ActionsLeft: nextPlayer1Actions,
+                player2ActionsLeft: nextPlayer2Actions
+            });
+        }
+    };
+
+    async function startNewPvPRound() {
+        const isPlayer1 = gameState.isPlayer1;
+        
+        // Восстанавливаем эликсир
+        gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
+        
+        // Добираем карты
+        const chars = await getDocs(collection(db, "characters"));
+        const all = [];
+        chars.forEach(d => all.push({ id: d.id, ...d.data() }));
+        
+        while (gameState.playerHand.length < HAND_SIZE) {
+            const newCards = drawRandomCards(all, 1);
+            if (newCards.length > 0) {
+                gameState.playerHand.push(...newCards);
+            } else {
+                break;
+            }
+        }
+        
+        // Бросаем монетку для нового раунда
+        const coinWinner = Math.random() < 0.5 ? 'player1' : 'player2';
+        
+        // Считаем действия
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
+        const maxActions = Math.min(playerCount, enemyCount);
+        
+        await updateDoc(doc(db, "rooms", currentRoom), {
+            status: 'placing',
+            turnPhase: 'placing',
+            player1Ready: false,
+            player2Ready: false,
+            player1Elixir: isPlayer1 ? gameState.playerElixir : gameState.enemyElixir,
+            player2Elixir: isPlayer1 ? gameState.enemyElixir : gameState.playerElixir,
+            player1Hand: isPlayer1 ? gameState.playerHand : gameState.enemyHand,
+            player2Hand: isPlayer1 ? gameState.enemyHand : gameState.playerHand,
+            coinWinner: coinWinner,
+            player1ActionsLeft: maxActions,
+            player2ActionsLeft: maxActions
+        });
+    }
+
+    // ========== ЗАПУСК РЕЖИМОВ ==========
     window.startAIMode = async () => {
         gameState = {
-            mode: 'ai', isAI: true, playerElixir: 10, enemyElixir: 10,
+            mode: 'ai', isAI: true, isPvP: false,
+            playerElixir: 10, enemyElixir: 10,
             playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], battleStarted: false,
-            playerReady: false, isPlayerTurn: true, playerActionsLeft: 0,
-            aiDifficulty: 'expert'
+            playerHand: [], playerPurchased: [],
+            playerDeck: [], enemyDeck: [],
+            phase: 'placing',
+            playerReady: false, enemyReady: false,
+            selectedCard: null,
+            isPlayerTurn: false,
+            coinWinner: null,
+            timer: null, timeLeft: TURN_TIME,
+            playerActionsLeft: 0, enemyActionsLeft: 0,
+            aiDifficulty: 'expert',
+            opponentName: '🤖 ИИ'
         };
         
         showLoader(true);
@@ -2997,77 +3363,196 @@
         const all = [];
         snap.forEach(d => all.push({ id: d.id, ...d.data() }));
         
+        gameState.playerDeck = [...all];
+        gameState.enemyDeck = [...all];
         gameState.playerHand = drawRandomCards(all, HAND_SIZE);
         
-        // ИИ получает карты
-        const aiHand = drawRandomCards(all, HAND_SIZE);
+        // ИИ готовится
         const ai = new AIPlayer('expert');
-        
-        // ИИ оценивает и расставляет карты
-        const sortedHand = aiHand.sort((a, b) => (b.power || 50) - (a.power || 50));
-        let remainingElixir = 10;
-        
-        sortedHand.forEach(card => {
-            const cost = card.elixirCost || 3;
-            if (remainingElixir >= cost) {
-                remainingElixir -= cost;
-                const emptySlot = gameState.enemyField.findIndex(c => !c);
-                if (emptySlot !== -1) {
-                    gameState.enemyField[emptySlot] = { ...card, currentHealth: card.health };
-                }
-            }
-        });
-        
+        const aiHand = drawRandomCards(all, HAND_SIZE);
+        const { purchased, remainingElixir } = ai.buyCards(aiHand, 10);
         gameState.enemyElixir = remainingElixir;
+        gameState.enemyField = ai.placeCards(purchased, gameState.enemyField);
+        gameState.enemyReady = true;
         
         showLoader(false);
-        showAIBattleField();
+        showPlacingField();
     };
 
-    function showAIBattleField() {
+    window.startClassicMode = () => {
+        window.startAIMode();
+    };
+
+    window.startPvPMode = () => {
+        showSearchingModal();
+        startMatchmaking();
+    };
+
+    function showSearchingModal() {
+        const m = document.createElement('div');
+        m.className = 'modal-overlay';
+        m.id = 'searchingModal';
+        m.innerHTML = `
+            <div class="modal-content">
+                <i class="fas fa-spinner fa-spin"></i>
+                <h3>Поиск соперника...</h3>
+                <button class="btn danger full-width" onclick="window.cancelMatchmaking()">Отмена</button>
+            </div>
+        `;
+        document.body.appendChild(m);
+    }
+
+    function startMatchmaking() {
+        addDoc(collection(db, "matchmaking"), {
+            userId: currentUser.uid,
+            nickname: currentUserData.nickname,
+            timestamp: serverTimestamp()
+        }).then(docRef => {
+            matchmakingListener = onSnapshot(
+                query(collection(db, "matchmaking"), where("userId", "!=", currentUser.uid), limit(1)),
+                async (snap) => {
+                    if (!snap.empty && !currentRoom) {
+                        const opp = snap.docs[0];
+                        
+                        const roomRef = await addDoc(collection(db, "rooms"), {
+                            player1: currentUser.uid,
+                            player1Nickname: currentUserData.nickname,
+                            player2: opp.data().userId,
+                            player2Nickname: opp.data().nickname,
+                            status: 'placing',
+                            player1Ready: false,
+                            player2Ready: false,
+                            player1Field: Array(12).fill(null),
+                            player2Field: Array(12).fill(null),
+                            player1Elixir: 10,
+                            player2Elixir: 10,
+                            player1Hand: [],
+                            player2Hand: [],
+                            player1Purchased: [],
+                            player2Purchased: [],
+                            currentTurn: null,
+                            turnPhase: 'placing',
+                            coinWinner: null,
+                            player1ActionsLeft: 0,
+                            player2ActionsLeft: 0,
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        currentRoom = roomRef.id;
+                        
+                        await deleteDoc(doc(db, "matchmaking", docRef.id));
+                        await deleteDoc(doc(db, "matchmaking", opp.id));
+                        
+                        document.getElementById('searchingModal')?.remove();
+                        
+                        gameState = {
+                            mode: 'pvp', isPvP: true, isAI: false,
+                            playerElixir: 10, enemyElixir: 10,
+                            playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
+                            playerHand: [], playerPurchased: [],
+                            phase: 'placing',
+                            playerReady: false, enemyReady: false,
+                            selectedCard: null,
+                            isPlayerTurn: false,
+                            coinWinner: null,
+                            playerActionsLeft: 0, enemyActionsLeft: 0,
+                            opponentName: opp.data().nickname,
+                            roomId: currentRoom,
+                            isPlayer1: true
+                        };
+                        
+                        const chars = await getDocs(collection(db, "characters"));
+                        const all = [];
+                        chars.forEach(d => all.push({ id: d.id, ...d.data() }));
+                        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
+                        
+                        await updateDoc(doc(db, "rooms", currentRoom), {
+                            player1Hand: gameState.playerHand
+                        });
+                        
+                        listenToRoom();
+                        showPvPPlacingField();
+                    }
+                }
+            );
+        });
+    }
+
+    window.cancelMatchmaking = () => {
+        if (matchmakingListener) matchmakingListener();
+        document.getElementById('searchingModal')?.remove();
+        resetGame();
+    };
+
+    window.showEventModal = () => {
+        alert('События скоро появятся!');
+    };
+
+    // ========== ОТОБРАЖЕНИЕ ПОЛЯ (общие функции) ==========
+    function showPlacingField() {
         const tab = document.getElementById('tab-home');
-        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const canPlace = gameState.phase === 'placing';
         
         tab.innerHTML = `
-            <h3>🤖 Битва с ИИ (Эксперт)</h3>
-            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;">
+            <h3>⚔️ Фаза расстановки</h3>
+            <div class="vs-indicator">
+                <span>🟢 ${currentUserData?.nickname || 'Вы'}</span>
+                <span class="vs">VS</span>
+                <span>${gameState.opponentName}</span>
+            </div>
+            <div class="phase-indicator">
+                <span class="timer-display" id="timerDisplay">${gameState.timeLeft}с</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
                 <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
-                <span>🤖 ИИ</span>
-                <span><i class="fas fa-flask"></i> ${gameState.enemyElixir}/${MAX_ELIXIR}</span>
+                <span>${gameState.playerReady ? '✅ Готов' : '⏳ Расстановка'}</span>
+                <span><i class="fas fa-flask"></i> ${gameState.enemyReady ? '???' : '???'}</span>
             </div>
             <div style="margin:15px 0;">
                 <div class="battle-side enemy" style="margin-bottom:15px;">
-                    <p style="color:white;">🤖 Противник (ИИ)</p>
+                    <p style="color:white;">${gameState.opponentName}</p>
                     <div class="battle-grid">${renderFieldCells('enemy', false)}</div>
                 </div>
                 <div class="battle-side player">
                     <p style="color:white;">Ваша сторона</p>
-                    <div class="battle-grid">${renderFieldCells('player', gameState.isPlayerTurn && gameState.battleStarted)}</div>
+                    <div class="battle-grid">${renderFieldCells('player', canPlace)}</div>
                 </div>
             </div>
             <div>
-                ${!gameState.battleStarted ? `
-                    <p>Ваши карты (${gameState.playerHand.length}/${HAND_SIZE})</p>
-                    <div class="hand-container">${renderHand()}</div>
-                    <p>Купленные карты</p>
-                    <div class="purchased-container">${renderPurchased()}</div>
-                    <button class="btn success full-width" onclick="window.setAIReady()">${t('ready')}</button>
-                ` : `
-                    <div class="turn-indicator ${gameState.isPlayerTurn ? 'your-turn' : 'enemy-turn'}">
-                        ${gameState.isPlayerTurn ? t('yourTurn') : t('enemyTurn')}
-                    </div>
-                    ${gameState.isPlayerTurn ? `
-                        <p style="color:var(--success);">${t('selectCharacter')} (${playerCount} доступно)</p>
-                        <button class="btn warning full-width" onclick="window.endPlayerTurn()">Завершить ход</button>
-                    ` : `
-                        <p style="color:var(--text-muted);">ИИ думает...</p>
-                    `}
-                `}
+                <p>Ваши карты (${gameState.playerHand.length}/${HAND_SIZE})</p>
+                <div class="hand-container">${renderHand()}</div>
+                <p>Купленные карты</p>
+                <div class="purchased-container">${renderPurchased()}</div>
+                <button class="btn success full-width" onclick="window.playerReady()">✅ Готов</button>
             </div>
         `;
+        
+        startPlacingTimer();
     }
 
     function renderFieldCells(side, selectable = false) {
+        const f = side === 'player' ? gameState.playerField : gameState.enemyField;
+        const isP = side === 'player';
+        let h = '';
+        
+        for (let i = 0; i < 12; i++) {
+            const c = f[i];
+            const canPlace = selectable && !c && gameState.selectedCard?.type === 'purchased';
+            
+            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${canPlace ? 'selectable' : ''}" 
+                      onclick="${canPlace ? `window.placeCardToField(${i})` : ''}" 
+                      style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
+            
+            if (c) {
+                h += `<img src="${c.imageBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
+                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️</div>`;
+            }
+            h += '</div>';
+        }
+        return h;
+    }
+
+    function renderBattleFieldCells(side, selectable = false) {
         const f = side === 'player' ? gameState.playerField : gameState.enemyField;
         const isP = side === 'player';
         let h = '';
@@ -3078,7 +3563,7 @@
             const canSelect = selectable && c && !isStunned;
             
             h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${canSelect ? 'selectable' : ''} ${isStunned ? 'stunned' : ''}" 
-                      onclick="${canSelect ? `window.playerAttack(${i})` : ''}" 
+                      onclick="${canSelect ? (gameState.isPvP ? `window.pvpPlayerAttack(${i})` : `window.playerAttack(${i})`) : ''}" 
                       style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
             
             if (c) {
@@ -3096,14 +3581,16 @@
     function renderHand() {
         let h = '';
         gameState.playerHand.forEach((c, i) => { 
+            const isSelected = gameState.selectedCard?.type === 'hand' && gameState.selectedCard?.index === i;
+            const canAfford = gameState.playerElixir >= (c.elixirCost || 3);
             h += `
-                <div class="battle-card" onclick="window.selectHandCard(${i})">
+                <div class="battle-card ${isSelected ? 'selected' : ''}" onclick="window.selectHandCard(${i})">
                     <img src="${c.imageBase64}" class="battle-card-img">
                     <span class="battle-card-name">${c.name} ⭐${c.power||50}</span>
                     <div class="battle-card-stats">
                         <span>❤️ ${c.health}</span>
                     </div>
-                    <button class="buy-btn-small" onclick="event.stopPropagation(); window.buyCardFromHand(${i})">
+                    <button class="buy-btn-small" onclick="event.stopPropagation(); window.buyCardFromHand(${i})" ${!canAfford ? 'disabled style="opacity:0.5;"' : ''}>
                         Купить (${c.elixirCost||3})
                     </button>
                 </div>
@@ -3115,8 +3602,9 @@
     function renderPurchased() {
         let h = '';
         gameState.playerPurchased.forEach((c, i) => {
+            const isSelected = gameState.selectedCard?.type === 'purchased' && gameState.selectedCard?.index === i;
             h += `
-                <div class="battle-card" onclick="window.selectPurchasedCard(${i})">
+                <div class="battle-card ${isSelected ? 'selected' : ''}" onclick="window.selectPurchasedCard(${i})">
                     <img src="${c.imageBase64}" class="battle-card-img">
                     <span class="battle-card-name">${c.name} ⭐${c.power||50}</span>
                     <div class="battle-card-stats">
@@ -3129,7 +3617,9 @@
     }
 
     window.buyCardFromHand = (index) => {
+        if (gameState.phase !== 'placing') return;
         if (!gameState.playerHand[index]) return;
+        
         const card = gameState.playerHand[index];
         const cost = card.elixirCost || 3;
         
@@ -3142,20 +3632,38 @@
         gameState.playerPurchased.push(card);
         gameState.playerHand.splice(index, 1);
         gameState.selectedCard = null;
-        showAIBattleField();
+        
+        if (gameState.isPvP) {
+            showPvPPlacingField();
+        } else {
+            showPlacingField();
+        }
     };
 
     window.selectHandCard = (i) => {
+        if (gameState.phase !== 'placing') return;
         gameState.selectedCard = { index: i, card: gameState.playerHand[i], type: 'hand' };
-        showAIBattleField();
+        
+        if (gameState.isPvP) {
+            showPvPPlacingField();
+        } else {
+            showPlacingField();
+        }
     };
 
     window.selectPurchasedCard = (i) => {
+        if (gameState.phase !== 'placing') return;
         gameState.selectedCard = { index: i, card: gameState.playerPurchased[i], type: 'purchased' };
-        showAIBattleField();
+        
+        if (gameState.isPvP) {
+            showPvPPlacingField();
+        } else {
+            showPlacingField();
+        }
     };
 
     window.placeCardToField = (i) => {
+        if (gameState.phase !== 'placing') return;
         if (!gameState.selectedCard || gameState.selectedCard.type !== 'purchased') {
             alert('Выберите купленную карту!');
             return;
@@ -3169,57 +3677,198 @@
         gameState.playerField[i] = { ...c, currentHealth: c.health };
         gameState.playerPurchased.splice(gameState.selectedCard.index, 1);
         gameState.selectedCard = null;
-        showAIBattleField();
+        
+        if (gameState.isPvP) {
+            showPvPPlacingField();
+        } else {
+            showPlacingField();
+        }
     };
 
-    window.setAIReady = () => {
-        gameState.playerReady = true;
-        gameState.battleStarted = true;
+    function startPlacingTimer() {
+        if (gameState.timer) clearInterval(gameState.timer);
         
+        gameState.timer = setInterval(() => {
+            gameState.timeLeft--;
+            const d = document.getElementById('timerDisplay');
+            if (d) d.textContent = gameState.timeLeft + 'с';
+            
+            if (gameState.timeLeft <= 0) {
+                clearInterval(gameState.timer);
+                if (!gameState.playerReady) {
+                    if (gameState.isPvP) {
+                        window.pvpPlayerReady();
+                    } else {
+                        window.playerReady();
+                    }
+                }
+            }
+        }, 1000);
+    }
+
+    window.playerReady = () => {
+        if (gameState.phase !== 'placing') return;
+        
+        clearInterval(gameState.timer);
+        gameState.playerReady = true;
+        
+        // Бросаем монетку
+        gameState.coinWinner = Math.random() < 0.5 ? 'player' : 'enemy';
+        gameState.isPlayerTurn = gameState.coinWinner === 'player';
+        gameState.phase = 'battle';
+        
+        // Считаем действия
         const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
         const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
         gameState.playerActionsLeft = Math.min(playerCount, enemyCount);
+        gameState.enemyActionsLeft = Math.min(playerCount, enemyCount);
         
-        gameState.isPlayerTurn = Math.random() < 0.5;
-        
-        if (!gameState.isPlayerTurn) {
-            setTimeout(() => aiTurn(), 1000);
-        }
-        
-        showAIBattleField();
+        // Показываем результат монетки
+        showCoinFlipResult();
     };
 
+    function showCoinFlipResult() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content" style="text-align:center;">
+                <h3>🪙 Бросаем монетку...</h3>
+                <div class="coin-flip-animation">🪙</div>
+                <p style="margin:20px 0;font-size:18px;">
+                    ${gameState.coinWinner === 'player' ? '🟢 Вы ходите первым!' : `🔵 ${gameState.opponentName} ходит первым!`}
+                </p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        setTimeout(() => {
+            modal.remove();
+            showBattleField();
+        }, 2000);
+    }
+
+    function showBattleField() {
+        // Проверка на наличие персонажей
+        const playerHasChars = gameState.playerField.some(c => c && !c.stun);
+        const enemyHasChars = gameState.enemyField.some(c => c && !c.stun);
+        
+        if (!playerHasChars) {
+            alert('Поражение! У вас нет персонажей для хода.');
+            resetGame();
+            return;
+        }
+        if (!enemyHasChars) {
+            alert('Победа! У противника нет персонажей.');
+            resetGame();
+            return;
+        }
+        
+        const tab = document.getElementById('tab-home');
+        const canSelect = gameState.isPlayerTurn && gameState.phase === 'battle' && gameState.playerActionsLeft > 0;
+        
+        tab.innerHTML = `
+            <h3>⚔️ Фаза битвы</h3>
+            <div class="vs-indicator">
+                <span>🟢 ${currentUserData?.nickname || 'Вы'}</span>
+                <span class="vs">VS</span>
+                <span>${gameState.opponentName}</span>
+            </div>
+            <div class="turn-indicator ${gameState.isPlayerTurn ? 'your-turn' : 'enemy-turn'}">
+                ${gameState.isPlayerTurn ? '🟢 ВАШ ХОД' : `🔵 ХОД ${gameState.opponentName}`}
+            </div>
+            <div class="phase-indicator">
+                <span class="timer-display" id="timerDisplay">${TURN_TIME}с</span>
+                <span>Действий: ${gameState.playerActionsLeft}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
+                <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
+                <span>🪙 ${gameState.coinWinner === 'player' ? 'Вы' : gameState.opponentName}</span>
+                <span><i class="fas fa-flask"></i> ???</span>
+            </div>
+            <div style="margin:15px 0;">
+                <div class="battle-side enemy" style="margin-bottom:15px;">
+                    <p style="color:white;">${gameState.opponentName}</p>
+                    <div class="battle-grid">${renderBattleFieldCells('enemy', false)}</div>
+                </div>
+                <div class="battle-side player">
+                    <p style="color:white;">Ваша сторона</p>
+                    <div class="battle-grid">${renderBattleFieldCells('player', canSelect)}</div>
+                </div>
+            </div>
+            ${gameState.isPlayerTurn ? `
+                <p style="color:var(--success);">Выберите персонажа для атаки</p>
+            ` : `
+                <p style="color:var(--text-muted);">${gameState.opponentName} думает...</p>
+            `}
+        `;
+        
+        if (!gameState.isPlayerTurn && gameState.isAI) {
+            setTimeout(() => enemyTurn(), 1500);
+        } else if (gameState.isPlayerTurn) {
+            startBattleTimer();
+        }
+    }
+
+    function startBattleTimer() {
+        if (gameState.timer) clearInterval(gameState.timer);
+        gameState.timeLeft = TURN_TIME;
+        
+        gameState.timer = setInterval(() => {
+            gameState.timeLeft--;
+            const d = document.getElementById('timerDisplay');
+            if (d) d.textContent = gameState.timeLeft + 'с';
+            
+            if (gameState.timeLeft <= 0) {
+                clearInterval(gameState.timer);
+                if (gameState.isPlayerTurn) {
+                    alert('Время вышло! Поражение.');
+                    resetGame();
+                }
+            }
+        }, 1000);
+    }
+
     window.playerAttack = (index) => {
-        if (!gameState.isPlayerTurn || !gameState.battleStarted) return;
+        if (!gameState.isPlayerTurn || gameState.phase !== 'battle' || gameState.playerActionsLeft <= 0) return;
         
         const character = gameState.playerField[index];
         if (!character || character.stun?.duration > 0) return;
         
+        clearInterval(gameState.timer);
+        
+        // Применяем механику
         applyMechanics(character, index + 12, true);
+        
         gameState.playerActionsLeft--;
         
-        if (gameState.playerActionsLeft <= 0) {
-            gameState.isPlayerTurn = false;
-            processTurnEffects(gameState.playerField);
-            processTurnEffects(gameState.enemyField);
-            
-            if (checkVictory()) return;
-            
-            setTimeout(() => aiTurn(), 1000);
-        }
+        // Обрабатываем эффекты
+        processTurnEffects(gameState.playerField);
+        processTurnEffects(gameState.enemyField);
         
-        showAIBattleField();
+        // Проверяем победу
+        if (checkVictory()) return;
+        
+        if (gameState.playerActionsLeft > 0) {
+            // Передаём ход ИИ
+            gameState.isPlayerTurn = false;
+            showBattleField();
+            setTimeout(() => enemyTurn(), 1000);
+        } else if (gameState.enemyActionsLeft > 0) {
+            gameState.isPlayerTurn = false;
+            showBattleField();
+            setTimeout(() => enemyTurn(), 1000);
+        } else {
+            // Конец раунда
+            startNewRound();
+        }
     };
 
-    function aiTurn() {
+    function enemyTurn() {
         if (gameState.isPlayerTurn) return;
         
         const ai = new AIPlayer('expert');
-        const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
-        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
-        const actions = Math.min(enemyCount, playerCount);
         
-        for (let i = 0; i < actions; i++) {
+        while (gameState.enemyActionsLeft > 0) {
             const bestMove = ai.selectBestAction(gameState.enemyField, gameState.playerField, false);
             if (bestMove !== null && bestMove !== undefined) {
                 const character = gameState.enemyField[bestMove];
@@ -3227,6 +3876,7 @@
                     applyMechanics(character, bestMove + 12, false);
                 }
             }
+            gameState.enemyActionsLeft--;
         }
         
         processTurnEffects(gameState.playerField);
@@ -3234,29 +3884,37 @@
         
         if (checkVictory()) return;
         
-        gameState.isPlayerTurn = true;
+        if (gameState.playerActionsLeft > 0) {
+            gameState.isPlayerTurn = true;
+            showBattleField();
+        } else {
+            startNewRound();
+        }
+    }
+
+    function startNewRound() {
+        gameState.phase = 'placing';
+        gameState.playerReady = false;
+        gameState.enemyReady = true;
+        gameState.timeLeft = TURN_TIME;
         gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
         gameState.enemyElixir = Math.min(MAX_ELIXIR, gameState.enemyElixir + 3);
         
-        const playerCountAfter = gameState.playerField.filter(c => c && !c.stun).length;
-        const enemyCountAfter = gameState.enemyField.filter(c => c && !c.stun).length;
-        gameState.playerActionsLeft = Math.min(playerCountAfter, enemyCountAfter);
+        // Добираем карты
+        while (gameState.playerHand.length < HAND_SIZE && gameState.playerDeck.length > 0) {
+            const newCards = drawRandomCards(gameState.playerDeck, 1);
+            gameState.playerHand.push(...newCards);
+        }
         
-        showAIBattleField();
+        // ИИ закупается
+        const ai = new AIPlayer('expert');
+        const aiHand = drawRandomCards(gameState.enemyDeck, 3);
+        const { purchased, remainingElixir } = ai.buyCards(aiHand, gameState.enemyElixir);
+        gameState.enemyElixir = remainingElixir;
+        gameState.enemyField = ai.placeCards(purchased, gameState.enemyField);
+        
+        showPlacingField();
     }
-
-    window.endPlayerTurn = () => {
-        if (!gameState.isPlayerTurn) return;
-        
-        gameState.isPlayerTurn = false;
-        processTurnEffects(gameState.playerField);
-        processTurnEffects(gameState.enemyField);
-        
-        if (checkVictory()) return;
-        
-        setTimeout(() => aiTurn(), 1000);
-        showAIBattleField();
-    };
 
     function applyMechanics(character, position, isPlayer) {
         if (!character.mechanics?.[position]) return;
@@ -3373,13 +4031,16 @@
     }
 
     function checkVictory() {
-        if (gameState.enemyField.every(c => !c)) {
-            alert(t('victory'));
+        const playerHasChars = gameState.playerField.some(c => c);
+        const enemyHasChars = gameState.enemyField.some(c => c);
+        
+        if (!playerHasChars) {
+            alert('Поражение!');
             resetGame();
             return true;
         }
-        if (gameState.playerField.every(c => !c)) {
-            alert(t('defeat'));
+        if (!enemyHasChars) {
+            alert('Победа!');
             resetGame();
             return true;
         }
@@ -3387,15 +4048,28 @@
     }
 
     function resetGame() {
+        if (gameState.timer) clearInterval(gameState.timer);
         if (roomListener) roomListener();
+        if (matchmakingListener) matchmakingListener();
         
         gameState = {
-            mode: null, isPvP: false, isAI: false, playerElixir: 10, enemyElixir: 10,
+            mode: null, isAI: false, isPvP: false,
+            playerElixir: 10, enemyElixir: 10,
             playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], turn: 0,
-            battleStarted: false, playerReady: false,
-            selectedCard: null, isPlayerTurn: false, playerActionsLeft: 0
+            playerHand: [], playerPurchased: [],
+            playerDeck: [], enemyDeck: [],
+            phase: 'placing',
+            playerReady: false, enemyReady: false,
+            selectedCard: null,
+            isPlayerTurn: false,
+            coinWinner: null,
+            timer: null, timeLeft: TURN_TIME,
+            playerActionsLeft: 0, enemyActionsLeft: 0,
+            opponentName: 'Противник',
+            roomId: null
         };
+        
+        currentRoom = null;
         
         document.getElementById('tab-home').innerHTML = `
             <h3>Добро пожаловать в игру!</h3>
@@ -3407,22 +4081,6 @@
             </div>
         `;
     }
-
-    // ========== PvP (заглушки) ==========
-    window.startPvPMode = () => {
-        alert('PvP режим - поиск соперника...');
-    };
-    
-    window.startClassicMode = () => {
-        window.startAIMode();
-    };
-    
-    window.showEventModal = () => {
-        alert('События скоро появятся!');
-    };
-    
-    function listenToRoom() {}
-    function showPvPPlacingField() {}
 
     // ========== НАСТРОЙКИ ==========
     function saveCustomColors() {
