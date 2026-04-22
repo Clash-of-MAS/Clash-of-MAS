@@ -765,6 +765,21 @@
             cursor: not-allowed;
         }
         
+        .field-cell.used {
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .field-cell.used::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            color: #2ecc71;
+            font-weight: bold;
+            text-shadow: 0 0 3px black;
+        }
+        
         .mechanics-dual-grid {
             display: flex;
             gap: 20px;
@@ -1247,9 +1262,9 @@
                                 <option value="assassin">Убийца</option>
                             </select>
                             <input type="number" id="newCharacterElixirCost" placeholder="Стоимость в эликсирах" required min="1" value="3">
-                            <button class="btn warning full-width" onclick="window.openMechanicsEditor()" type="button">⚙️ Настроить механики (12 позиций)</button>
-                            <label style="display:block;margin:10px 0;color:var(--text-muted);">Атака (фото/видео):</label>
+                            <label style="display:block;margin:10px 0;color:var(--text-muted);">Анимация атаки (фото/видео):</label>
                             <input type="file" id="characterAttackMedia" accept="image/*,video/*">
+                            <button class="btn warning full-width" onclick="window.openMechanicsEditor()" type="button">⚙️ Настроить механики (12 позиций)</button>
                             <button class="btn primary full-width" onclick="window.createCharacter()">Сохранить персонажа</button>
                             <button class="btn text full-width" onclick="window.toggleCreateCharacter()">Отмена</button>
                         </div>
@@ -1259,6 +1274,8 @@
                             <h4>Редактировать персонажа</h4>
                             <input type="hidden" id="editCharacterId">
                             <input type="text" id="editCharacterName" placeholder="Имя персонажа" required>
+                            <label>Изображение персонажа:</label>
+                            <input type="file" id="editCharacterImage" accept="image/*">
                             <div class="power-slider-container">
                                 <label>Оценка силы (1-100):</label>
                                 <input type="range" id="editCharacterPower" min="1" max="100" value="50">
@@ -1266,6 +1283,8 @@
                             </div>
                             <input type="number" id="editCharacterHealth" placeholder="Здоровье" required min="1">
                             <input type="number" id="editCharacterElixirCost" placeholder="Стоимость" value="3" min="1">
+                            <label>Анимация атаки (фото/видео):</label>
+                            <input type="file" id="editCharacterAttackMedia" accept="image/*,video/*">
                             <button class="btn warning full-width" onclick="window.openEditMechanicsEditor()">⚙️ Настроить механики</button>
                             <button class="btn primary full-width" onclick="window.updateCharacter()">Сохранить изменения</button>
                             <button class="btn text full-width" onclick="window.cancelEditCharacter()">Отмена</button>
@@ -1542,17 +1561,18 @@
         playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
         playerHand: [], playerPurchased: [],
         playerDeck: [], enemyDeck: [],
-        phase: 'placing', // placing, battle
+        phase: 'placing',
         playerReady: false, enemyReady: false,
         selectedCard: null,
         isPlayerTurn: false,
-        coinWinner: null, // 'player' или 'enemy'
+        coinWinner: null,
         timer: null, timeLeft: TURN_TIME,
         playerActionsLeft: 0, enemyActionsLeft: 0,
         aiDifficulty: 'expert',
         opponentName: 'Противник',
         roomId: null,
-        isPlayer1: true
+        isPlayer1: true,
+        usedCharacters: { player: new Set(), enemy: new Set() }
     };
     
     let currentRoom = null;
@@ -1679,7 +1699,7 @@
         }
     };
 
-    // ========== РЕДАКТОР МЕХАНИК ==========
+    // ========== РЕДАКТОР МЕХАНИК (С НОВЫМИ ЭФФЕКТАМИ) ==========
     window.openMechanicsEditor = function() {
         const modal = document.createElement('div'); 
         modal.className = 'modal-overlay'; 
@@ -1706,7 +1726,7 @@
                             ${renderMechanicsGrid('enemy')}
                         </div>
                         <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
-                            ☠️ Яд | 💥 Урон | ⚡ Оглушение | 🔻 Ослабление
+                            ☠️ Яд | 💥 Урон | ⚡ Оглушение | 🔻 Ослабление | 💢 Непробивной
                         </p>
                     </div>
                     <div class="mechanics-side">
@@ -1765,6 +1785,7 @@
                 else if (lastEffect.type === 'damage') icon = '💥';
                 else if (lastEffect.type === 'stun') icon = '⚡';
                 else if (lastEffect.type === 'weaken') icon = '🔻';
+                else if (lastEffect.type === 'piercing') icon = '💢';
                 else if (lastEffect.type === 'heal') icon = '💚';
                 else if (lastEffect.type === 'shield') icon = '🛡️';
                 else if (lastEffect.type === 'buff') icon = '✨';
@@ -1807,6 +1828,11 @@
                 desc = `⚡ Оглушение: ${effect.duration} хода(ов)`;
             } else if (effect.type === 'weaken') {
                 desc = `🔻 Ослабление: -${effect.value} к урону, ${effect.duration} хода(ов)`;
+            } else if (effect.type === 'piercing') {
+                desc = `💢 Непробивной урон: ${effect.value} ед. (по нижнему)`;
+                if (effect.poison) desc += ` + ☠️ Яд ${effect.poison.damagePerTurn}/${effect.poison.duration}`;
+                if (effect.stun) desc += ` + ⚡ Оглушение ${effect.stun.duration}`;
+                if (effect.weaken) desc += ` + 🔻 Ослабление ${effect.weaken.value}/${effect.weaken.duration}`;
             } else if (effect.type === 'heal') {
                 desc = `💚 Лечение: ${effect.value} здоровья/ход, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'shield') {
@@ -1854,6 +1880,7 @@
                 <option value="damage">💥 Урон (разовый)</option>
                 <option value="stun">⚡ Оглушение (пропуск хода)</option>
                 <option value="weaken">🔻 Ослабление (снижение урона)</option>
+                <option value="piercing">💢 Непробивной урон (по нижнему)</option>
             `;
         } else {
             options = `
@@ -1885,6 +1912,40 @@
         } else if (type === 'weaken') {
             html = `<label>Снижение урона:</label><input type="number" id="weakenValue" value="10" min="1">
                     <label>Длительность (ходов):</label><input type="number" id="weakenDuration" value="2" min="1">`;
+        } else if (type === 'piercing') {
+            html = `<label>Непробивной урон:</label><input type="number" id="piercingValue" value="15" min="1">
+                    <div style="margin-top:10px;">
+                        <label><input type="checkbox" id="addPoison"> ☠️ Добавить яд</label>
+                        <div id="piercingPoisonParams" style="display:none; margin-left:20px;">
+                            <label>Урон яда:</label><input type="number" id="piercingPoisonDamage" value="3" min="1">
+                            <label>Длительность:</label><input type="number" id="piercingPoisonDuration" value="2" min="1">
+                        </div>
+                    </div>
+                    <div style="margin-top:5px;">
+                        <label><input type="checkbox" id="addStun"> ⚡ Добавить оглушение</label>
+                        <div id="piercingStunParams" style="display:none; margin-left:20px;">
+                            <label>Длительность:</label><input type="number" id="piercingStunDuration" value="1" min="1">
+                        </div>
+                    </div>
+                    <div style="margin-top:5px;">
+                        <label><input type="checkbox" id="addWeaken"> 🔻 Добавить ослабление</label>
+                        <div id="piercingWeakenParams" style="display:none; margin-left:20px;">
+                            <label>Снижение урона:</label><input type="number" id="piercingWeakenValue" value="5" min="1">
+                            <label>Длительность:</label><input type="number" id="piercingWeakenDuration" value="2" min="1">
+                        </div>
+                    </div>`;
+            // Добавляем обработчики для чекбоксов
+            setTimeout(() => {
+                document.getElementById('addPoison')?.addEventListener('change', (e) => {
+                    document.getElementById('piercingPoisonParams').style.display = e.target.checked ? 'block' : 'none';
+                });
+                document.getElementById('addStun')?.addEventListener('change', (e) => {
+                    document.getElementById('piercingStunParams').style.display = e.target.checked ? 'block' : 'none';
+                });
+                document.getElementById('addWeaken')?.addEventListener('change', (e) => {
+                    document.getElementById('piercingWeakenParams').style.display = e.target.checked ? 'block' : 'none';
+                });
+            }, 10);
         } else if (type === 'heal') {
             html = `<label>Лечение за ход:</label><input type="number" id="healValue" value="10" min="1">
                     <label>Длительность (ходов):</label><input type="number" id="healDuration" value="3" min="1">`;
@@ -1904,6 +1965,7 @@
         if (!type) return;
         
         let effect = { type };
+        
         if (type === 'poison') {
             effect.damagePerTurn = parseInt(document.getElementById('poisonDamage')?.value) || 5;
             effect.duration = parseInt(document.getElementById('poisonDuration')?.value) || 3;
@@ -1914,6 +1976,26 @@
         } else if (type === 'weaken') {
             effect.value = parseInt(document.getElementById('weakenValue')?.value) || 10;
             effect.duration = parseInt(document.getElementById('weakenDuration')?.value) || 2;
+        } else if (type === 'piercing') {
+            effect.value = parseInt(document.getElementById('piercingValue')?.value) || 15;
+            
+            if (document.getElementById('addPoison')?.checked) {
+                effect.poison = {
+                    damagePerTurn: parseInt(document.getElementById('piercingPoisonDamage')?.value) || 3,
+                    duration: parseInt(document.getElementById('piercingPoisonDuration')?.value) || 2
+                };
+            }
+            if (document.getElementById('addStun')?.checked) {
+                effect.stun = {
+                    duration: parseInt(document.getElementById('piercingStunDuration')?.value) || 1
+                };
+            }
+            if (document.getElementById('addWeaken')?.checked) {
+                effect.weaken = {
+                    value: parseInt(document.getElementById('piercingWeakenValue')?.value) || 5,
+                    duration: parseInt(document.getElementById('piercingWeakenDuration')?.value) || 2
+                };
+            }
         } else if (type === 'heal') {
             effect.value = parseInt(document.getElementById('healValue')?.value) || 10;
             effect.duration = parseInt(document.getElementById('healDuration')?.value) || 3;
@@ -1992,6 +2074,7 @@
 
     window.createCharacter = async function() {
         const file = document.getElementById('characterImage').files[0];
+        const attackFile = document.getElementById('characterAttackMedia').files[0];
         const name = document.getElementById('newCharacterName').value.trim();
         const health = parseInt(document.getElementById('newCharacterHealth').value);
         const power = parseInt(document.getElementById('newCharacterPower').value) || 50;
@@ -2014,22 +2097,37 @@
         showLoader(true);
         const reader = new FileReader();
         reader.onload = async (e) => {
-            await addDoc(collection(db, "characters"), {
+            const charData = {
                 name, health, power, ability, trait: trait || null,
                 rarity, class: charClass, elixirCost,
                 mechanics: tempMechanics,
                 imageBase64: e.target.result,
                 createdBy: currentUser.uid,
                 createdAt: serverTimestamp()
-            });
+            };
             
+            if (attackFile) {
+                const attackReader = new FileReader();
+                attackReader.onload = async (ae) => {
+                    charData.attackMediaBase64 = ae.target.result;
+                    await addDoc(collection(db, "characters"), charData);
+                    finish();
+                };
+                attackReader.readAsDataURL(attackFile);
+            } else {
+                await addDoc(collection(db, "characters"), charData);
+                finish();
+            }
+        };
+        reader.readAsDataURL(file);
+        
+        function finish() {
             document.getElementById('createCharacterForm').classList.add('hidden');
             alert('Персонаж создан!');
             loadCharacters();
             showLoader(false);
             tempMechanics = {};
-        };
-        reader.readAsDataURL(file);
+        }
     };
 
     function loadCharacters() {
@@ -2096,6 +2194,15 @@
                     <p><strong>Класс:</strong> ${classNames[c.class]}</p>
                     <p><strong>Стоимость:</strong> ${c.elixirCost||3} эликсира</p>
                 </div>
+                ${c.attackMediaBase64 ? `
+                    <div style="margin-top:10px;">
+                        <p><strong>Анимация атаки:</strong></p>
+                        ${c.attackMediaBase64.startsWith('data:image') ? 
+                            `<img src="${c.attackMediaBase64}" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;">` : 
+                            `<video src="${c.attackMediaBase64}" controls style="width:100%;max-height:150px;border-radius:8px;"></video>`
+                        }
+                    </div>
+                ` : ''}
                 ${isDeveloperMode ? `
                     <button class="btn warning full-width" onclick="window.openEditCharacter('${id}')">✏️ Редактировать</button>
                     <button class="btn danger full-width" onclick="window.deleteCharacter('${id}')">🗑️ Удалить</button>
@@ -2134,16 +2241,37 @@
         const power = parseInt(document.getElementById('editCharacterPower').value) || 50;
         const health = parseInt(document.getElementById('editCharacterHealth').value) || 1;
         const elixirCost = parseInt(document.getElementById('editCharacterElixirCost').value) || 3;
+        const imageFile = document.getElementById('editCharacterImage').files[0];
+        const attackFile = document.getElementById('editCharacterAttackMedia').files[0];
         
         if (!name) { alert('Введите имя'); return; }
         
         showLoader(true);
         try {
-            await updateDoc(doc(db, "characters", id), {
+            const updateData = {
                 name, power, health, elixirCost,
                 mechanics: editTempMechanics,
                 updatedAt: serverTimestamp()
-            });
+            };
+            
+            const uploads = [];
+            if (imageFile) {
+                uploads.push(new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => { updateData.imageBase64 = e.target.result; resolve(); };
+                    reader.readAsDataURL(imageFile);
+                }));
+            }
+            if (attackFile) {
+                uploads.push(new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => { updateData.attackMediaBase64 = e.target.result; resolve(); };
+                    reader.readAsDataURL(attackFile);
+                }));
+            }
+            
+            await Promise.all(uploads);
+            await updateDoc(doc(db, "characters", id), updateData);
             
             document.getElementById('editCharacterForm').classList.add('hidden');
             editingCharacterId = null;
@@ -2633,7 +2761,6 @@
     };
 
     window.inviteToBattle = async (friendId, friendNickname) => {
-        // Проверяем, нет ли уже активного приглашения
         const existingInvites = await getDocs(query(
             collection(db, "battleInvites"),
             where("from", "==", currentUser.uid),
@@ -2708,7 +2835,6 @@
     window.acceptBattleInvite = async (inviteId, fromUserId, fromNickname) => {
         await deleteDoc(doc(db, "battleInvites", inviteId));
         
-        // Создаем комнату для PvP битвы
         const roomRef = await addDoc(collection(db, "rooms"), {
             player1: fromUserId,
             player1Nickname: fromNickname,
@@ -2730,6 +2856,8 @@
             coinWinner: null,
             player1ActionsLeft: 0,
             player2ActionsLeft: 0,
+            player1Used: [],
+            player2Used: [],
             createdAt: serverTimestamp()
         });
         
@@ -2747,10 +2875,10 @@
             playerActionsLeft: 0, enemyActionsLeft: 0,
             opponentName: fromNickname,
             roomId: currentRoom,
-            isPlayer1: false
+            isPlayer1: false,
+            usedCharacters: { player: new Set(), enemy: new Set() }
         };
         
-        // Загружаем карты
         const chars = await getDocs(collection(db, "characters"));
         const all = [];
         chars.forEach(d => all.push({ id: d.id, ...d.data() }));
@@ -2987,7 +3115,7 @@
             this.difficulty = difficulty;
         }
         
-        evaluatePosition(character, pos, playerField, enemyField, isPlayerChar) {
+        evaluatePosition(character, pos, playerField, enemyField, isPlayerChar, usedSet) {
             let score = 0;
             const actualPos = pos + 12;
             const mechanics = character.mechanics?.[actualPos];
@@ -3001,12 +3129,27 @@
                 
                 effects.forEach(effect => {
                     if (side === 'enemy') {
-                        const target = isPlayerChar ? enemyField[cellIndex] : playerField[cellIndex];
-                        if (target) {
-                            if (effect.type === 'damage') score += effect.value * 2;
-                            else if (effect.type === 'poison') score += effect.damagePerTurn * effect.duration * 1.5;
-                            else if (effect.type === 'stun') score += 30 * effect.duration;
-                            else if (effect.type === 'weaken') score += effect.value * effect.duration;
+                        if (effect.type === 'piercing') {
+                            // Непробивной урон - ищем нижнего
+                            for (let i = 3; i >= 0; i--) {
+                                const targetIdx = i * 4 + (cellIndex % 4);
+                                const target = isPlayerChar ? enemyField[targetIdx] : playerField[targetIdx];
+                                if (target) {
+                                    score += effect.value * 3;
+                                    if (effect.poison) score += effect.poison.damagePerTurn * effect.poison.duration * 1.5;
+                                    if (effect.stun) score += 30 * effect.stun.duration;
+                                    if (effect.weaken) score += effect.weaken.value * effect.weaken.duration;
+                                    break;
+                                }
+                            }
+                        } else {
+                            const target = isPlayerChar ? enemyField[cellIndex] : playerField[cellIndex];
+                            if (target) {
+                                if (effect.type === 'damage') score += effect.value * 2;
+                                else if (effect.type === 'poison') score += effect.damagePerTurn * effect.duration * 1.5;
+                                else if (effect.type === 'stun') score += 30 * effect.duration;
+                                else if (effect.type === 'weaken') score += effect.value * effect.duration;
+                            }
                         }
                     } else {
                         const target = isPlayerChar ? playerField[cellIndex] : enemyField[cellIndex];
@@ -3023,13 +3166,14 @@
             return score;
         }
         
-        selectBestAction(field, enemyField, isPlayerField) {
+        selectBestAction(field, enemyField, isPlayerField, usedSet) {
             const availableMoves = [];
             
             field.forEach((char, index) => {
                 if (!char || char.stun?.duration > 0) return;
+                if (usedSet.has(index)) return;
                 
-                const score = this.evaluatePosition(char, index, field, enemyField, isPlayerField);
+                const score = this.evaluatePosition(char, index, field, enemyField, isPlayerField, usedSet);
                 const powerBonus = (char.power || 50) / 10;
                 
                 availableMoves.push({ index, score: score + powerBonus });
@@ -3092,7 +3236,6 @@
             gameState.isPlayer1 = isPlayer1;
             gameState.opponentName = isPlayer1 ? d.player2Nickname : d.player1Nickname;
             
-            // Обновляем состояние из комнаты
             gameState.playerField = isPlayer1 ? d.player1Field : d.player2Field;
             gameState.enemyField = isPlayer1 ? d.player2Field : d.player1Field;
             gameState.playerElixir = isPlayer1 ? d.player1Elixir : d.player2Elixir;
@@ -3106,6 +3249,9 @@
             gameState.isPlayerTurn = (d.coinWinner === 'player1' && isPlayer1) || (d.coinWinner === 'player2' && !isPlayer1);
             gameState.playerActionsLeft = isPlayer1 ? d.player1ActionsLeft : d.player2ActionsLeft;
             gameState.enemyActionsLeft = isPlayer1 ? d.player2ActionsLeft : d.player1ActionsLeft;
+            
+            const usedArray = isPlayer1 ? d.player1Used : d.player2Used;
+            gameState.usedCharacters.player = new Set(usedArray || []);
             
             if (d.status === 'placing') {
                 showPvPPlacingField();
@@ -3123,6 +3269,7 @@
     function showPvPPlacingField() {
         const tab = document.getElementById('tab-home');
         const canPlace = gameState.phase === 'placing';
+        const bothReady = gameState.playerReady && gameState.enemyReady;
         
         tab.innerHTML = `
             <h3>⚔️ PvP Битва</h3>
@@ -3157,12 +3304,32 @@
                 ${!gameState.playerReady ? `
                     <button class="btn success full-width" onclick="window.pvpPlayerReady()">✅ Готов</button>
                 ` : `
-                    <p style="color:var(--warning);">Ожидание противника...</p>
+                    <p style="color:var(--warning);">${bothReady ? 'Противник готов! Начинаем...' : 'Ожидание противника...'}</p>
                 `}
             </div>
         `;
         
         startPlacingTimer();
+        
+        if (bothReady) {
+            setTimeout(() => startPvPBattle(), 1000);
+        }
+    }
+
+    async function startPvPBattle() {
+        const isPlayer1 = gameState.isPlayer1;
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
+        const maxActions = Math.min(playerCount, enemyCount);
+        
+        await updateDoc(doc(db, "rooms", currentRoom), {
+            status: 'battle',
+            turnPhase: 'battle',
+            player1ActionsLeft: maxActions,
+            player2ActionsLeft: maxActions,
+            player1Used: [],
+            player2Used: []
+        });
     }
 
     function showPvPBattleField() {
@@ -3239,6 +3406,7 @@
         
         const character = gameState.playerField[index];
         if (!character || character.stun?.duration > 0) return;
+        if (gameState.usedCharacters.player.has(index)) return;
         
         clearInterval(gameState.timer);
         
@@ -3246,29 +3414,29 @@
         applyMechanics(character, index + 12, true);
         
         const isPlayer1 = gameState.isPlayer1;
+        const newUsed = [...gameState.usedCharacters.player, index];
         const newActionsLeft = gameState.playerActionsLeft - 1;
         
-        // Определяем, кто ходит следующим
+        gameState.usedCharacters.player.add(index);
+        
+        // Определяем следующего
         let nextTurn;
         let nextPlayer1Actions = isPlayer1 ? newActionsLeft : gameState.playerActionsLeft;
         let nextPlayer2Actions = isPlayer1 ? gameState.enemyActionsLeft : newActionsLeft;
+        let nextPlayer1Used = isPlayer1 ? newUsed : (gameState.usedCharacters.player ? [...gameState.usedCharacters.player] : []);
+        let nextPlayer2Used = isPlayer1 ? [] : newUsed;
         
         if (newActionsLeft > 0) {
-            // Передаём ход противнику
             nextTurn = isPlayer1 ? 'player2' : 'player1';
         } else if (gameState.enemyActionsLeft > 0) {
-            // У нас закончились действия, ходит противник
             nextTurn = isPlayer1 ? 'player2' : 'player1';
         } else {
-            // У обоих закончились действия - конец раунда
             nextTurn = 'end';
         }
         
-        // Обрабатываем эффекты
         processTurnEffects(gameState.playerField);
         processTurnEffects(gameState.enemyField);
         
-        // Проверяем победу
         const playerHasChars = gameState.playerField.some(c => c);
         const enemyHasChars = gameState.enemyField.some(c => c);
         
@@ -3282,16 +3450,16 @@
         }
         
         if (nextTurn === 'end') {
-            // Начинаем новый раунд
             await startNewPvPRound();
         } else {
-            // Обновляем комнату
             await updateDoc(doc(db, "rooms", currentRoom), {
                 [`player${isPlayer1 ? '1' : '2'}Field`]: gameState.playerField,
                 [`player${isPlayer1 ? '2' : '1'}Field`]: gameState.enemyField,
                 currentTurn: nextTurn,
                 player1ActionsLeft: nextPlayer1Actions,
-                player2ActionsLeft: nextPlayer2Actions
+                player2ActionsLeft: nextPlayer2Actions,
+                player1Used: nextPlayer1Used,
+                player2Used: nextPlayer2Used
             });
         }
     };
@@ -3299,27 +3467,19 @@
     async function startNewPvPRound() {
         const isPlayer1 = gameState.isPlayer1;
         
-        // Восстанавливаем эликсир
         gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
         
-        // Добираем карты
         const chars = await getDocs(collection(db, "characters"));
         const all = [];
         chars.forEach(d => all.push({ id: d.id, ...d.data() }));
         
         while (gameState.playerHand.length < HAND_SIZE) {
             const newCards = drawRandomCards(all, 1);
-            if (newCards.length > 0) {
-                gameState.playerHand.push(...newCards);
-            } else {
-                break;
-            }
+            if (newCards.length > 0) gameState.playerHand.push(...newCards);
+            else break;
         }
         
-        // Бросаем монетку для нового раунда
         const coinWinner = Math.random() < 0.5 ? 'player1' : 'player2';
-        
-        // Считаем действия
         const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
         const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
         const maxActions = Math.min(playerCount, enemyCount);
@@ -3335,7 +3495,9 @@
             player2Hand: isPlayer1 ? gameState.enemyHand : gameState.playerHand,
             coinWinner: coinWinner,
             player1ActionsLeft: maxActions,
-            player2ActionsLeft: maxActions
+            player2ActionsLeft: maxActions,
+            player1Used: [],
+            player2Used: []
         });
     }
 
@@ -3355,7 +3517,8 @@
             timer: null, timeLeft: TURN_TIME,
             playerActionsLeft: 0, enemyActionsLeft: 0,
             aiDifficulty: 'expert',
-            opponentName: '🤖 ИИ'
+            opponentName: '🤖 ИИ',
+            usedCharacters: { player: new Set(), enemy: new Set() }
         };
         
         showLoader(true);
@@ -3367,7 +3530,6 @@
         gameState.enemyDeck = [...all];
         gameState.playerHand = drawRandomCards(all, HAND_SIZE);
         
-        // ИИ готовится
         const ai = new AIPlayer('expert');
         const aiHand = drawRandomCards(all, HAND_SIZE);
         const { purchased, remainingElixir } = ai.buyCards(aiHand, 10);
@@ -3379,9 +3541,7 @@
         showPlacingField();
     };
 
-    window.startClassicMode = () => {
-        window.startAIMode();
-    };
+    window.startClassicMode = () => window.startAIMode();
 
     window.startPvPMode = () => {
         showSearchingModal();
@@ -3435,6 +3595,8 @@
                             coinWinner: null,
                             player1ActionsLeft: 0,
                             player2ActionsLeft: 0,
+                            player1Used: [],
+                            player2Used: [],
                             createdAt: serverTimestamp()
                         });
                         
@@ -3458,7 +3620,8 @@
                             playerActionsLeft: 0, enemyActionsLeft: 0,
                             opponentName: opp.data().nickname,
                             roomId: currentRoom,
-                            isPlayer1: true
+                            isPlayer1: true,
+                            usedCharacters: { player: new Set(), enemy: new Set() }
                         };
                         
                         const chars = await getDocs(collection(db, "characters"));
@@ -3484,11 +3647,9 @@
         resetGame();
     };
 
-    window.showEventModal = () => {
-        alert('События скоро появятся!');
-    };
+    window.showEventModal = () => alert('События скоро появятся!');
 
-    // ========== ОТОБРАЖЕНИЕ ПОЛЯ (общие функции) ==========
+    // ========== ОТОБРАЖЕНИЕ ПОЛЯ ==========
     function showPlacingField() {
         const tab = document.getElementById('tab-home');
         const canPlace = gameState.phase === 'placing';
@@ -3560,9 +3721,10 @@
         for (let i = 0; i < 12; i++) {
             const c = f[i];
             const isStunned = c?.stun?.duration > 0;
-            const canSelect = selectable && c && !isStunned;
+            const isUsed = isP ? gameState.usedCharacters.player.has(i) : false;
+            const canSelect = selectable && c && !isStunned && !isUsed;
             
-            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${canSelect ? 'selectable' : ''} ${isStunned ? 'stunned' : ''}" 
+            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${canSelect ? 'selectable' : ''} ${isStunned ? 'stunned' : ''} ${isUsed ? 'used' : ''}" 
                       onclick="${canSelect ? (gameState.isPvP ? `window.pvpPlayerAttack(${i})` : `window.playerAttack(${i})`) : ''}" 
                       style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
             
@@ -3633,33 +3795,24 @@
         gameState.playerHand.splice(index, 1);
         gameState.selectedCard = null;
         
-        if (gameState.isPvP) {
-            showPvPPlacingField();
-        } else {
-            showPlacingField();
-        }
+        if (gameState.isPvP) showPvPPlacingField();
+        else showPlacingField();
     };
 
     window.selectHandCard = (i) => {
         if (gameState.phase !== 'placing') return;
         gameState.selectedCard = { index: i, card: gameState.playerHand[i], type: 'hand' };
         
-        if (gameState.isPvP) {
-            showPvPPlacingField();
-        } else {
-            showPlacingField();
-        }
+        if (gameState.isPvP) showPvPPlacingField();
+        else showPlacingField();
     };
 
     window.selectPurchasedCard = (i) => {
         if (gameState.phase !== 'placing') return;
         gameState.selectedCard = { index: i, card: gameState.playerPurchased[i], type: 'purchased' };
         
-        if (gameState.isPvP) {
-            showPvPPlacingField();
-        } else {
-            showPlacingField();
-        }
+        if (gameState.isPvP) showPvPPlacingField();
+        else showPlacingField();
     };
 
     window.placeCardToField = (i) => {
@@ -3678,15 +3831,13 @@
         gameState.playerPurchased.splice(gameState.selectedCard.index, 1);
         gameState.selectedCard = null;
         
-        if (gameState.isPvP) {
-            showPvPPlacingField();
-        } else {
-            showPlacingField();
-        }
+        if (gameState.isPvP) showPvPPlacingField();
+        else showPlacingField();
     };
 
     function startPlacingTimer() {
         if (gameState.timer) clearInterval(gameState.timer);
+        gameState.timeLeft = TURN_TIME;
         
         gameState.timer = setInterval(() => {
             gameState.timeLeft--;
@@ -3696,11 +3847,8 @@
             if (gameState.timeLeft <= 0) {
                 clearInterval(gameState.timer);
                 if (!gameState.playerReady) {
-                    if (gameState.isPvP) {
-                        window.pvpPlayerReady();
-                    } else {
-                        window.playerReady();
-                    }
+                    if (gameState.isPvP) window.pvpPlayerReady();
+                    else window.playerReady();
                 }
             }
         }, 1000);
@@ -3712,18 +3860,18 @@
         clearInterval(gameState.timer);
         gameState.playerReady = true;
         
-        // Бросаем монетку
         gameState.coinWinner = Math.random() < 0.5 ? 'player' : 'enemy';
         gameState.isPlayerTurn = gameState.coinWinner === 'player';
         gameState.phase = 'battle';
         
-        // Считаем действия
         const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
         const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
         gameState.playerActionsLeft = Math.min(playerCount, enemyCount);
         gameState.enemyActionsLeft = Math.min(playerCount, enemyCount);
         
-        // Показываем результат монетки
+        gameState.usedCharacters.player.clear();
+        gameState.usedCharacters.enemy.clear();
+        
         showCoinFlipResult();
     };
 
@@ -3748,7 +3896,6 @@
     }
 
     function showBattleField() {
-        // Проверка на наличие персонажей
         const playerHasChars = gameState.playerField.some(c => c && !c.stun);
         const enemyHasChars = gameState.enemyField.some(c => c && !c.stun);
         
@@ -3833,23 +3980,20 @@
         
         const character = gameState.playerField[index];
         if (!character || character.stun?.duration > 0) return;
+        if (gameState.usedCharacters.player.has(index)) return;
         
         clearInterval(gameState.timer);
         
-        // Применяем механику
         applyMechanics(character, index + 12, true);
-        
+        gameState.usedCharacters.player.add(index);
         gameState.playerActionsLeft--;
         
-        // Обрабатываем эффекты
         processTurnEffects(gameState.playerField);
         processTurnEffects(gameState.enemyField);
         
-        // Проверяем победу
         if (checkVictory()) return;
         
         if (gameState.playerActionsLeft > 0) {
-            // Передаём ход ИИ
             gameState.isPlayerTurn = false;
             showBattleField();
             setTimeout(() => enemyTurn(), 1000);
@@ -3858,7 +4002,6 @@
             showBattleField();
             setTimeout(() => enemyTurn(), 1000);
         } else {
-            // Конец раунда
             startNewRound();
         }
     };
@@ -3869,11 +4012,12 @@
         const ai = new AIPlayer('expert');
         
         while (gameState.enemyActionsLeft > 0) {
-            const bestMove = ai.selectBestAction(gameState.enemyField, gameState.playerField, false);
+            const bestMove = ai.selectBestAction(gameState.enemyField, gameState.playerField, false, gameState.usedCharacters.enemy);
             if (bestMove !== null && bestMove !== undefined) {
                 const character = gameState.enemyField[bestMove];
                 if (character) {
                     applyMechanics(character, bestMove + 12, false);
+                    gameState.usedCharacters.enemy.add(bestMove);
                 }
             }
             gameState.enemyActionsLeft--;
@@ -3900,18 +4044,19 @@
         gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
         gameState.enemyElixir = Math.min(MAX_ELIXIR, gameState.enemyElixir + 3);
         
-        // Добираем карты
         while (gameState.playerHand.length < HAND_SIZE && gameState.playerDeck.length > 0) {
             const newCards = drawRandomCards(gameState.playerDeck, 1);
             gameState.playerHand.push(...newCards);
         }
         
-        // ИИ закупается
         const ai = new AIPlayer('expert');
         const aiHand = drawRandomCards(gameState.enemyDeck, 3);
         const { purchased, remainingElixir } = ai.buyCards(aiHand, gameState.enemyElixir);
         gameState.enemyElixir = remainingElixir;
         gameState.enemyField = ai.placeCards(purchased, gameState.enemyField);
+        
+        gameState.usedCharacters.player.clear();
+        gameState.usedCharacters.enemy.clear();
         
         showPlacingField();
     }
@@ -3925,50 +4070,95 @@
             const [side, index] = cellKey.split('_');
             const cellIndex = parseInt(index);
             
-            let target;
             if (side === 'enemy') {
-                target = isPlayer ? gameState.enemyField[cellIndex] : gameState.playerField[cellIndex];
+                mechanics[cellKey].forEach(effect => {
+                    if (effect.type === 'piercing') {
+                        // Непробивной урон - ищем самого нижнего персонажа в колонке
+                        const col = cellIndex % 4;
+                        let target = null;
+                        let targetIdx = -1;
+                        
+                        for (let row = 3; row >= 0; row--) {
+                            const idx = row * 4 + col;
+                            const potentialTarget = isPlayer ? gameState.enemyField[idx] : gameState.playerField[idx];
+                            if (potentialTarget) {
+                                target = potentialTarget;
+                                targetIdx = idx;
+                                break;
+                            }
+                        }
+                        
+                        if (target) {
+                            applyDamage(target, effect.value);
+                            
+                            if (effect.poison) {
+                                target.poison = target.poison || [];
+                                target.poison.push({
+                                    damage: effect.poison.damagePerTurn,
+                                    duration: effect.poison.duration,
+                                    remaining: effect.poison.duration
+                                });
+                            }
+                            if (effect.stun) {
+                                target.stun = target.stun || { duration: 0 };
+                                target.stun.duration = Math.max(target.stun.duration, effect.stun.duration);
+                            }
+                            if (effect.weaken) {
+                                target.weaken = target.weaken || [];
+                                target.weaken.push({
+                                    value: effect.weaken.value,
+                                    duration: effect.weaken.duration,
+                                    remaining: effect.weaken.duration
+                                });
+                            }
+                        }
+                    } else {
+                        const target = isPlayer ? gameState.enemyField[cellIndex] : gameState.playerField[cellIndex];
+                        if (!target) return;
+                        
+                        if (effect.type === 'poison') {
+                            target.poison = target.poison || [];
+                            target.poison.push({
+                                damage: effect.damagePerTurn,
+                                duration: effect.duration,
+                                remaining: effect.duration
+                            });
+                        } else if (effect.type === 'damage') {
+                            applyDamage(target, effect.value);
+                        } else if (effect.type === 'stun') {
+                            target.stun = target.stun || { duration: 0 };
+                            target.stun.duration = Math.max(target.stun.duration, effect.duration);
+                        } else if (effect.type === 'weaken') {
+                            target.weaken = target.weaken || [];
+                            target.weaken.push({
+                                value: effect.value,
+                                duration: effect.duration,
+                                remaining: effect.duration
+                            });
+                        }
+                    }
+                });
             } else {
-                target = isPlayer ? gameState.playerField[cellIndex] : gameState.enemyField[cellIndex];
+                const target = isPlayer ? gameState.playerField[cellIndex] : gameState.enemyField[cellIndex];
+                if (!target) return;
+                
+                mechanics[cellKey].forEach(effect => {
+                    if (effect.type === 'heal') {
+                        target.currentHealth = Math.min(target.health, (target.currentHealth || target.health) + effect.value);
+                    } else if (effect.type === 'shield') {
+                        target.shield = target.shield || { value: 0, duration: 0 };
+                        target.shield.value = (target.shield.value || 0) + effect.value;
+                        target.shield.duration = Math.max(target.shield.duration || 0, effect.duration);
+                    } else if (effect.type === 'buff') {
+                        target.buff = target.buff || [];
+                        target.buff.push({
+                            value: effect.value,
+                            duration: effect.duration,
+                            remaining: effect.duration
+                        });
+                    }
+                });
             }
-            
-            if (!target) return;
-            
-            mechanics[cellKey].forEach(effect => {
-                if (effect.type === 'poison') {
-                    target.poison = target.poison || [];
-                    target.poison.push({
-                        damage: effect.damagePerTurn,
-                        duration: effect.duration,
-                        remaining: effect.duration
-                    });
-                } else if (effect.type === 'damage') {
-                    applyDamage(target, effect.value);
-                } else if (effect.type === 'stun') {
-                    target.stun = target.stun || { duration: 0 };
-                    target.stun.duration = Math.max(target.stun.duration, effect.duration);
-                } else if (effect.type === 'weaken') {
-                    target.weaken = target.weaken || [];
-                    target.weaken.push({
-                        value: effect.value,
-                        duration: effect.duration,
-                        remaining: effect.duration
-                    });
-                } else if (effect.type === 'heal') {
-                    target.currentHealth = Math.min(target.health, (target.currentHealth || target.health) + effect.value);
-                } else if (effect.type === 'shield') {
-                    target.shield = target.shield || { value: 0, duration: 0 };
-                    target.shield.value = (target.shield.value || 0) + effect.value;
-                    target.shield.duration = Math.max(target.shield.duration || 0, effect.duration);
-                } else if (effect.type === 'buff') {
-                    target.buff = target.buff || [];
-                    target.buff.push({
-                        value: effect.value,
-                        duration: effect.duration,
-                        remaining: effect.duration
-                    });
-                }
-            });
         });
     }
 
@@ -4066,7 +4256,8 @@
             timer: null, timeLeft: TURN_TIME,
             playerActionsLeft: 0, enemyActionsLeft: 0,
             opponentName: 'Противник',
-            roomId: null
+            roomId: null,
+            usedCharacters: { player: new Set(), enemy: new Set() }
         };
         
         currentRoom = null;
