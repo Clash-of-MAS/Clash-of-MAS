@@ -84,10 +84,6 @@
             font-size: 24px;
         }
         
-        h3 {
-            margin: 10px 0 5px;
-        }
-        
         .btn {
             border: none;
             border-radius: 40px;
@@ -362,6 +358,19 @@
             margin-top: auto;
         }
         
+        .character-power {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: gold;
+            color: black;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
         .favorite-btn {
             position: absolute;
             top: 8px;
@@ -476,6 +485,11 @@
         
         .friend-info {
             flex: 1;
+        }
+        
+        .friend-actions {
+            display: flex;
+            gap: 5px;
         }
         
         .friends-actions {
@@ -935,6 +949,33 @@
             background: var(--error);
         }
         
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .power-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .power-slider-container input {
+            flex: 1;
+            margin: 0;
+        }
+        
         @media (max-width: 480px) {
             .card { padding: 20px 15px; }
             h1 { font-size: 26px; }
@@ -954,94 +995,93 @@
         <div id="landing" class="screen active">
             <div class="card">
                 <h1>⚔️ CLASH OF MAS ⚔️</h1>
-                <p style="margin-bottom:25px;color:var(--text-muted);" data-i18n="welcome">Добро пожаловать в битву!</p>
-                <button id="showRegisterBtn" class="btn primary full-width" data-i18n="register">Зарегистрироваться</button>
-                <button id="showLoginBtn" class="btn secondary full-width" data-i18n="login">Войти</button>
+                <p style="margin-bottom:25px;color:var(--text-muted);">Добро пожаловать в битву!</p>
+                <button id="showRegisterBtn" class="btn primary full-width">Зарегистрироваться</button>
+                <button id="showLoginBtn" class="btn secondary full-width">Войти</button>
             </div>
         </div>
         
         <!-- Экран Входа -->
         <div id="loginScreen" class="screen">
             <div class="card">
-                <h2 data-i18n="loginTitle">Вход</h2>
+                <h2>Вход</h2>
                 <form id="loginForm">
-                    <input type="email" id="loginEmail" data-i18n="email" placeholder="Email" required>
+                    <input type="email" id="loginEmail" placeholder="Email" required>
                     <div class="password-wrapper">
-                        <input type="password" id="loginPassword" data-i18n="password" placeholder="Пароль" required>
+                        <input type="password" id="loginPassword" placeholder="Пароль" required>
                         <i class="far fa-eye toggle-password" data-target="loginPassword"></i>
                     </div>
-                    <button type="submit" class="btn primary full-width" data-i18n="loginBtn">Войти в аккаунт</button>
+                    <button type="submit" class="btn primary full-width">Войти в аккаунт</button>
                 </form>
-                <button id="forgotPasswordBtn" class="btn link" data-i18n="forgotPassword">🤔 Забыл(а) пароль?</button>
-                <button id="backFromLoginBtn" class="btn text" data-i18n="backToHome">На главную</button>
+                <button id="forgotPasswordBtn" class="btn link">🤔 Забыл(а) пароль?</button>
+                <button id="backFromLoginBtn" class="btn text">На главную</button>
             </div>
         </div>
         
         <!-- Экран Регистрации -->
         <div id="registerScreen" class="screen">
             <div class="card">
-                <h2 data-i18n="registerTitle">Регистрация</h2>
+                <h2>Регистрация</h2>
                 <form id="registerForm">
                     <div class="avatar-section">
                         <div id="avatarPreview" class="avatar-placeholder">👤</div>
-                        <p class="hint" style="color:var(--text-muted);" data-i18n="avatarHint">Аватар создаётся из первых букв ника</p>
+                        <p class="hint" style="color:var(--text-muted);">Аватар создаётся из первых букв ника</p>
                     </div>
-                    <input type="text" id="regNickname" data-i18n="nickname" placeholder="Никнейм" required minlength="3">
-                    <span id="nicknameStatus" class="validation-hint"></span>
-                    <input type="email" id="regEmail" data-i18n="email" placeholder="Email" required>
+                    <input type="text" id="regNickname" placeholder="Никнейм" required minlength="3">
+                    <input type="email" id="regEmail" placeholder="Email" required>
                     <div class="password-wrapper">
-                        <input type="password" id="regPassword" data-i18n="password" placeholder="Пароль" required minlength="6">
+                        <input type="password" id="regPassword" placeholder="Пароль" required minlength="6">
                         <i class="far fa-eye toggle-password" data-target="regPassword"></i>
                     </div>
                     <div class="password-wrapper">
-                        <input type="password" id="regPasswordConfirm" data-i18n="confirmPassword" placeholder="Подтвердите пароль" required>
+                        <input type="password" id="regPasswordConfirm" placeholder="Подтвердите пароль" required>
                         <i class="far fa-eye toggle-password" data-target="regPasswordConfirm"></i>
                     </div>
-                    <button type="submit" id="registerSubmitBtn" class="btn primary full-width" data-i18n="continue">📝 Продолжить</button>
+                    <button type="submit" id="registerSubmitBtn" class="btn primary full-width">📝 Продолжить</button>
                 </form>
-                <button id="backFromRegBtn" class="btn text" data-i18n="backToHome">На главную</button>
+                <button id="backFromRegBtn" class="btn text">На главную</button>
             </div>
         </div>
         
         <!-- Экран Сброса пароля -->
         <div id="resetPasswordScreen" class="screen">
             <div class="card">
-                <h2 data-i18n="resetTitle">Сброс пароля</h2>
+                <h2>Сброс пароля</h2>
                 <form id="resetForm">
-                    <input type="email" id="resetEmail" data-i18n="yourEmail" placeholder="Ваш Email" required>
+                    <input type="email" id="resetEmail" placeholder="Ваш Email" required>
                     <div id="resetCodeSection" class="hidden">
-                        <input type="text" id="resetCode" data-i18n="codeFromEmail" placeholder="Код из письма" maxlength="6">
+                        <input type="text" id="resetCode" placeholder="Код из письма" maxlength="6">
                         <div class="password-wrapper">
-                            <input type="password" id="newPassword" data-i18n="newPassword" placeholder="Новый пароль" minlength="6">
+                            <input type="password" id="newPassword" placeholder="Новый пароль" minlength="6">
                             <i class="far fa-eye toggle-password" data-target="newPassword"></i>
                         </div>
-                        <button type="button" id="resendResetCodeBtn" class="btn text" data-i18n="resendCode">📧 Отправить код повторно</button>
+                        <button type="button" id="resendResetCodeBtn" class="btn text">📧 Отправить код повторно</button>
                     </div>
-                    <button type="submit" id="resetActionBtn" class="btn primary full-width" data-i18n="sendCode">📤 Отправить код</button>
+                    <button type="submit" id="resetActionBtn" class="btn primary full-width">📤 Отправить код</button>
                 </form>
-                <button id="backFromResetBtn" class="btn text" data-i18n="backToLogin">Назад ко входу</button>
+                <button id="backFromResetBtn" class="btn text">Назад ко входу</button>
             </div>
         </div>
         
         <!-- Экран добавления аккаунта -->
         <div id="addAccountScreen" class="screen">
             <div class="card">
-                <h2 data-i18n="addAccount">Добавить аккаунт</h2>
+                <h2>Добавить аккаунт</h2>
                 <div style="margin-bottom:20px;">
-                    <p style="color:var(--text-muted);margin-bottom:15px;" data-i18n="chooseAction">Выберите действие</p>
+                    <p style="color:var(--text-muted);margin-bottom:15px;">Выберите действие</p>
                     <div style="display:flex;gap:10px;margin-bottom:20px;">
-                        <button id="showAddAccountLogin" class="btn primary" style="flex:1;" data-i18n="login">Войти</button>
-                        <button id="showAddAccountRegister" class="btn secondary" style="flex:1;" data-i18n="register">Регистрация</button>
+                        <button id="showAddAccountLogin" class="btn primary" style="flex:1;">Войти</button>
+                        <button id="showAddAccountRegister" class="btn secondary" style="flex:1;">Регистрация</button>
                     </div>
                 </div>
                 <div id="addAccountLoginSection">
                     <form id="addAccountLoginForm">
-                        <input type="email" id="addAccountEmail" data-i18n="email" placeholder="Email" required>
+                        <input type="email" id="addAccountEmail" placeholder="Email" required>
                         <div class="password-wrapper">
-                            <input type="password" id="addAccountPassword" data-i18n="password" placeholder="Пароль" required>
+                            <input type="password" id="addAccountPassword" placeholder="Пароль" required>
                             <i class="far fa-eye toggle-password" data-target="addAccountPassword"></i>
                         </div>
-                        <button type="submit" class="btn primary full-width" data-i18n="login">Войти</button>
+                        <button type="submit" class="btn primary full-width">Войти</button>
                     </form>
                 </div>
                 <div id="addAccountRegisterSection" class="hidden">
@@ -1049,25 +1089,24 @@
                         <div class="avatar-section">
                             <div id="addAccountAvatarPreview" class="avatar-placeholder">👤</div>
                         </div>
-                        <input type="text" id="addAccountRegNickname" data-i18n="nickname" placeholder="Никнейм" required>
-                        <span id="addAccountNicknameStatus" class="validation-hint"></span>
-                        <input type="email" id="addAccountRegEmail" data-i18n="email" placeholder="Email" required>
+                        <input type="text" id="addAccountRegNickname" placeholder="Никнейм" required>
+                        <input type="email" id="addAccountRegEmail" placeholder="Email" required>
                         <div class="password-wrapper">
-                            <input type="password" id="addAccountRegPassword" data-i18n="password" placeholder="Пароль" required>
+                            <input type="password" id="addAccountRegPassword" placeholder="Пароль" required>
                             <i class="far fa-eye toggle-password" data-target="addAccountRegPassword"></i>
                         </div>
                         <div class="password-wrapper">
-                            <input type="password" id="addAccountRegPasswordConfirm" data-i18n="confirmPassword" placeholder="Подтвердите пароль" required>
+                            <input type="password" id="addAccountRegPasswordConfirm" placeholder="Подтвердите пароль" required>
                             <i class="far fa-eye toggle-password" data-target="addAccountRegPasswordConfirm"></i>
                         </div>
-                        <button type="submit" id="addAccountRegisterSubmitBtn" class="btn primary full-width" data-i18n="register">📝 Зарегистрироваться</button>
+                        <button type="submit" id="addAccountRegisterSubmitBtn" class="btn primary full-width">📝 Зарегистрироваться</button>
                     </form>
                 </div>
                 <div style="border-top:1px solid var(--border-color);margin:20px 0;padding-top:20px;">
-                    <h4 style="color:var(--text-muted);margin-bottom:15px;" data-i18n="savedAccounts">Сохраненные аккаунты</h4>
+                    <h4 style="color:var(--text-muted);margin-bottom:15px;">Сохраненные аккаунты</h4>
                     <div id="savedAccountsList"></div>
                 </div>
-                <button id="backFromAddAccountBtn" class="btn text" data-i18n="back">Назад</button>
+                <button id="backFromAddAccountBtn" class="btn text">Назад</button>
             </div>
         </div>
         
@@ -1077,79 +1116,102 @@
                 <div style="display:flex;align-items:center;margin-bottom:15px;">
                     <div id="gameAvatar" class="avatar-placeholder" style="width:50px;height:50px;font-size:20px;margin:0 12px 0 0;">👤</div>
                     <h3 id="gameNickname">Игрок</h3>
+                    <div style="margin-left:auto;position:relative;">
+                        <i class="fas fa-bell" style="font-size:20px;cursor:pointer;" onclick="window.showNotifications()"></i>
+                        <span id="notificationBadge" class="notification-badge hidden">0</span>
+                    </div>
                 </div>
                 
                 <div class="tabs-container">
-                    <button class="tab-btn active" data-tab="home" data-i18n="home">🏠</button>
-                    <button class="tab-btn" data-tab="characters" data-i18n="characters">⚔️</button>
-                    <button class="tab-btn" data-tab="clan" data-i18n="clan">🏰</button>
-                    <button class="tab-btn" data-tab="friends" data-i18n="friends">👥</button>
-                    <button class="tab-btn" data-tab="news" data-i18n="news">📰</button>
-                    <button class="tab-btn" data-tab="account" data-i18n="account">👤</button>
-                    <button class="tab-btn" data-tab="settings" data-i18n="settings">⚙️</button>
+                    <button class="tab-btn active" data-tab="home">🏠</button>
+                    <button class="tab-btn" data-tab="characters">⚔️</button>
+                    <button class="tab-btn" data-tab="clan">🏰</button>
+                    <button class="tab-btn" data-tab="friends">👥</button>
+                    <button class="tab-btn" data-tab="news">📰</button>
+                    <button class="tab-btn" data-tab="account">👤</button>
+                    <button class="tab-btn" data-tab="settings">⚙️</button>
                 </div>
                 
                 <!-- Вкладка Главная -->
                 <div id="tab-home" class="tab-content active">
-                    <h3 data-i18n="welcomeGame">Добро пожаловать в игру!</h3>
+                    <h3>Добро пожаловать в игру!</h3>
                     <div style="margin:20px 0;">
-                        <button class="btn primary full-width" onclick="window.showEventModal()" style="margin-bottom:15px;font-size:18px;padding:15px;" data-i18n="event">🎉 Событие</button>
-                        <button class="btn success full-width" onclick="window.startClassicMode()" style="margin-bottom:15px;font-size:18px;padding:15px;" data-i18n="classicMode">⚔️ Классический режим</button>
-                        <button class="btn primary full-width" onclick="window.startPvPMode()" style="font-size:18px;padding:15px;" data-i18n="pvpMode">🌐 PvP Битва</button>
+                        <button class="btn primary full-width" onclick="window.showEventModal()" style="margin-bottom:15px;font-size:18px;padding:15px;">🎉 Событие</button>
+                        <button class="btn success full-width" onclick="window.startClassicMode()" style="margin-bottom:15px;font-size:18px;padding:15px;">⚔️ Классический режим</button>
+                        <button class="btn primary full-width" onclick="window.startPvPMode()" style="margin-bottom:15px;font-size:18px;padding:15px;">🌐 PvP Битва</button>
+                        <button class="btn warning full-width" onclick="window.startAIMode()" style="font-size:18px;padding:15px;">🤖 Битва с ИИ</button>
                     </div>
                 </div>
                 
                 <!-- Вкладка Персонажи -->
                 <div id="tab-characters" class="tab-content">
-                    <h3 data-i18n="yourCharacters">Ваши персонажи</h3>
+                    <h3>Ваши персонажи</h3>
                     <div class="filter-bar">
-                        <button class="filter-btn active" data-filter="all" onclick="window.setFilter('all')" data-i18n="all">Все</button>
-                        <button class="filter-btn" data-filter="favorites" onclick="window.setFilter('favorites')" data-i18n="favorites">★ Избранные</button>
-                        <button class="filter-btn" onclick="window.showFilterDropdown()" data-i18n="filter">🔽 Фильтр</button>
+                        <button class="filter-btn active" data-filter="all" onclick="window.setFilter('all')">Все</button>
+                        <button class="filter-btn" data-filter="favorites" onclick="window.setFilter('favorites')">★ Избранные</button>
+                        <button class="filter-btn" onclick="window.showFilterDropdown()">🔽 Фильтр</button>
                     </div>
                     <div id="filterDropdown" class="filter-dropdown hidden">
                         <select id="filterType" style="margin-bottom:10px;">
-                            <option value="rarity" data-i18n="byRarity">По редкости</option>
-                            <option value="class" data-i18n="byClass">По классу</option>
+                            <option value="rarity">По редкости</option>
+                            <option value="class">По классу</option>
                         </select>
                         <select id="filterOptions" style="margin-bottom:10px;"></select>
-                        <button class="btn primary full-width" onclick="window.applyFilter()" data-i18n="apply">Применить</button>
+                        <button class="btn primary full-width" onclick="window.applyFilter()">Применить</button>
                     </div>
                     <div id="createCharacterSection" class="hidden">
-                        <button class="btn primary full-width" onclick="window.toggleCreateCharacter()" data-i18n="createCharacter">Создать персонажа</button>
+                        <button class="btn primary full-width" onclick="window.toggleCreateCharacter()">Создать персонажа</button>
                         <div id="createCharacterForm" class="hidden settings-section">
                             <input type="file" id="characterImage" accept="image/*" required>
-                            <input type="text" id="newCharacterName" data-i18n="characterName" placeholder="Имя персонажа" required>
-                            <input type="number" id="newCharacterHealth" data-i18n="characterHealth" placeholder="Здоровье" required min="1">
-                            <input type="number" id="newCharacterDamage" data-i18n="characterDamage" placeholder="Урон" required min="1">
-                            <input type="text" id="newCharacterAbility" data-i18n="characterAbility" placeholder="Способность" required>
-                            <input type="text" id="newCharacterTrait" data-i18n="characterTrait" placeholder="Особенность (необязательно)">
+                            <input type="text" id="newCharacterName" placeholder="Имя персонажа" required>
+                            <input type="number" id="newCharacterHealth" placeholder="Здоровье" required min="1">
+                            <div class="power-slider-container">
+                                <label>Оценка силы (1-100):</label>
+                                <input type="range" id="newCharacterPower" min="1" max="100" value="50">
+                                <span id="newPowerValue">50</span>
+                            </div>
+                            <input type="text" id="newCharacterAbility" placeholder="Способность" required>
+                            <input type="text" id="newCharacterTrait" placeholder="Особенность (необязательно)">
                             <select id="newCharacterRarity" required>
-                                <option value="common" data-i18n="common">Обычный</option>
-                                <option value="rare" data-i18n="rare">Редкий</option>
-                                <option value="epic" data-i18n="epic">Эпический</option>
-                                <option value="legendary" data-i18n="legendary">Легендарный</option>
+                                <option value="common">Обычный</option>
+                                <option value="rare">Редкий</option>
+                                <option value="epic">Эпический</option>
+                                <option value="legendary">Легендарный</option>
                             </select>
                             <select id="newCharacterClass" required>
-                                <option value="tank" data-i18n="tank">Танк</option>
-                                <option value="shooter" data-i18n="shooter">Стрелок</option>
-                                <option value="support" data-i18n="support">Помощник</option>
-                                <option value="control" data-i18n="control">Контроль</option>
-                                <option value="damage" data-i18n="damageDealer">Урон</option>
-                                <option value="bonus" data-i18n="bonus">Бонус</option>
-                                <option value="assassin" data-i18n="assassin">Убийца</option>
-                                <option value="artillery" data-i18n="artillery">Артиллерия</option>
+                                <option value="tank">Танк</option>
+                                <option value="shooter">Стрелок</option>
+                                <option value="support">Помощник</option>
+                                <option value="control">Контроль</option>
+                                <option value="assassin">Убийца</option>
                             </select>
-                            <input type="number" id="newCharacterElixirCost" data-i18n="elixirCost" placeholder="Стоимость в эликсирах" required min="1" value="3">
-                            <button class="btn warning full-width" onclick="window.openMechanicsEditor()" type="button">⚙️ Настроить механики</button>
-                            <label style="display:block;margin:10px 0;color:var(--text-muted);" data-i18n="characterAttack">Атака (фото/видео):</label>
+                            <input type="number" id="newCharacterElixirCost" placeholder="Стоимость в эликсирах" required min="1" value="3">
+                            <button class="btn warning full-width" onclick="window.openMechanicsEditor()" type="button">⚙️ Настроить механики (12 позиций)</button>
+                            <label style="display:block;margin:10px 0;color:var(--text-muted);">Атака (фото/видео):</label>
                             <input type="file" id="characterAttackMedia" accept="image/*,video/*">
-                            <button class="btn primary full-width" onclick="window.createCharacter()" data-i18n="saveCharacter">Сохранить персонажа</button>
-                            <button class="btn text full-width" onclick="window.toggleCreateCharacter()" data-i18n="cancel">Отмена</button>
+                            <button class="btn primary full-width" onclick="window.createCharacter()">Сохранить персонажа</button>
+                            <button class="btn text full-width" onclick="window.toggleCreateCharacter()">Отмена</button>
+                        </div>
+                        
+                        <!-- Форма редактирования персонажа -->
+                        <div id="editCharacterForm" class="hidden settings-section">
+                            <h4>Редактировать персонажа</h4>
+                            <input type="hidden" id="editCharacterId">
+                            <input type="text" id="editCharacterName" placeholder="Имя персонажа" required>
+                            <div class="power-slider-container">
+                                <label>Оценка силы (1-100):</label>
+                                <input type="range" id="editCharacterPower" min="1" max="100" value="50">
+                                <span id="editPowerValue">50</span>
+                            </div>
+                            <input type="number" id="editCharacterHealth" placeholder="Здоровье" required min="1">
+                            <input type="number" id="editCharacterElixirCost" placeholder="Стоимость" value="3" min="1">
+                            <button class="btn warning full-width" onclick="window.openEditMechanicsEditor()">⚙️ Настроить механики</button>
+                            <button class="btn primary full-width" onclick="window.updateCharacter()">Сохранить изменения</button>
+                            <button class="btn text full-width" onclick="window.cancelEditCharacter()">Отмена</button>
                         </div>
                     </div>
                     <div id="charactersContainer" class="characters-grid">
-                        <p style="color:var(--text-muted);" data-i18n="noCharacters">Нет созданных персонажей</p>
+                        <p style="color:var(--text-muted);">Нет созданных персонажей</p>
                     </div>
                 </div>
                 
@@ -1171,38 +1233,38 @@
                             <p id="detailClanDescription"></p>
                             <div id="clanOwnerControls" class="hidden">
                                 <div id="clanRequestsSection" class="settings-section">
-                                    <h4 data-i18n="requests">Заявки</h4>
+                                    <h4>Заявки</h4>
                                     <div id="clanRequestsList"></div>
                                 </div>
                             </div>
                             <div class="settings-section">
-                                <h4 data-i18n="clanMembers">Участники клана</h4>
+                                <h4>Участники клана</h4>
                                 <div id="clanMembersList"></div>
                             </div>
                         </div>
                         <div class="clan-chat">
-                            <h4 data-i18n="clanChat">Чат клана</h4>
+                            <h4>Чат клана</h4>
                             <div id="clanChatMessages" class="chat-messages"></div>
                             <div class="chat-input-container">
-                                <input type="text" id="clanMessageInput" data-i18n="typeMessage" placeholder="Введите сообщение...">
-                                <button id="sendClanMessageBtn" class="btn primary" data-i18n="sendMessage">Отправить</button>
+                                <input type="text" id="clanMessageInput" placeholder="Введите сообщение...">
+                                <button id="sendClanMessageBtn" class="btn primary">Отправить</button>
                             </div>
                         </div>
-                        <button id="leaveClanBtn" class="btn danger full-width" onclick="window.leaveClan()" data-i18n="leaveClan">Покинуть клан</button>
+                        <button id="leaveClanBtn" class="btn danger full-width" onclick="window.leaveClan()">Покинуть клан</button>
                     </div>
                     <div id="findClanSection">
-                        <button class="btn primary full-width" onclick="window.toggleCreateClan()" data-i18n="createClan">Создать клан</button>
+                        <button class="btn primary full-width" onclick="window.toggleCreateClan()">Создать клан</button>
                         <div id="createClanSection" class="hidden settings-section">
-                            <h4 data-i18n="createClan">Создать клан</h4>
-                            <input type="text" id="newClanName" data-i18n="clanName" placeholder="Название клана" required>
-                            <textarea id="newClanDescription" data-i18n="clanDescription" placeholder="Описание (по желанию)"></textarea>
+                            <h4>Создать клан</h4>
+                            <input type="text" id="newClanName" placeholder="Название клана" required>
+                            <textarea id="newClanDescription" placeholder="Описание (по желанию)"></textarea>
                             <select id="newClanType">
-                                <option value="open" data-i18n="openClan">Открытый</option>
-                                <option value="closed" data-i18n="closedClan">Закрытый</option>
+                                <option value="open">Открытый</option>
+                                <option value="closed">Закрытый</option>
                             </select>
-                            <button class="btn primary full-width" onclick="window.createClan()" data-i18n="createClanBtn">Создать клан</button>
+                            <button class="btn primary full-width" onclick="window.createClan()">Создать клан</button>
                         </div>
-                        <input type="text" id="searchClanInput" data-i18n="searchClan" placeholder="Поиск клана..." style="margin-top:10px;">
+                        <input type="text" id="searchClanInput" placeholder="Поиск клана..." style="margin-top:10px;">
                         <div id="clansList"></div>
                     </div>
                 </div>
@@ -1210,53 +1272,57 @@
                 <!-- Вкладка Друзья -->
                 <div id="tab-friends" class="tab-content">
                     <div class="friends-actions">
-                        <button class="btn secondary" onclick="window.showMyQrCode()" data-i18n="showQrCode"><i class="fas fa-qrcode"></i> QR</button>
-                        <button class="btn secondary" onclick="window.scanQrCode()" data-i18n="scanQrCode"><i class="fas fa-camera"></i></button>
-                        <button class="btn secondary" onclick="window.shareFriendLink()" data-i18n="shareLink"><i class="fas fa-share"></i></button>
+                        <button class="btn secondary" onclick="window.showMyQrCode()"><i class="fas fa-qrcode"></i> QR</button>
+                        <button class="btn secondary" onclick="window.scanQrCode()"><i class="fas fa-camera"></i></button>
+                        <button class="btn secondary" onclick="window.shareFriendLink()"><i class="fas fa-share"></i></button>
                     </div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;">
-                        <input type="text" id="friendSearchInput" data-i18n="searchFriend" placeholder="Поиск друзей по нику..." style="flex:1;">
-                        <button class="btn primary" onclick="window.searchFriend()" data-i18n="addFriend">Добавить</button>
+                        <input type="text" id="friendSearchInput" placeholder="Поиск друзей по нику..." style="flex:1;">
+                        <button class="btn primary" onclick="window.searchFriend()">Добавить</button>
                     </div>
                     <div class="settings-section">
-                        <h4 data-i18n="friendRequests">Заявки в друзья</h4>
-                        <div id="friendRequestsList"><p style="color:var(--text-muted);" data-i18n="noFriends">У вас пока нет заявок</p></div>
+                        <h4>Заявки в друзья</h4>
+                        <div id="friendRequestsList"><p style="color:var(--text-muted);">У вас пока нет заявок</p></div>
                     </div>
                     <div class="settings-section">
-                        <h4 data-i18n="friendsList">Список друзей</h4>
-                        <div id="friendsList"><p style="color:var(--text-muted);" data-i18n="noFriends">У вас пока нет друзей</p></div>
+                        <h4>Список друзей</h4>
+                        <div id="friendsList"><p style="color:var(--text-muted);">У вас пока нет друзей</p></div>
+                    </div>
+                    <div class="settings-section">
+                        <h4>Приглашения на битву</h4>
+                        <div id="battleInvitesList"><p style="color:var(--text-muted);">Нет активных приглашений</p></div>
                     </div>
                 </div>
                 
                 <!-- Вкладка Новости -->
                 <div id="tab-news" class="tab-content">
-                    <h3 data-i18n="news">Новости</h3>
+                    <h3>Новости</h3>
                     <div id="createNewsSection" class="hidden">
-                        <button class="btn primary full-width" onclick="window.toggleCreateNews()" data-i18n="createNews">Создать новость</button>
+                        <button class="btn primary full-width" onclick="window.toggleCreateNews()">Создать новость</button>
                         <div id="createNewsForm" class="hidden settings-section">
-                            <input type="text" id="newsTitle" data-i18n="newsTitle" placeholder="Заголовок" required>
-                            <textarea id="newsContent" data-i18n="newsContent" placeholder="Содержание" required rows="4"></textarea>
-                            <label data-i18n="newsImage">Изображение:</label>
+                            <input type="text" id="newsTitle" placeholder="Заголовок" required>
+                            <textarea id="newsContent" placeholder="Содержание" required rows="4"></textarea>
+                            <label>Изображение:</label>
                             <input type="file" id="newsImage" accept="image/*">
-                            <input type="text" id="newsVideo" data-i18n="newsVideo" placeholder="Ссылка на видео">
-                            <input type="text" id="newsLink" data-i18n="newsLink" placeholder="Ссылка">
-                            <button class="btn primary full-width" onclick="window.createNews()" data-i18n="publish">Опубликовать</button>
-                            <button class="btn text full-width" onclick="window.toggleCreateNews()" data-i18n="cancel">Отмена</button>
+                            <input type="text" id="newsVideo" placeholder="Ссылка на видео">
+                            <input type="text" id="newsLink" placeholder="Ссылка">
+                            <button class="btn primary full-width" onclick="window.createNews()">Опубликовать</button>
+                            <button class="btn text full-width" onclick="window.toggleCreateNews()">Отмена</button>
                         </div>
                     </div>
                     <div id="editNewsForm" class="hidden settings-section">
-                        <h4 data-i18n="editNews">Редактировать новость</h4>
+                        <h4>Редактировать новость</h4>
                         <input type="hidden" id="editNewsId">
-                        <input type="text" id="editNewsTitle" data-i18n="newsTitle" placeholder="Заголовок" required>
-                        <textarea id="editNewsContent" data-i18n="newsContent" placeholder="Содержание" required rows="4"></textarea>
-                        <label data-i18n="newsImage">Изображение:</label>
+                        <input type="text" id="editNewsTitle" placeholder="Заголовок" required>
+                        <textarea id="editNewsContent" placeholder="Содержание" required rows="4"></textarea>
+                        <label>Изображение:</label>
                         <input type="file" id="editNewsImage" accept="image/*">
-                        <input type="text" id="editNewsVideo" data-i18n="newsVideo" placeholder="Ссылка на видео">
-                        <input type="text" id="editNewsLink" data-i18n="newsLink" placeholder="Ссылка">
-                        <button class="btn primary full-width" onclick="window.updateNews()" data-i18n="save">Сохранить</button>
-                        <button class="btn text full-width" onclick="window.cancelEditNews()" data-i18n="cancel">Отмена</button>
+                        <input type="text" id="editNewsVideo" placeholder="Ссылка на видео">
+                        <input type="text" id="editNewsLink" placeholder="Ссылка">
+                        <button class="btn primary full-width" onclick="window.updateNews()">Сохранить</button>
+                        <button class="btn text full-width" onclick="window.cancelEditNews()">Отмена</button>
                     </div>
-                    <div id="newsContainer"><p style="color:var(--text-muted);" data-i18n="noNews">Нет новостей</p></div>
+                    <div id="newsContainer"><p style="color:var(--text-muted);">Нет новостей</p></div>
                 </div>
                 
                 <!-- Вкладка Аккаунт -->
@@ -1267,35 +1333,35 @@
                             <h3 id="accountNickname">Игрок</h3>
                             <p id="accountEmail" style="color:var(--text-muted);">email@example.com</p>
                         </div>
-                        <button id="developerModeBtn" class="btn secondary full-width" onclick="window.showDevPasswordPrompt()"><i class="fas fa-code"></i> <span data-i18n="developer">Разработчик</span></button>
+                        <button id="developerModeBtn" class="btn secondary full-width" onclick="window.showDevPasswordPrompt()"><i class="fas fa-code"></i> <span>Разработчик</span></button>
                         <div id="developerSection" class="hidden settings-section">
                             <h4 style="color:var(--primary);">👑 Режим разработчика</h4>
-                            <p style="color:var(--text-muted);" data-i18n="devModeActive">Режим разработчика активен</p>
+                            <p style="color:var(--text-muted);">Режим разработчика активен</p>
                         </div>
-                        <button id="addAccountBtn" class="btn secondary full-width" data-i18n="addAccount">Добавить аккаунт</button>
+                        <button id="addAccountBtn" class="btn secondary full-width">Добавить аккаунт</button>
                         <div class="settings-section">
-                            <h4 data-i18n="changeEmail">Изменить Email</h4>
-                            <button id="changeEmailBtn" class="btn secondary full-width" data-i18n="changeEmailBtn">Сменить Email</button>
-                        </div>
-                        <div class="settings-section">
-                            <h4 data-i18n="changePassword">Изменить пароль</h4>
-                            <button id="changePasswordBtn" class="btn secondary full-width" data-i18n="changePasswordBtn">Сменить пароль</button>
+                            <h4>Изменить Email</h4>
+                            <button id="changeEmailBtn" class="btn secondary full-width">Сменить Email</button>
                         </div>
                         <div class="settings-section">
-                            <h4 data-i18n="logout">Выйти из аккаунта</h4>
-                            <button id="logoutBtn" class="btn secondary full-width" data-i18n="logout">Выйти из аккаунта</button>
+                            <h4>Изменить пароль</h4>
+                            <button id="changePasswordBtn" class="btn secondary full-width">Сменить пароль</button>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Выйти из аккаунта</h4>
+                            <button id="logoutBtn" class="btn secondary full-width">Выйти из аккаунта</button>
                         </div>
                         <div class="settings-section danger-zone">
-                            <h4 style="color:var(--error);" data-i18n="deleteAccount">Удалить аккаунт</h4>
-                            <button id="deleteAccountBtn" class="btn danger full-width" data-i18n="deleteAccountBtn">Удалить аккаунт</button>
+                            <h4 style="color:var(--error);">Удалить аккаунт</h4>
+                            <button id="deleteAccountBtn" class="btn danger full-width">Удалить аккаунт</button>
                             <div id="deleteConfirmSection" class="hidden" style="margin-top:15px;">
                                 <p id="deleteConfirmText" style="color:var(--error);"></p>
                                 <div class="password-wrapper">
-                                    <input type="password" id="deletePassword" data-i18n="enterPasswordConfirm" placeholder="Введите пароль">
+                                    <input type="password" id="deletePassword" placeholder="Введите пароль">
                                     <i class="far fa-eye toggle-password" data-target="deletePassword"></i>
                                 </div>
-                                <button id="confirmDeleteBtn" class="btn danger full-width" data-i18n="confirmDelete">Да, я уверен (1/2)</button>
-                                <button id="cancelDeleteBtn" class="btn text full-width" data-i18n="cancel">Отмена</button>
+                                <button id="confirmDeleteBtn" class="btn danger full-width">Да, я уверен (1/2)</button>
+                                <button id="cancelDeleteBtn" class="btn text full-width">Отмена</button>
                             </div>
                         </div>
                     </div>
@@ -1305,39 +1371,39 @@
                 <div id="tab-settings" class="tab-content">
                     <div style="padding:10px 0;">
                         <div class="settings-section">
-                            <h4 data-i18n="themeSettings">Настройки темы</h4>
+                            <h4>Настройки темы</h4>
                             <select id="themeSelect" class="full-width" style="margin-bottom:15px;">
-                                <option value="dark" data-i18n="darkTheme">Темная тема</option>
-                                <option value="light" data-i18n="lightTheme">Светлая тема</option>
+                                <option value="dark">Темная тема</option>
+                                <option value="light">Светлая тема</option>
                                 <option value="custom">Custom</option>
                             </select>
                             <div id="customColorsSection" class="hidden">
-                                <h5 data-i18n="customColors">Настройка цветов</h5>
+                                <h5>Настройка цветов</h5>
                                 <div class="color-picker-row">
-                                    <label data-i18n="backgroundColor">Цвет фона</label>
+                                    <label>Цвет фона</label>
                                     <input type="color" id="bgColorPicker" value="#0b0f19">
                                 </div>
                                 <div class="color-picker-row">
-                                    <label data-i18n="primaryColor">Основной цвет</label>
+                                    <label>Основной цвет</label>
                                     <input type="color" id="primaryColorPicker" value="#e94560">
                                 </div>
                                 <div class="color-picker-row">
-                                    <label data-i18n="secondaryColor">Вторичный цвет</label>
+                                    <label>Вторичный цвет</label>
                                     <input type="color" id="secondaryColorPicker" value="#0f3460">
                                 </div>
-                                <button id="saveCustomColorsBtn" class="btn primary full-width" data-i18n="saveSettings">Сохранить настройки</button>
-                                <button id="resetColorsBtn" class="btn text full-width" data-i18n="resetColors">Сбросить цвета</button>
+                                <button id="saveCustomColorsBtn" class="btn primary full-width">Сохранить настройки</button>
+                                <button id="resetColorsBtn" class="btn text full-width">Сбросить цвета</button>
                             </div>
                         </div>
                         <div class="settings-section">
-                            <h4 data-i18n="languageSettings">Язык</h4>
+                            <h4>Язык</h4>
                             <select id="languageSelect" class="full-width">
                                 <option value="ru">Русский</option>
                                 <option value="en">English</option>
                             </select>
                         </div>
                         <div class="settings-section">
-                            <h4 data-i18n="soundSettings">Настройки звука</h4>
+                            <h4>Настройки звука</h4>
                             <div style="display:flex;align-items:center;gap:15px;">
                                 <i class="fas fa-volume-down"></i>
                                 <input type="range" id="volumeSlider" min="0" max="100" value="50" style="flex:1;">
@@ -1345,9 +1411,9 @@
                                 <span id="volumeValue">50%</span>
                             </div>
                             <select id="soundModeSelect" class="full-width">
-                                <option value="musicAndEffects" data-i18n="musicAndEffects">Музыка и эффекты</option>
-                                <option value="effectsOnly" data-i18n="effectsOnly">Только эффекты</option>
-                                <option value="noSound" data-i18n="noSound">Без звука</option>
+                                <option value="musicAndEffects">Музыка и эффекты</option>
+                                <option value="effectsOnly">Только эффекты</option>
+                                <option value="noSound">Без звука</option>
                             </select>
                         </div>
                     </div>
@@ -1387,200 +1453,96 @@
     const MAX_ELIXIR = 15;
     const HAND_SIZE = 5;
 
-    // ========== СИСТЕМА ПЕРЕВОДОВ ==========
+    // ========== ПЕРЕВОДЫ ==========
     const translations = {
         ru: {
             welcome: 'Добро пожаловать в битву!', register: 'Зарегистрироваться', login: 'Войти',
             loginTitle: 'Вход', email: 'Email', password: 'Пароль', loginBtn: 'Войти в аккаунт',
             forgotPassword: '🤔 Забыл(а) пароль?', backToHome: 'На главную', registerTitle: 'Регистрация',
             nickname: 'Никнейм', avatarHint: 'Аватар создаётся из первых букв ника',
-            confirmPassword: 'Подтвердите пароль', continue: 'Продолжить', enterCode: 'Введите код из письма',
-            confirmEmail: 'Подтвердить Email', resendCode: 'Отправить код повторно', resetTitle: 'Сброс пароля',
-            yourEmail: 'Ваш Email', codeFromEmail: 'Код из письма', newPassword: 'Новый пароль',
-            sendCode: 'Отправить код', changePassword: 'Сменить пароль', backToLogin: 'Назад ко входу',
-            addAccount: 'Добавить аккаунт', savedAccounts: 'Сохраненные аккаунты', chooseAction: 'Выберите действие',
-            back: 'Назад', home: 'Главная', characters: 'Персонажи', clan: 'Клан', friends: 'Друзья',
-            news: 'Новости', account: 'Аккаунт', settings: 'Настройки', developer: 'Разработчик',
-            enterDevPassword: 'Введите пароль разработчика', devModeActive: 'Режим разработчика активен',
-            createCharacter: 'Создать персонажа', characterName: 'Имя', characterHealth: 'Здоровье',
-            characterDamage: 'Урон', characterAbility: 'Способность', characterTrait: 'Особенность',
-            characterRarity: 'Редкость', characterClass: 'Класс', elixirCost: 'Стоимость',
-            selectImage: 'Выбрать изображение', saveCharacter: 'Сохранить', deleteCharacter: 'Удалить',
+            confirmPassword: 'Подтвердите пароль', continue: 'Продолжить',
             mechanics: 'Механики', damageMechanic: 'Урон', healMechanic: 'Лечение', poisonMechanic: 'Яд',
             shieldMechanic: 'Щит', buffMechanic: 'Бафф', stunMechanic: 'Оглушение', weakenMechanic: 'Ослабление',
-            common: 'Обычный', rare: 'Редкий', epic: 'Эпический', legendary: 'Легендарный',
-            noCharacters: 'Нет персонажей', health: 'Здоровье', damage: 'Урон', ability: 'Способность',
-            trait: 'Особенность', rarity: 'Редкость', class: 'Класс', tank: 'Танк', shooter: 'Стрелок',
-            support: 'Помощник', control: 'Контроль', damageDealer: 'Урон', bonus: 'Бонус', assassin: 'Убийца',
-            artillery: 'Артиллерия', filter: 'Фильтр', all: 'Все', byRarity: 'По редкости', byClass: 'По классу',
-            favorites: 'Избранные', addToFavorites: 'В избранное', removeFromFavorites: 'Убрать',
-            createNews: 'Создать новость', newsTitle: 'Заголовок', newsContent: 'Содержание',
-            newsImage: 'Изображение', newsVideo: 'Видео', newsLink: 'Ссылка', publish: 'Опубликовать',
-            noNews: 'Нет новостей', welcomeGame: 'Добро пожаловать!', play: 'Играть', pvpMode: 'PvP Битва',
-            classicMode: 'Классический режим', searchingOpponent: 'Поиск соперника...',
-            yourSide: 'Ваша сторона', enemySide: 'Противник', elixir: 'Эликсир', battle: 'Битва',
-            yourCards: 'Ваши карты', purchasedCards: 'Купленные', turn: 'Ход', victory: 'Победа!',
-            defeat: 'Поражение!', ready: 'Готово', buy: 'Купить', place: 'Поставить', cancel: 'Отмена',
-            close: 'Закрыть', friendsList: 'Друзья', addFriend: 'Добавить', searchFriend: 'Поиск по нику...',
-            noFriends: 'Нет друзей', friendRequestSent: 'Заявка отправлена', alreadyFriends: 'Уже друзья',
-            requestPending: 'Заявка отправлена', showQrCode: 'QR-код', scanQrCode: 'Сканировать',
-            shareLink: 'Поделиться', yourQrCode: 'Ваш QR', copyLink: 'Копировать', linkCopied: 'Скопировано!',
-            createClan: 'Создать клан', clanName: 'Название', clanDescription: 'Описание',
-            openClan: 'Открытый', closedClan: 'Закрытый', createClanBtn: 'Создать', searchClan: 'Поиск...',
-            members: 'участников', joinClan: 'Вступить', sendRequest: 'Подать заявку', requestSent: 'Заявка отправлена',
-            clanChat: 'Чат', sendMessage: 'Отправить', typeMessage: 'Сообщение...', leaveClan: 'Покинуть',
-            clanMembers: 'Участники', owner: 'Владелец', requests: 'Заявки', accept: 'Принять', decline: 'Отклонить',
-            noDescription: 'Нет описания', noClan: 'Нет клана', themeSettings: 'Тема', darkTheme: 'Тёмная',
-            lightTheme: 'Светлая', customColors: 'Цвета', backgroundColor: 'Фон', primaryColor: 'Основной',
-            secondaryColor: 'Вторичный', resetColors: 'Сбросить', languageSettings: 'Язык',
-            selectLanguage: 'Выбрать', saveSettings: 'Сохранить', loading: 'Загрузка...', min3chars: 'Мин. 3 символа',
-            nickFree: 'Свободен', nickTaken: 'Занят', passwordsNotMatch: 'Пароли не совпадают',
-            min6chars: 'Мин. 6 символов', wrongCode: 'Неверный код', regSuccess: 'Успешно!',
-            error: 'Ошибка', success: 'Успешно', changeEmail: 'Сменить Email', changeEmailBtn: 'Сменить',
-            newEmail: 'Новый Email', currentPassword: 'Текущий пароль', confirmEmailChange: 'Подтвердить',
-            changePasswordBtn: 'Сменить пароль', confirmNewPassword: 'Подтвердите', confirmPasswordChange: 'Подтвердить',
-            logout: 'Выйти', deleteAccount: 'Удалить аккаунт', deleteAccountBtn: 'Удалить',
-            confirmDelete: 'Да, уверен', friendRequests: 'Заявки', closeClan: 'Закрыть',
-            noClansFound: 'Кланы не найдены', removeMember: 'Исключить', makeOwner: 'Сделать владельцем',
-            cameraDenied: 'Нет доступа', invalidQr: 'Неверный QR', friendAdded: 'Друг добавлен!',
-            clanDetails: 'Подробности', position: 'Позиция', effects: 'Эффекты', clearCell: 'Очистить',
-            saveMechanics: 'Сохранить', selectEffect: 'Выберите эффект', value: 'Значение', duration: 'Длительность',
-            selectPosition: 'Выберите позицию', apply: 'Применить', event: 'Событие', 
-            characterAttack: 'Атака (фото/видео)', confirmLogout: 'Выйти из аккаунта?', 
-            enterNewEmail: 'Введите новый Email', enterNewPassword: 'Введите новый пароль',
-            repeatNewPassword: 'Повторите новый пароль', codeSent: 'Код отправлен на', demoMode: 'Демо-режим. Код:',
-            editNews: 'Редактировать', deleteNews: 'Удалить', save: 'Сохранить', edit: 'Изменить',
-            clanFull: 'Клан полон (макс. 30)', deleteMessage: 'Удалить сообщение', maxMembers: 'Макс. 30 участников',
             enemyField: 'Поле противника', allyField: 'Поле союзников', addEffect: 'Добавить эффект',
             damagePerTurn: 'Урон за ход', healPerTurn: 'Лечение за ход', shieldStrength: 'Прочность щита',
-            damageReduction: 'Снижение урона', damageIncrease: 'Увеличение урона',
+            selectPosition: 'Выберите позицию', position: 'Позиция', effects: 'Эффекты',
+            saveMechanics: 'Сохранить', clearCell: 'Очистить', close: 'Закрыть',
             yourTurn: 'ВАШ ХОД', enemyTurn: 'ХОД ПРОТИВНИКА', selectCharacter: 'Выберите персонажа для атаки',
             coinFlip: 'Бросаем монетку...', youGoFirst: 'Вы ходите первым!', enemyGoesFirst: 'Противник ходит первым!',
-            waitingOpponent: 'Ожидание противника...', bothReady: 'Оба игрока готовы!'
+            victory: 'Победа!', defeat: 'Поражение!', ready: 'Готово', buy: 'Купить',
+            yourCards: 'Ваши карты', purchasedCards: 'Купленные', noCharacters: 'Нет персонажей',
+            elixir: 'Эликсир', health: 'Здоровье', power: 'Оценка силы'
         },
         en: {
-            welcome: 'Welcome!', register: 'Register', login: 'Login', loginTitle: 'Login', email: 'Email',
-            password: 'Password', loginBtn: 'Sign In', forgotPassword: '🤔 Forgot?', backToHome: 'Home',
-            registerTitle: 'Registration', nickname: 'Nickname', avatarHint: 'Avatar from nickname',
-            confirmPassword: 'Confirm', continue: 'Continue', enterCode: 'Enter code', confirmEmail: 'Confirm Email',
-            resendCode: 'Resend', resetTitle: 'Reset', yourEmail: 'Your Email', codeFromEmail: 'Code',
-            newPassword: 'New password', sendCode: 'Send', changePassword: 'Change', backToLogin: 'Back',
-            addAccount: 'Add account', savedAccounts: 'Saved', chooseAction: 'Choose', back: 'Back',
-            home: 'Home', characters: 'Characters', clan: 'Clan', friends: 'Friends', news: 'News',
-            account: 'Account', settings: 'Settings', developer: 'Developer', enterDevPassword: 'Enter password',
-            devModeActive: 'Dev mode', createCharacter: 'Create', characterName: 'Name', characterHealth: 'Health',
-            characterDamage: 'Damage', characterAbility: 'Ability', characterTrait: 'Trait', characterRarity: 'Rarity',
-            characterClass: 'Class', elixirCost: 'Cost', selectImage: 'Select image', saveCharacter: 'Save',
-            deleteCharacter: 'Delete', mechanics: 'Mechanics', damageMechanic: 'Damage', healMechanic: 'Heal',
-            poisonMechanic: 'Poison', shieldMechanic: 'Shield', buffMechanic: 'Buff', stunMechanic: 'Stun',
-            weakenMechanic: 'Weaken', common: 'Common', rare: 'Rare', epic: 'Epic', legendary: 'Legendary',
-            noCharacters: 'No characters', health: 'Health', damage: 'Damage', ability: 'Ability',
-            trait: 'Trait', rarity: 'Rarity', class: 'Class', tank: 'Tank', shooter: 'Shooter',
-            support: 'Support', control: 'Control', damageDealer: 'Damage', bonus: 'Bonus', assassin: 'Assassin',
-            artillery: 'Artillery', filter: 'Filter', all: 'All', byRarity: 'By rarity', byClass: 'By class',
-            favorites: 'Favorites', addToFavorites: 'Add', removeFromFavorites: 'Remove',
-            createNews: 'Create news', newsTitle: 'Title', newsContent: 'Content',
-            newsImage: 'Image', newsVideo: 'Video', newsLink: 'Link', publish: 'Publish', noNews: 'No news',
-            welcomeGame: 'Welcome!', play: 'Play', pvpMode: 'PvP', classicMode: 'Classic',
-            searchingOpponent: 'Searching...', yourSide: 'Your side', enemySide: 'Enemy', elixir: 'Elixir',
-            battle: 'Battle', yourCards: 'Your cards', purchasedCards: 'Purchased', turn: 'Turn',
-            victory: 'Victory!', defeat: 'Defeat!', ready: 'Ready', buy: 'Buy', place: 'Place', cancel: 'Cancel',
-            close: 'Close', friendsList: 'Friends', addFriend: 'Add', searchFriend: 'Search...',
-            noFriends: 'No friends', friendRequestSent: 'Request sent', alreadyFriends: 'Already friends',
-            requestPending: 'Pending', showQrCode: 'QR', scanQrCode: 'Scan', shareLink: 'Share',
-            yourQrCode: 'Your QR', copyLink: 'Copy', linkCopied: 'Copied!', createClan: 'Create clan',
-            clanName: 'Name', clanDescription: 'Description', openClan: 'Open', closedClan: 'Closed',
-            createClanBtn: 'Create', searchClan: 'Search...', members: 'members', joinClan: 'Join',
-            sendRequest: 'Request', requestSent: 'Sent', clanChat: 'Chat', sendMessage: 'Send',
-            typeMessage: 'Message...', leaveClan: 'Leave', clanMembers: 'Members', owner: 'Owner',
-            requests: 'Requests', accept: 'Accept', decline: 'Decline', noDescription: 'No description',
-            noClan: 'No clan', themeSettings: 'Theme', darkTheme: 'Dark', lightTheme: 'Light',
-            customColors: 'Colors', backgroundColor: 'Background', primaryColor: 'Primary',
-            secondaryColor: 'Secondary', resetColors: 'Reset', languageSettings: 'Language',
-            selectLanguage: 'Select', saveSettings: 'Save', loading: 'Loading...', min3chars: 'Min 3 chars',
-            nickFree: 'Available', nickTaken: 'Taken', passwordsNotMatch: 'Passwords mismatch',
-            min6chars: 'Min 6 chars', wrongCode: 'Wrong code', regSuccess: 'Success!', error: 'Error',
-            success: 'Success', changeEmail: 'Change Email', changeEmailBtn: 'Change', newEmail: 'New Email',
-            currentPassword: 'Current password', confirmEmailChange: 'Confirm', changePasswordBtn: 'Change password',
-            confirmNewPassword: 'Confirm', confirmPasswordChange: 'Confirm', logout: 'Logout',
-            deleteAccount: 'Delete account', deleteAccountBtn: 'Delete', confirmDelete: 'Yes',
-            friendRequests: 'Requests', closeClan: 'Close', noClansFound: 'No clans', removeMember: 'Remove',
-            makeOwner: 'Make owner', cameraDenied: 'Camera denied', invalidQr: 'Invalid QR',
-            friendAdded: 'Friend added!', clanDetails: 'Details', position: 'Position', effects: 'Effects',
-            clearCell: 'Clear', saveMechanics: 'Save', selectEffect: 'Select effect', value: 'Value',
-            duration: 'Duration', selectPosition: 'Select position', apply: 'Apply', event: 'Event',
-            characterAttack: 'Attack (photo/video)', confirmLogout: 'Logout?', 
-            enterNewEmail: 'Enter new Email', enterNewPassword: 'Enter new password',
-            repeatNewPassword: 'Repeat new password', codeSent: 'Code sent to', demoMode: 'Demo mode. Code:',
-            editNews: 'Edit', deleteNews: 'Delete', save: 'Save', edit: 'Edit',
-            clanFull: 'Clan full (max 30)', deleteMessage: 'Delete message', maxMembers: 'Max 30 members',
+            welcome: 'Welcome!', register: 'Register', login: 'Login',
+            loginTitle: 'Login', email: 'Email', password: 'Password', loginBtn: 'Sign In',
+            forgotPassword: '🤔 Forgot?', backToHome: 'Home', registerTitle: 'Registration',
+            nickname: 'Nickname', avatarHint: 'Avatar from nickname',
+            confirmPassword: 'Confirm', continue: 'Continue',
+            mechanics: 'Mechanics', damageMechanic: 'Damage', healMechanic: 'Heal', poisonMechanic: 'Poison',
+            shieldMechanic: 'Shield', buffMechanic: 'Buff', stunMechanic: 'Stun', weakenMechanic: 'Weaken',
             enemyField: 'Enemy field', allyField: 'Ally field', addEffect: 'Add effect',
             damagePerTurn: 'Damage per turn', healPerTurn: 'Heal per turn', shieldStrength: 'Shield strength',
-            damageReduction: 'Damage reduction', damageIncrease: 'Damage increase',
+            selectPosition: 'Select position', position: 'Position', effects: 'Effects',
+            saveMechanics: 'Save', clearCell: 'Clear', close: 'Close',
             yourTurn: 'YOUR TURN', enemyTurn: 'ENEMY TURN', selectCharacter: 'Select character to attack',
             coinFlip: 'Flipping coin...', youGoFirst: 'You go first!', enemyGoesFirst: 'Enemy goes first!',
-            waitingOpponent: 'Waiting for opponent...', bothReady: 'Both players ready!'
+            victory: 'Victory!', defeat: 'Defeat!', ready: 'Ready', buy: 'Buy',
+            yourCards: 'Your cards', purchasedCards: 'Purchased', noCharacters: 'No characters',
+            elixir: 'Elixir', health: 'Health', power: 'Power rating'
         }
     };
 
-    // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
     let currentLanguage = localStorage.getItem('language') || 'ru';
-    let currentTheme = localStorage.getItem('theme') || 'dark';
-    let customColors = JSON.parse(localStorage.getItem('customColors') || 'null');
-    let soundSettings = JSON.parse(localStorage.getItem('soundSettings') || '{"volume": 50, "mode": "musicAndEffects"}');
+    function t(key) { return translations[currentLanguage]?.[key] || translations.ru[key] || key; }
+
+    // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
     let currentUser = null;
     let currentUserData = null;
-    let userClan = null;
-    let clansListener = null;
-    let clanChatListener = null;
-    let charactersListener = null;
-    let newsListener = null;
-    let qrScannerStream = null;
-    let generatedCode = null;
-    let currentFilter = 'all';
-    let currentFilterValue = '';
-    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     let isDeveloperMode = localStorage.getItem('isDeveloperMode') === 'true';
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    let customColors = JSON.parse(localStorage.getItem('customColors') || 'null');
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     let savedAccounts = JSON.parse(localStorage.getItem('savedAccounts') || '[]');
-    let pendingEmailChange = null;
-    let editingNewsId = null;
     
-    // Механики персонажа
+    // Механики
     let tempMechanics = {};
     let currentCharacterPosition = 12;
     let selectedCell = null;
+    let editingCharacterId = null;
+    let editTempMechanics = {};
     
-    // PvP и игра
-    let matchmakingListener = null;
-    let roomListener = null;
-    let currentRoom = null;
+    // Игра
     let gameState = {
-        mode: null, isPvP: false, roomId: null, playerElixir: 10, enemyElixir: 10,
+        mode: null, isPvP: false, isAI: false, playerElixir: 10, enemyElixir: 10,
         playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-        playerHand: [], playerPurchased: [], turn: 0, timer: null, timeLeft: 30,
+        playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
         battleStarted: false, playerReady: false, enemyReady: false,
-        selectedCard: null, attackQueue: [], currentAttacker: null,
-        coinFlipWinner: null, isPlayerTurn: false, turnPhase: 'waiting', // waiting, playerTurn, enemyTurn
-        playerActionsLeft: 0, enemyActionsLeft: 0, maxActionsPerTurn: 0,
-        waitingForOpponent: false
+        selectedCard: null, isPlayerTurn: false, playerActionsLeft: 0,
+        coinFlipWinner: null, aiDifficulty: 'expert'
     };
+    
+    let currentRoom = null;
+    let roomListener = null;
+    let battleInvitesListener = null;
+    let charactersListener = null;
+    let clansListener = null;
+    let clanChatListener = null;
+    let newsListener = null;
 
     // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-    function t(key) { 
-        return translations[currentLanguage]?.[key] || translations.ru[key] || key; 
+    function showLoader(show = true) { 
+        document.getElementById('loader').classList.toggle('hidden', !show); 
     }
     
-    function updateAllTexts() {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.dataset.i18n;
-            if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'email' || el.type === 'password' || el.type === 'search')) {
-                el.placeholder = t(key);
-            } else if (el.tagName === 'OPTION') { 
-                el.textContent = t(key); 
-            } else { 
-                el.textContent = t(key); 
-            }
-        });
+    function generateAvatar(nickname) {
+        if (!nickname) return '👤';
+        const words = nickname.trim().split(/\s+/);
+        return ((words[0]?.[0] || '') + (words[1]?.[0] || words[0]?.[1] || '')).toUpperCase() || '👤';
     }
 
     function applyTheme() {
@@ -1616,90 +1578,40 @@
         document.body.style.background = `linear-gradient(135deg, var(--bg-dark) 0%, ${currentTheme === 'light' ? '#e8eaed' : '#141a29'} 100%)`;
     }
 
-    function generateAvatar(nickname) {
-        if (!nickname) return '👤';
-        const words = nickname.trim().split(/\s+/);
-        return ((words[0]?.[0] || '') + (words[1]?.[0] || words[0]?.[1] || '')).toUpperCase() || '👤';
-    }
-
-    function showLoader(show = true) { 
-        document.getElementById('loader').classList.toggle('hidden', !show); 
-    }
-
-    // ========== ИНИЦИАЛИЗАЦИЯ FIREBASE ==========
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Загрузка EmailJS
-    (function loadEmailJS() {
-        const script = document.createElement('script');
-        script.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";
-        document.head.appendChild(script);
-        script.onload = () => emailjs.init(EMAILJS_PUBLIC_KEY);
-    })();
-
     // ========== УПРАВЛЕНИЕ ЭКРАНАМИ ==========
     let currentScreen = 'landing';
-    const screens = {
-        landing: document.getElementById('landing'), 
-        login: document.getElementById('loginScreen'),
-        register: document.getElementById('registerScreen'), 
-        reset: document.getElementById('resetPasswordScreen'),
-        game: document.getElementById('gameScreen'), 
-        addAccount: document.getElementById('addAccountScreen')
-    };
-
     function showScreen(screenId) {
-        Object.values(screens).forEach(s => s?.classList.remove('active'));
-        if (screens[screenId]) screens[screenId].classList.add('active');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId)?.classList.add('active');
         currentScreen = screenId;
-        setTimeout(updateAllTexts, 10);
-        if (screenId === 'addAccount') updateSavedAccountsList();
-        if (screenId === 'game' && currentUser) updateDevModeUI();
+        
+        if (screenId === 'gameScreen' && currentUser) {
+            document.getElementById('gameNickname').textContent = currentUserData?.nickname || 'Игрок';
+            document.getElementById('gameAvatar').textContent = currentUserData?.avatar || '👤';
+            updateDevModeUI();
+            loadBattleInvites();
+        }
+        if (screenId === 'addAccountScreen') updateSavedAccountsList();
     }
 
     function updateDevModeUI() {
-        const devBtn = document.getElementById('developerModeBtn');
-        const devSection = document.getElementById('developerSection');
-        const createCharSection = document.getElementById('createCharacterSection');
-        const createNewsSection = document.getElementById('createNewsSection');
-        
-        if (isDeveloperMode) {
-            if (devBtn) devBtn.innerHTML = `<i class="fas fa-code"></i> ${t('devModeActive')}`;
-            if (devSection) devSection.classList.remove('hidden');
-            if (createCharSection) createCharSection.classList.remove('hidden');
-            if (createNewsSection) createNewsSection.classList.remove('hidden');
-        } else {
-            if (devBtn) devBtn.innerHTML = `<i class="fas fa-code"></i> ${t('developer')}`;
-            if (devSection) devSection.classList.add('hidden');
-            if (createCharSection) createCharSection.classList.add('hidden');
-            if (createNewsSection) createNewsSection.classList.add('hidden');
-        }
+        const section = document.getElementById('createCharacterSection');
+        const newsSection = document.getElementById('createNewsSection');
+        if (section) section.classList.toggle('hidden', !isDeveloperMode);
+        if (newsSection) newsSection.classList.toggle('hidden', !isDeveloperMode);
     }
 
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        document.getElementById(`tab-${tabId}`)?.classList.add('active');
+        document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
         
-        if (tabId === 'clan' && currentUser) loadClanData();
-        if (tabId === 'friends' && currentUser) { loadFriendsData(); loadFriendRequests(); }
         if (tabId === 'characters') loadCharacters();
+        if (tabId === 'clan' && currentUser) loadClanData();
+        if (tabId === 'friends') { loadFriendsData(); loadFriendRequests(); loadBattleInvites(); }
         if (tabId === 'news') loadNews();
-    }
-
-    async function loadAccountProfile(user) {
-        try {
-            const docSnap = await getDoc(doc(db, "users", user.uid));
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                document.getElementById('accountNickname').textContent = data.nickname || 'Игрок';
-                document.getElementById('accountEmail').textContent = data.email || user.email;
-                document.getElementById('accountAvatarLarge').textContent = data.avatar || '👤';
-            }
-        } catch (error) {}
+        if (tabId === 'account' && currentUser) loadAccountProfile(currentUser);
     }
 
     function updateSavedAccountsList() {
@@ -1713,7 +1625,7 @@
                         <div class="saved-email">${acc.email}</div>
                     </div>
                 </div>
-            `).join('') || `<p style="color: var(--text-muted);">${t('noFriends')}</p>`;
+            `).join('') || '<p style="color: var(--text-muted);">Нет сохраненных аккаунтов</p>';
         }
     }
 
@@ -1724,35 +1636,15 @@
         }
     }
 
-    async function sendEmailCode(email, type = 'verify') {
-        const code = Math.floor(100000 + Math.random() * 900000).toString(); 
-        generatedCode = code;
-        try {
-            if (EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
-                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { 
-                    to_email: email, code: code, 
-                    subject: `Clash of MAS - ${type === 'verify' ? 'Регистрация' : 'Подтверждение'}` 
-                });
-                alert(`${t('codeSent')} ${email}`);
-            } else { 
-                alert(`${t('demoMode')} ${code}`); 
-            }
-            return code;
-        } catch (error) { 
-            alert(`${t('demoMode')} ${code}`); 
-            return code; 
-        }
-    }
-
     window.showDevPasswordPrompt = function() {
-        const password = prompt(t('enterDevPassword'));
-        if (password === DEV_PASSWORD) { 
-            isDeveloperMode = true; 
-            localStorage.setItem('isDeveloperMode', 'true'); 
-            updateDevModeUI(); 
-            alert(t('devModeActive')); 
-        } else if (password !== null) { 
-            alert(t('wrongCode')); 
+        const password = prompt('Введите пароль разработчика');
+        if (password === DEV_PASSWORD) {
+            isDeveloperMode = true;
+            localStorage.setItem('isDeveloperMode', 'true');
+            updateDevModeUI();
+            alert('Режим разработчика активирован');
+        } else if (password !== null) {
+            alert('Неверный пароль');
         }
     };
 
@@ -1782,12 +1674,18 @@
                         <div class="mechanics-grid">
                             ${renderMechanicsGrid('enemy')}
                         </div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
+                            ☠️ ${t('poisonMechanic')} | 💥 ${t('damageMechanic')} | ⚡ ${t('stunMechanic')} | 🔻 ${t('weakenMechanic')}
+                        </p>
                     </div>
                     <div class="mechanics-side">
                         <h4 style="color: #2ecc71;">🟢 ${t('allyField')}</h4>
                         <div class="mechanics-grid">
                             ${renderMechanicsGrid('player')}
                         </div>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">
+                            💚 ${t('healMechanic')} | 🛡️ ${t('shieldMechanic')} | ✨ ${t('buffMechanic')}
+                        </p>
                     </div>
                 </div>
                 
@@ -1803,7 +1701,7 @@
                     <div id="effectParams"></div>
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <button class="btn primary full-width" onclick="window.saveEffect()">✅ ${t('addEffect')}</button>
-                        <button class="btn text full-width" onclick="window.cancelAddEffect()">❌ ${t('cancel')}</button>
+                        <button class="btn text full-width" onclick="window.cancelAddEffect()">❌ Отмена</button>
                     </div>
                 </div>
                 
@@ -1817,14 +1715,14 @@
         
         document.body.appendChild(modal);
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        updateAllTexts();
     };
 
     function renderMechanicsGrid(side) {
+        const mechanics = editingCharacterId ? editTempMechanics : tempMechanics;
         let html = '';
         for (let i = 0; i < 12; i++) {
             const actualPos = i + 12;
-            const cellEffects = tempMechanics[currentCharacterPosition]?.[`${side}_${i}`] || [];
+            const cellEffects = mechanics[currentCharacterPosition]?.[`${side}_${i}`] || [];
             const hasEffects = cellEffects.length > 0;
             const isSelected = selectedCell?.side === side && selectedCell?.index === i;
             const isCurrentPos = actualPos === currentCharacterPosition;
@@ -1856,10 +1754,12 @@
             return `<p style="color: var(--text-muted); text-align: center;">${t('selectPosition')}</p>`;
         }
         
-        const cellEffects = tempMechanics[currentCharacterPosition]?.[`${selectedCell.side}_${selectedCell.index}`] || [];
+        const mechanics = editingCharacterId ? editTempMechanics : tempMechanics;
+        const cellEffects = mechanics[currentCharacterPosition]?.[`${selectedCell.side}_${selectedCell.index}`] || [];
+        
         if (cellEffects.length === 0) {
             return `<p style="color: var(--text-muted); text-align: center;">
-                ${t('noCharacters')} <button class="btn link" onclick="window.showAddEffectForm()">➕ ${t('addEffect')}</button>
+                Нет эффектов <button class="btn link" onclick="window.showAddEffectForm()">➕ ${t('addEffect')}</button>
             </p>`;
         }
         
@@ -1869,19 +1769,19 @@
         cellEffects.forEach((effect, idx) => {
             let desc = '';
             if (effect.type === 'poison') {
-                desc = `☠️ ${t('poisonMechanic')}: ${effect.damagePerTurn} ${t('damagePerTurn').toLowerCase()}, ${effect.duration} ${t('duration').toLowerCase()}`;
+                desc = `☠️ ${t('poisonMechanic')}: ${effect.damagePerTurn} урона/ход, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'damage') {
-                desc = `💥 ${t('damageMechanic')}: ${effect.value} ${t('damage').toLowerCase()}`;
+                desc = `💥 ${t('damageMechanic')}: ${effect.value} ед.`;
             } else if (effect.type === 'stun') {
-                desc = `⚡ ${t('stunMechanic')}: ${effect.duration} ${t('duration').toLowerCase()}`;
+                desc = `⚡ ${t('stunMechanic')}: ${effect.duration} хода(ов)`;
             } else if (effect.type === 'weaken') {
-                desc = `🔻 ${t('weakenMechanic')}: -${effect.value} ${t('damage').toLowerCase()}, ${effect.duration} ${t('duration').toLowerCase()}`;
+                desc = `🔻 ${t('weakenMechanic')}: -${effect.value} к урону, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'heal') {
-                desc = `💚 ${t('healMechanic')}: ${effect.value} ${t('healPerTurn').toLowerCase()}, ${effect.duration} ${t('duration').toLowerCase()}`;
+                desc = `💚 ${t('healMechanic')}: ${effect.value} здоровья/ход, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'shield') {
-                desc = `🛡️ ${t('shieldMechanic')}: ${effect.value} ${t('shieldStrength').toLowerCase()}, ${effect.duration} ${t('duration').toLowerCase()}`;
+                desc = `🛡️ ${t('shieldMechanic')}: ${effect.value} прочности, ${effect.duration} хода(ов)`;
             } else if (effect.type === 'buff') {
-                desc = `✨ ${t('buffMechanic')}: +${effect.value} ${t('damage').toLowerCase()}, ${effect.duration} ${t('duration').toLowerCase()}`;
+                desc = `✨ ${t('buffMechanic')}: +${effect.value} к урону, ${effect.duration} хода(ов)`;
             }
             
             html += `<div class="effect-item">
@@ -1941,70 +1841,38 @@
 
     function updateEffectParams(type) {
         const paramsDiv = document.getElementById('effectParams');
-        if (!type) {
-            paramsDiv.innerHTML = '';
-            return;
-        }
+        if (!type) { paramsDiv.innerHTML = ''; return; }
         
         let html = '';
         if (type === 'poison') {
-            html = `
-                <label>${t('damagePerTurn')}:</label>
-                <input type="number" id="poisonDamage" placeholder="${t('damage')}" value="5" min="1">
-                <label>${t('duration')}:</label>
-                <input type="number" id="poisonDuration" placeholder="${t('duration')}" value="3" min="1">
-            `;
+            html = `<label>Урон за ход:</label><input type="number" id="poisonDamage" value="5" min="1">
+                    <label>Длительность (ходов):</label><input type="number" id="poisonDuration" value="3" min="1">`;
         } else if (type === 'damage') {
-            html = `
-                <label>${t('damage')}:</label>
-                <input type="number" id="damageValue" placeholder="${t('damage')}" value="20" min="1">
-            `;
+            html = `<label>Урон:</label><input type="number" id="damageValue" value="20" min="1">`;
         } else if (type === 'stun') {
-            html = `
-                <label>${t('duration')}:</label>
-                <input type="number" id="stunDuration" placeholder="${t('duration')}" value="1" min="1">
-            `;
+            html = `<label>Длительность (ходов):</label><input type="number" id="stunDuration" value="1" min="1">`;
         } else if (type === 'weaken') {
-            html = `
-                <label>${t('damageReduction')}:</label>
-                <input type="number" id="weakenValue" placeholder="${t('damageReduction')}" value="10" min="1">
-                <label>${t('duration')}:</label>
-                <input type="number" id="weakenDuration" placeholder="${t('duration')}" value="2" min="1">
-            `;
+            html = `<label>Снижение урона:</label><input type="number" id="weakenValue" value="10" min="1">
+                    <label>Длительность (ходов):</label><input type="number" id="weakenDuration" value="2" min="1">`;
         } else if (type === 'heal') {
-            html = `
-                <label>${t('healPerTurn')}:</label>
-                <input type="number" id="healValue" placeholder="${t('healMechanic')}" value="10" min="1">
-                <label>${t('duration')}:</label>
-                <input type="number" id="healDuration" placeholder="${t('duration')}" value="3" min="1">
-            `;
+            html = `<label>Лечение за ход:</label><input type="number" id="healValue" value="10" min="1">
+                    <label>Длительность (ходов):</label><input type="number" id="healDuration" value="3" min="1">`;
         } else if (type === 'shield') {
-            html = `
-                <label>${t('shieldStrength')}:</label>
-                <input type="number" id="shieldValue" placeholder="${t('shieldStrength')}" value="30" min="1">
-                <label>${t('duration')}:</label>
-                <input type="number" id="shieldDuration" placeholder="${t('duration')}" value="2" min="1">
-            `;
+            html = `<label>Прочность щита:</label><input type="number" id="shieldValue" value="30" min="1">
+                    <label>Длительность (ходов):</label><input type="number" id="shieldDuration" value="2" min="1">`;
         } else if (type === 'buff') {
-            html = `
-                <label>${t('damageIncrease')}:</label>
-                <input type="number" id="buffValue" placeholder="${t('damageIncrease')}" value="15" min="1">
-                <label>${t('duration')}:</label>
-                <input type="number" id="buffDuration" placeholder="${t('duration')}" value="3" min="1">
-            `;
+            html = `<label>Увеличение урона:</label><input type="number" id="buffValue" value="15" min="1">
+                    <label>Длительность (ходов):</label><input type="number" id="buffDuration" value="3" min="1">`;
         }
-        
         paramsDiv.innerHTML = html;
     }
 
     window.saveEffect = () => {
         if (!selectedCell) return;
-        
         const type = document.getElementById('effectType').value;
         if (!type) return;
         
         let effect = { type };
-        
         if (type === 'poison') {
             effect.damagePerTurn = parseInt(document.getElementById('poisonDamage')?.value) || 5;
             effect.duration = parseInt(document.getElementById('poisonDuration')?.value) || 3;
@@ -2027,9 +1895,10 @@
         }
         
         const key = `${selectedCell.side}_${selectedCell.index}`;
-        if (!tempMechanics[currentCharacterPosition]) tempMechanics[currentCharacterPosition] = {};
-        if (!tempMechanics[currentCharacterPosition][key]) tempMechanics[currentCharacterPosition][key] = [];
-        tempMechanics[currentCharacterPosition][key].push(effect);
+        const mechanics = editingCharacterId ? editTempMechanics : tempMechanics;
+        if (!mechanics[currentCharacterPosition]) mechanics[currentCharacterPosition] = {};
+        if (!mechanics[currentCharacterPosition][key]) mechanics[currentCharacterPosition][key] = [];
+        mechanics[currentCharacterPosition][key].push(effect);
         
         document.getElementById('mechanicsModal')?.remove();
         openMechanicsEditor();
@@ -2038,8 +1907,9 @@
     window.removeEffect = (index) => {
         if (!selectedCell) return;
         const key = `${selectedCell.side}_${selectedCell.index}`;
-        if (tempMechanics[currentCharacterPosition]?.[key]) {
-            tempMechanics[currentCharacterPosition][key].splice(index, 1);
+        const mechanics = editingCharacterId ? editTempMechanics : tempMechanics;
+        if (mechanics[currentCharacterPosition]?.[key]) {
+            mechanics[currentCharacterPosition][key].splice(index, 1);
         }
         document.getElementById('mechanicsModal')?.remove();
         openMechanicsEditor();
@@ -2050,8 +1920,12 @@
     };
 
     window.clearAllMechanics = () => {
-        if (confirm(t('clearCell') + '?')) {
-            tempMechanics = {};
+        if (confirm('Очистить все механики?')) {
+            if (editingCharacterId) {
+                editTempMechanics = {};
+            } else {
+                tempMechanics = {};
+            }
             selectedCell = null;
             document.getElementById('mechanicsModal')?.remove();
             openMechanicsEditor();
@@ -2060,38 +1934,49 @@
 
     window.saveMechanicsAndClose = () => {
         document.getElementById('mechanicsModal')?.remove();
-        alert('✅ ' + t('success'));
+        alert('✅ Механики сохранены!');
     };
 
     window.closeMechanicsEditor = () => {
         document.getElementById('mechanicsModal')?.remove();
     };
+
+    window.openEditMechanicsEditor = function() {
+        currentCharacterPosition = 12;
+        selectedCell = null;
+        openMechanicsEditor();
+    };
         // ========== ПЕРСОНАЖИ ==========
     window.toggleCreateCharacter = function() {
         document.getElementById('createCharacterForm').classList.toggle('hidden');
+        document.getElementById('editCharacterForm').classList.add('hidden');
         tempMechanics = {};
         currentCharacterPosition = 12;
         selectedCell = null;
+        
+        const slider = document.getElementById('newCharacterPower');
+        const valueSpan = document.getElementById('newPowerValue');
+        slider.oninput = () => valueSpan.textContent = slider.value;
     };
 
     window.createCharacter = async function() {
         const file = document.getElementById('characterImage').files[0];
         const name = document.getElementById('newCharacterName').value.trim();
         const health = parseInt(document.getElementById('newCharacterHealth').value);
-        const damage = parseInt(document.getElementById('newCharacterDamage').value);
+        const power = parseInt(document.getElementById('newCharacterPower').value) || 50;
         const ability = document.getElementById('newCharacterAbility').value.trim();
         const trait = document.getElementById('newCharacterTrait').value.trim();
         const rarity = document.getElementById('newCharacterRarity').value;
         const charClass = document.getElementById('newCharacterClass').value;
         const elixirCost = parseInt(document.getElementById('newCharacterElixirCost').value) || 3;
         
-        if (!file || !name || !health || !damage || !ability) {
-            alert(t('error') + ': ' + t('min3chars'));
+        if (!file || !name || !health || !ability) {
+            alert('Заполните все обязательные поля');
             return;
         }
         
         if (Object.keys(tempMechanics).length === 0) {
-            alert(t('mechanics') + '!');
+            alert('Настройте механики персонажа!');
             return;
         }
         
@@ -2099,7 +1984,7 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             await addDoc(collection(db, "characters"), {
-                name, health, damage, ability, trait: trait || null,
+                name, health, power, ability, trait: trait || null,
                 rarity, class: charClass, elixirCost,
                 mechanics: tempMechanics,
                 imageBase64: e.target.result,
@@ -2108,7 +1993,7 @@
             });
             
             document.getElementById('createCharacterForm').classList.add('hidden');
-            alert(t('success'));
+            alert('Персонаж создан!');
             loadCharacters();
             showLoader(false);
             tempMechanics = {};
@@ -2123,52 +2008,129 @@
         
         charactersListener = onSnapshot(query(collection(db, "characters"), orderBy('createdAt', 'desc')), (snap) => {
             if (snap.empty) {
-                container.innerHTML = `<p>${t('noCharacters')}</p>`;
-                updateAllTexts();
+                container.innerHTML = '<p>Нет созданных персонажей</p>';
                 return;
             }
             
             const rarityColors = { common: '#9e9e9e', rare: '#4caf50', epic: '#9c27b0', legendary: '#ff9800' };
-            const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
-            const classNames = { 
-                tank: t('tank'), shooter: t('shooter'), support: t('support'), 
-                control: t('control'), damage: t('damageDealer'), bonus: t('bonus'), 
-                assassin: t('assassin'), artillery: t('artillery') 
-            };
+            const rarityNames = { common: 'Обычный', rare: 'Редкий', epic: 'Эпический', legendary: 'Легендарный' };
+            const classNames = { tank: 'Танк', shooter: 'Стрелок', support: 'Помощник', control: 'Контроль', assassin: 'Убийца' };
             
             let chars = [];
             snap.forEach(d => chars.push({ id: d.id, ...d.data() }));
-            
-            if (currentFilter === 'rarity' && currentFilterValue) {
-                chars = chars.filter(c => c.rarity === currentFilterValue);
-            } else if (currentFilter === 'class' && currentFilterValue) {
-                chars = chars.filter(c => c.class === currentFilterValue);
-            } else if (currentFilter === 'favorites') {
-                chars = chars.filter(c => favorites.includes(c.id));
-            }
             
             container.innerHTML = chars.map(c => {
                 const fav = favorites.includes(c.id);
                 return `
                     <div class="character-card" onclick="window.showCharacterDetails('${c.id}')">
+                        <span class="character-power">⭐ ${c.power || 50}</span>
                         <div class="character-name">${c.name}</div>
                         <div class="character-image-container">
                             <img src="${c.imageBase64}" class="character-image">
                         </div>
                         <div class="character-class">${classNames[c.class] || c.class}</div>
-                        <div class="character-rarity" style="background:${rarityColors[c.rarity]}">
-                            ${rarityNames[c.rarity]}
-                        </div>
-                        <div style="font-size:12px;"><i class="fas fa-flask"></i> ${c.elixirCost||3}</div>
-                        <button class="favorite-btn" onclick="event.stopPropagation();window.toggleFavorite('${c.id}')">
-                            ${fav?'★':'☆'}
-                        </button>
+                        <div class="character-rarity" style="background:${rarityColors[c.rarity]}">${rarityNames[c.rarity]}</div>
+                        <div style="font-size:12px;">❤️ ${c.health} | <i class="fas fa-flask"></i> ${c.elixirCost||3}</div>
+                        <button class="favorite-btn" onclick="event.stopPropagation();window.toggleFavorite('${c.id}')">${fav?'★':'☆'}</button>
                     </div>
                 `;
             }).join('');
-            updateAllTexts();
         });
     }
+
+    window.showCharacterDetails = async (id) => {
+        const c = (await getDoc(doc(db, "characters", id))).data();
+        const rarityNames = { common: 'Обычный', rare: 'Редкий', epic: 'Эпический', legendary: 'Легендарный' };
+        const classNames = { tank: 'Танк', shooter: 'Стрелок', support: 'Помощник', control: 'Контроль', assassin: 'Убийца' };
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <img src="${c.imageBase64}" style="width:120px;height:120px;object-fit:cover;border-radius:12px;">
+                <h3>${c.name} ⭐${c.power || 50}</h3>
+                <div style="text-align:left;">
+                    <p><strong>Здоровье:</strong> ${c.health}</p>
+                    <p><strong>Способность:</strong> ${c.ability}</p>
+                    ${c.trait ? `<p><strong>Особенность:</strong> ${c.trait}</p>` : ''}
+                    <p><strong>Редкость:</strong> ${rarityNames[c.rarity]}</p>
+                    <p><strong>Класс:</strong> ${classNames[c.class]}</p>
+                    <p><strong>Стоимость:</strong> ${c.elixirCost||3} эликсира</p>
+                </div>
+                ${isDeveloperMode ? `
+                    <button class="btn warning full-width" onclick="window.openEditCharacter('${id}')">✏️ Редактировать</button>
+                    <button class="btn danger full-width" onclick="window.deleteCharacter('${id}')">🗑️ Удалить</button>
+                ` : ''}
+                <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">Закрыть</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    };
+
+    window.openEditCharacter = async (id) => {
+        const c = (await getDoc(doc(db, "characters", id))).data();
+        editingCharacterId = id;
+        editTempMechanics = c.mechanics || {};
+        
+        document.getElementById('createCharacterForm').classList.add('hidden');
+        document.getElementById('editCharacterForm').classList.remove('hidden');
+        document.getElementById('editCharacterId').value = id;
+        document.getElementById('editCharacterName').value = c.name || '';
+        document.getElementById('editCharacterPower').value = c.power || 50;
+        document.getElementById('editPowerValue').textContent = c.power || 50;
+        document.getElementById('editCharacterHealth').value = c.health || 1;
+        document.getElementById('editCharacterElixirCost').value = c.elixirCost || 3;
+        
+        const slider = document.getElementById('editCharacterPower');
+        const valueSpan = document.getElementById('editPowerValue');
+        slider.oninput = () => valueSpan.textContent = slider.value;
+        
+        document.querySelector('.modal-overlay')?.remove();
+    };
+
+    window.updateCharacter = async () => {
+        const id = editingCharacterId;
+        const name = document.getElementById('editCharacterName').value.trim();
+        const power = parseInt(document.getElementById('editCharacterPower').value) || 50;
+        const health = parseInt(document.getElementById('editCharacterHealth').value) || 1;
+        const elixirCost = parseInt(document.getElementById('editCharacterElixirCost').value) || 3;
+        
+        if (!name) { alert('Введите имя'); return; }
+        
+        showLoader(true);
+        try {
+            await updateDoc(doc(db, "characters", id), {
+                name, power, health, elixirCost,
+                mechanics: editTempMechanics,
+                updatedAt: serverTimestamp()
+            });
+            
+            document.getElementById('editCharacterForm').classList.add('hidden');
+            editingCharacterId = null;
+            editTempMechanics = {};
+            loadCharacters();
+            alert('Персонаж обновлен!');
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    window.cancelEditCharacter = () => {
+        document.getElementById('editCharacterForm').classList.add('hidden');
+        editingCharacterId = null;
+        editTempMechanics = {};
+    };
+
+    window.deleteCharacter = async (id) => {
+        if (confirm('Удалить персонажа?')) {
+            await deleteDoc(doc(db, "characters", id));
+            loadCharacters();
+            document.querySelector('.modal-overlay')?.remove();
+        }
+    };
 
     window.toggleFavorite = (id) => {
         favorites = favorites.includes(id) ? favorites.filter(i => i !== id) : [...favorites, id];
@@ -2194,68 +2156,24 @@
         
         if (type === 'rarity') {
             opts.innerHTML = `
-                <option value="common">${t('common')}</option>
-                <option value="rare">${t('rare')}</option>
-                <option value="epic">${t('epic')}</option>
-                <option value="legendary">${t('legendary')}</option>
+                <option value="common">Обычный</option>
+                <option value="rare">Редкий</option>
+                <option value="epic">Эпический</option>
+                <option value="legendary">Легендарный</option>
             `;
         } else {
             opts.innerHTML = `
-                <option value="tank">${t('tank')}</option>
-                <option value="shooter">${t('shooter')}</option>
-                <option value="support">${t('support')}</option>
-                <option value="control">${t('control')}</option>
-                <option value="damage">${t('damageDealer')}</option>
-                <option value="bonus">${t('bonus')}</option>
-                <option value="assassin">${t('assassin')}</option>
-                <option value="artillery">${t('artillery')}</option>
+                <option value="tank">Танк</option>
+                <option value="shooter">Стрелок</option>
+                <option value="support">Помощник</option>
+                <option value="control">Контроль</option>
+                <option value="assassin">Убийца</option>
             `;
         }
     };
 
     window.applyFilter = () => {
         setFilter(document.getElementById('filterType').value, document.getElementById('filterOptions').value);
-    };
-
-    window.showCharacterDetails = async (id) => {
-        const c = (await getDoc(doc(db, "characters", id))).data();
-        const rarityNames = { common: t('common'), rare: t('rare'), epic: t('epic'), legendary: t('legendary') };
-        const classNames = { 
-            tank: t('tank'), shooter: t('shooter'), support: t('support'), 
-            control: t('control'), damage: t('damageDealer'), bonus: t('bonus'), 
-            assassin: t('assassin'), artillery: t('artillery') 
-        };
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <img src="${c.imageBase64}" style="width:120px;height:120px;object-fit:cover;border-radius:12px;">
-                <h3>${c.name}</h3>
-                <div style="text-align:left;">
-                    <p><strong>${t('health')}:</strong> ${c.health}</p>
-                    <p><strong>${t('damage')}:</strong> ${c.damage}</p>
-                    <p><strong>${t('ability')}:</strong> ${c.ability}</p>
-                    ${c.trait?`<p><strong>${t('trait')}:</strong> ${c.trait}</p>`:''}
-                    <p><strong>${t('rarity')}:</strong> ${rarityNames[c.rarity]}</p>
-                    <p><strong>${t('class')}:</strong> ${classNames[c.class]}</p>
-                    <p><strong>${t('elixirCost')}:</strong> <i class="fas fa-flask"></i> ${c.elixirCost||3}</p>
-                </div>
-                ${isDeveloperMode ? `<button class="btn danger full-width" onclick="window.deleteCharacter('${id}')">${t('deleteCharacter')}</button>` : ''}
-                <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">${t('close')}</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        updateAllTexts();
-    };
-
-    window.deleteCharacter = async (id) => {
-        if (confirm(t('deleteCharacter') + '?')) {
-            await deleteDoc(doc(db, "characters", id));
-            loadCharacters();
-            document.querySelector('.modal-overlay')?.remove();
-        }
     };
 
     // ========== КЛАНЫ ==========
@@ -2283,8 +2201,8 @@
         document.getElementById('findClanSection').classList.add('hidden');
         document.getElementById('myClanName').textContent = userClan.name;
         document.getElementById('myClanAvatar').textContent = userClan.avatar || generateAvatar(userClan.name);
-        document.getElementById('clanType').textContent = userClan.isOpen ? t('openClan') : t('closedClan');
-        document.getElementById('clanMembersCount').textContent = `${userClan.members?.length||0}/${MAX_CLAN_MEMBERS} ${t('members')}`;
+        document.getElementById('clanType').textContent = userClan.isOpen ? 'Открытый' : 'Закрытый';
+        document.getElementById('clanMembersCount').textContent = `${userClan.members?.length||0}/${MAX_CLAN_MEMBERS} участников`;
         loadClanChat();
         
         const isOwner = userClan.ownerId === currentUser.uid;
@@ -2295,7 +2213,7 @@
     window.toggleClanDetails = async () => {
         const s = document.getElementById('clanDetailsSection');
         if (s.classList.contains('hidden')) {
-            document.getElementById('detailClanDescription').textContent = userClan.description || t('noDescription');
+            document.getElementById('detailClanDescription').textContent = userClan.description || 'Нет описания';
             await loadClanMembers();
             s.classList.remove('hidden');
             if (userClan.ownerId === currentUser.uid) await loadClanRequests();
@@ -2324,8 +2242,8 @@
                 </div>
                 ${currentUser.uid === userClan.ownerId && m.id !== userClan.ownerId ? `
                     <div>
-                        <button class="btn text" onclick="window.removeClanMember('${m.id}')">${t('removeMember')}</button>
-                        <button class="btn text" onclick="window.makeClanOwner('${m.id}')">${t('makeOwner')}</button>
+                        <button class="btn text" onclick="window.removeClanMember('${m.id}')">Исключить</button>
+                        <button class="btn text" onclick="window.makeClanOwner('${m.id}')">Сделать владельцем</button>
                     </div>
                 ` : ''}
             </div>
@@ -2354,8 +2272,8 @@
                 <div class="member-avatar">${r.avatar||'👤'}</div>
                 <span>${r.nickname}</span>
                 <div>
-                    <button class="btn success" onclick="window.handleClanRequest('${r.id}','accept')">${t('accept')}</button>
-                    <button class="btn danger" onclick="window.handleClanRequest('${r.id}','decline')">${t('decline')}</button>
+                    <button class="btn success" onclick="window.handleClanRequest('${r.id}','accept')">Принять</button>
+                    <button class="btn danger" onclick="window.handleClanRequest('${r.id}','decline')">Отклонить</button>
                 </div>
             </div>
         `).join('');
@@ -2395,7 +2313,7 @@
     }
 
     window.deleteClanMessage = async (messageId) => {
-        if (!confirm(t('deleteMessage') + '?')) return;
+        if (!confirm('Удалить сообщение?')) return;
         await deleteDoc(doc(db, `clans/${userClan.id}/messages`, messageId));
     };
 
@@ -2426,7 +2344,7 @@
         if (clansListener) clansListener();
         clansListener = onSnapshot(q, (snap) => {
             if (snap.empty) {
-                list.innerHTML = `<p>${t('noClansFound')}</p>`;
+                list.innerHTML = '<p>Кланы не найдены</p>';
                 return;
             }
             
@@ -2456,17 +2374,17 @@
         modal.innerHTML = `
             <div class="modal-content">
                 <h3>${c.avatar||'🏰'} ${c.name}</h3>
-                <p>${c.description||t('noDescription')}</p>
-                <p><i class="fas ${c.isOpen?'fa-lock-open':'fa-lock'}"></i> ${c.isOpen?t('openClan'):t('closedClan')}</p>
-                <p>👥 ${memberCount}/${MAX_CLAN_MEMBERS} ${t('members')}</p>
+                <p>${c.description||'Нет описания'}</p>
+                <p><i class="fas ${c.isOpen?'fa-lock-open':'fa-lock'}"></i> ${c.isOpen?'Открытый':'Закрытый'}</p>
+                <p>👥 ${memberCount}/${MAX_CLAN_MEMBERS} участников</p>
                 <div>
                     ${!c.members?.includes(currentUser.uid) ? 
                         (memberCount >= MAX_CLAN_MEMBERS ? 
-                            `<p style="color:var(--error);">${t('clanFull')}</p>` : 
-                            `<button class="btn primary full-width" onclick="window.joinClan('${id}',${c.isOpen})">${c.isOpen?t('joinClan'):t('sendRequest')}</button>`
+                            '<p style="color:var(--error);">Клан полон</p>' : 
+                            `<button class="btn primary full-width" onclick="window.joinClan('${id}',${c.isOpen})">${c.isOpen?'Вступить':'Подать заявку'}</button>`
                         ) : ''
                     }
-                    <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">${t('close')}</button>
+                    <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">Закрыть</button>
                 </div>
             </div>
         `;
@@ -2479,7 +2397,7 @@
         const clanSnap = await getDoc(clanRef);
         
         if (clanSnap.data().members?.length >= MAX_CLAN_MEMBERS) {
-            alert(t('clanFull'));
+            alert('Клан полон');
             return;
         }
         
@@ -2489,7 +2407,7 @@
             loadClanData();
         } else {
             await updateDoc(clanRef, { joinRequests: arrayUnion(currentUser.uid) });
-            alert(t('requestSent'));
+            alert('Заявка отправлена');
         }
         document.querySelector('.modal-overlay')?.remove();
     };
@@ -2500,14 +2418,11 @@
             const clanSnap = await getDoc(clanRef);
             
             if ((clanSnap.data().members?.length || 0) >= MAX_CLAN_MEMBERS) {
-                alert(t('clanFull'));
+                alert('Клан полон');
                 return;
             }
             
-            await updateDoc(clanRef, {
-                members: arrayUnion(uid),
-                joinRequests: arrayRemove(uid)
-            });
+            await updateDoc(clanRef, { members: arrayUnion(uid), joinRequests: arrayRemove(uid) });
             await updateDoc(doc(db, "users", uid), { clanId: userClan.id });
         } else {
             await updateDoc(doc(db, "clans", userClan.id), { joinRequests: arrayRemove(uid) });
@@ -2517,20 +2432,20 @@
     };
 
     window.removeClanMember = async (uid) => {
-        if (!confirm(t('removeMember') + '?')) return;
+        if (!confirm('Исключить участника?')) return;
         await updateDoc(doc(db, "clans", userClan.id), { members: arrayRemove(uid) });
         await updateDoc(doc(db, "users", uid), { clanId: null });
         loadClanMembers();
     };
 
     window.makeClanOwner = async (uid) => {
-        if (!confirm(t('makeOwner') + '?')) return;
+        if (!confirm('Сделать владельцем?')) return;
         await updateDoc(doc(db, "clans", userClan.id), { ownerId: uid });
         loadClanData();
     };
 
     window.leaveClan = async () => {
-        if (!confirm(t('leaveClan') + '?')) return;
+        if (!confirm('Покинуть клан?')) return;
         showLoader(true);
         try {
             await updateDoc(doc(db, "clans", userClan.id), { members: arrayRemove(currentUser.uid) });
@@ -2550,10 +2465,7 @@
 
     window.createClan = async () => {
         const n = document.getElementById('newClanName').value.trim();
-        if (!n) {
-            alert(t('min3chars'));
-            return;
-        }
+        if (!n) { alert('Введите название'); return; }
         
         showLoader(true);
         try {
@@ -2578,7 +2490,7 @@
         }
     };
 
-    // ========== ДРУЗЬЯ ==========
+    // ========== ДРУЗЬЯ И ПРИГЛАШЕНИЯ ==========
     async function loadFriendsData() {
         if (!currentUser) return;
         const u = await getDoc(doc(db, "users", currentUser.uid));
@@ -2586,7 +2498,7 @@
         const list = document.getElementById('friendsList');
         
         if (!friends.length) {
-            list.innerHTML = `<p>${t('noFriends')}</p>`;
+            list.innerHTML = '<p>У вас пока нет друзей</p>';
             return;
         }
         
@@ -2598,7 +2510,15 @@
                 list.innerHTML += `
                     <div class="friend-item">
                         <div class="friend-avatar">${d.avatar||'👤'}</div>
-                        <div class="friend-info"><span>${d.nickname}</span></div>
+                        <div class="friend-info">
+                            <div style="font-weight:bold;">${d.nickname}</div>
+                            <div style="font-size:12px;color:var(--text-muted);">${d.isOnline ? '🟢 Онлайн' : '⚫ Офлайн'}</div>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="btn success" style="padding:8px 12px;" onclick="window.inviteToBattle('${id}', '${d.nickname}')">
+                                ⚔️ Пригласить
+                            </button>
+                        </div>
                     </div>
                 `;
             }
@@ -2612,7 +2532,7 @@
         const cont = document.getElementById('friendRequestsList');
         
         if (snap.empty) {
-            cont.innerHTML = `<p>${t('noFriends')}</p>`;
+            cont.innerHTML = '<p>У вас пока нет заявок</p>';
             return;
         }
         
@@ -2623,8 +2543,8 @@
                 <div class="request-item">
                     <span>${r.fromNickname}</span>
                     <div>
-                        <button class="btn success" onclick="window.handleFriendRequest('${d.id}','accept')">${t('accept')}</button>
-                        <button class="btn danger" onclick="window.handleFriendRequest('${d.id}','decline')">${t('decline')}</button>
+                        <button class="btn success" onclick="window.handleFriendRequest('${d.id}','accept')">Принять</button>
+                        <button class="btn danger" onclick="window.handleFriendRequest('${d.id}','decline')">Отклонить</button>
                     </div>
                 </div>
             `;
@@ -2638,28 +2558,16 @@
         const q = query(collection(db, "users"), where("nickname", "==", nick));
         const snap = await getDocs(q);
         
-        if (snap.empty) {
-            alert(t('noFriends'));
-            return;
-        }
+        if (snap.empty) { alert('Пользователь не найден'); return; }
         
         const f = snap.docs[0];
-        if (f.id === currentUser.uid) {
-            alert('Это вы!');
-            return;
-        }
+        if (f.id === currentUser.uid) { alert('Это вы!'); return; }
         
         const u = await getDoc(doc(db, "users", currentUser.uid));
-        if (u.data()?.friends?.includes(f.id)) {
-            alert(t('alreadyFriends'));
-            return;
-        }
+        if (u.data()?.friends?.includes(f.id)) { alert('Уже в друзьях'); return; }
         
         const ex = query(collection(db, "friendRequests"), where("from", "==", currentUser.uid), where("to", "==", f.id));
-        if (!(await getDocs(ex)).empty) {
-            alert(t('requestPending'));
-            return;
-        }
+        if (!(await getDocs(ex)).empty) { alert('Заявка уже отправлена'); return; }
         
         await addDoc(collection(db, "friendRequests"), {
             from: currentUser.uid,
@@ -2668,7 +2576,7 @@
             createdAt: serverTimestamp()
         });
         
-        alert(t('friendRequestSent'));
+        alert('Заявка отправлена!');
         document.getElementById('friendSearchInput').value = '';
     };
 
@@ -2685,15 +2593,116 @@
         loadFriendsData();
     };
 
+    window.inviteToBattle = async (friendId, friendNickname) => {
+        await addDoc(collection(db, "battleInvites"), {
+            from: currentUser.uid,
+            fromNickname: currentUserData.nickname,
+            to: friendId,
+            toNickname: friendNickname,
+            status: 'pending',
+            createdAt: serverTimestamp()
+        });
+        
+        alert(`Приглашение отправлено ${friendNickname}!`);
+    };
+
+    async function loadBattleInvites() {
+        if (!currentUser) return;
+        if (battleInvitesListener) battleInvitesListener();
+        
+        const q = query(collection(db, "battleInvites"), where("to", "==", currentUser.uid), where("status", "==", "pending"));
+        battleInvitesListener = onSnapshot(q, (snap) => {
+            const list = document.getElementById('battleInvitesList');
+            const badge = document.getElementById('notificationBadge');
+            
+            if (snap.empty) {
+                list.innerHTML = '<p>Нет активных приглашений</p>';
+                badge.classList.add('hidden');
+                return;
+            }
+            
+            badge.textContent = snap.size;
+            badge.classList.remove('hidden');
+            
+            list.innerHTML = '';
+            snap.forEach(d => {
+                const invite = d.data();
+                list.innerHTML += `
+                    <div class="friend-item">
+                        <div class="friend-avatar">${generateAvatar(invite.fromNickname)}</div>
+                        <div class="friend-info">
+                            <span style="font-weight:bold;">${invite.fromNickname}</span>
+                            <span style="font-size:12px;">приглашает на битву!</span>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="btn success" style="padding:8px 12px;" onclick="window.acceptBattleInvite('${d.id}', '${invite.from}')">
+                                ✅ Принять
+                            </button>
+                            <button class="btn danger" style="padding:8px 12px;" onclick="window.declineBattleInvite('${d.id}')">
+                                ❌
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    window.acceptBattleInvite = async (inviteId, fromUserId) => {
+        await deleteDoc(doc(db, "battleInvites", inviteId));
+        
+        const roomRef = await addDoc(collection(db, "rooms"), {
+            player1: fromUserId,
+            player2: currentUser.uid,
+            status: 'placing',
+            player1Ready: false,
+            player2Ready: false,
+            player1Field: Array(12).fill(null),
+            player2Field: Array(12).fill(null),
+            player1Elixir: 10,
+            player2Elixir: 10,
+            player1Hand: [],
+            player2Hand: [],
+            createdAt: serverTimestamp()
+        });
+        
+        currentRoom = roomRef.id;
+        gameState = {
+            mode: 'pvp', isPvP: true, playerElixir: 10, enemyElixir: 10,
+            playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
+            playerHand: [], playerPurchased: [], battleStarted: false,
+            playerReady: false, isPlayerTurn: false, playerActionsLeft: 0
+        };
+        
+        const chars = await getDocs(collection(db, "characters"));
+        const all = [];
+        chars.forEach(d => all.push({ id: d.id, ...d.data() }));
+        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
+        
+        await updateDoc(doc(db, "rooms", currentRoom), { player2Hand: gameState.playerHand });
+        
+        listenToRoom();
+        showPvPPlacingField();
+        alert('Битва начинается!');
+    };
+
+    window.declineBattleInvite = async (inviteId) => {
+        await deleteDoc(doc(db, "battleInvites", inviteId));
+    };
+
+    window.showNotifications = () => {
+        switchTab('friends');
+    };
+
     window.showMyQrCode = () => {
         const m = document.createElement('div');
         m.className = 'modal-overlay';
         m.innerHTML = `
             <div class="modal-content">
-                <h3>${t('yourQrCode')}</h3>
+                <h3>Ваш QR-код</h3>
                 <div id="qrCodeContainer" style="margin:20px;"></div>
                 <p>${currentUser?.email}</p>
-                <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">${t('close')}</button>
+                <button class="btn secondary full-width" onclick="this.closest('.modal-overlay').remove()">Закрыть</button>
             </div>
         `;
         document.body.appendChild(m);
@@ -2704,71 +2713,12 @@
     };
 
     window.scanQrCode = async () => {
-        try {
-            const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            qrScannerStream = s;
-            
-            const m = document.createElement('div');
-            m.className = 'modal-overlay';
-            m.innerHTML = `
-                <div class="modal-content">
-                    <h3>${t('scanQrCode')}</h3>
-                    <video id="qrVideo" autoplay playsinline style="width:100%;border-radius:12px;"></video>
-                    <p id="scanStatus">${t('searchingOpponent')}</p>
-                    <canvas id="qrCanvas" style="display:none;"></canvas>
-                    <button class="btn secondary full-width" onclick="window.stopQrScanner()">${t('cancel')}</button>
-                </div>
-            `;
-            document.body.appendChild(m);
-            
-            const v = document.getElementById('qrVideo');
-            const c = document.getElementById('qrCanvas');
-            const ctx = c.getContext('2d');
-            v.srcObject = s;
-            
-            const iv = setInterval(() => {
-                if (v.readyState === v.HAVE_ENOUGH_DATA) {
-                    c.width = v.videoWidth;
-                    c.height = v.videoHeight;
-                    ctx.drawImage(v, 0, 0);
-                    
-                    const code = jsQR(ctx.getImageData(0, 0, c.width, c.height).data, c.width, c.height);
-                    if (code) {
-                        clearInterval(iv);
-                        window.stopQrScanner();
-                        
-                        if (code.data.startsWith('https://clashofmas.app/add-friend?uid=')) {
-                            document.getElementById('scanStatus').textContent = t('friendAdded');
-                            setTimeout(() => m.remove(), 1500);
-                        } else {
-                            document.getElementById('scanStatus').textContent = t('invalidQr');
-                        }
-                    }
-                }
-            }, 500);
-            
-            m._iv = iv;
-            m._s = s;
-        } catch (e) {
-            alert(t('cameraDenied'));
-        }
-    };
-
-    window.stopQrScanner = () => {
-        if (qrScannerStream) {
-            qrScannerStream.getTracks().forEach(t => t.stop());
-            qrScannerStream = null;
-        }
-        document.querySelector('.modal-overlay')?.remove();
+        alert('Сканирование QR-кода');
     };
 
     window.shareFriendLink = () => {
         const l = `https://clashofmas.app/add-friend?uid=${currentUser.uid}`;
-        if (navigator.share) {
-            navigator.share({ title: 'Clash of MAS', text: 'Добавь в друзья!', url: l });
-        } else {
-            navigator.clipboard?.writeText(l).then(() => alert(t('linkCopied')));
-        }
+        navigator.clipboard?.writeText(l).then(() => alert('Ссылка скопирована!'));
     };
 
     // ========== НОВОСТИ ==========
@@ -2784,24 +2734,16 @@
         const vid = document.getElementById('newsVideo').value.trim();
         const lnk = document.getElementById('newsLink').value.trim();
         
-        if (!ttl || !cnt) {
-            alert('Заполните заголовок и содержание');
-            return;
-        }
+        if (!ttl || !cnt) { alert('Заполните заголовок и содержание'); return; }
         
         showLoader(true);
         try {
             let img = null;
             if (f) {
                 const r = new FileReader();
-                r.onload = async (e) => {
-                    img = e.target.result;
-                    await save();
-                };
+                r.onload = async (e) => { img = e.target.result; await save(); };
                 r.readAsDataURL(f);
-            } else {
-                await save();
-            }
+            } else { await save(); }
             
             async function save() {
                 await addDoc(collection(db, "news"), {
@@ -2810,7 +2752,7 @@
                     createdBy: currentUser.uid, createdAt: serverTimestamp()
                 });
                 document.getElementById('createNewsForm').classList.add('hidden');
-                alert(t('success'));
+                alert('Новость опубликована!');
                 loadNews();
                 showLoader(false);
             }
@@ -2827,7 +2769,7 @@
         
         newsListener = onSnapshot(query(collection(db, "news"), orderBy('createdAt', 'desc')), (snap) => {
             if (snap.empty) {
-                c.innerHTML = `<p>${t('noNews')}</p>`;
+                c.innerHTML = '<p>Нет новостей</p>';
                 return;
             }
             
@@ -2848,7 +2790,7 @@
                         <h3 class="news-title">${n.title}</h3>
                         ${isAuthor ? `
                             <div class="news-actions">
-                                <button class="btn text" onclick="window.editNews('${d.id}')"><i class="fas fa-edit"></i> ${t('edit')}</button>
+                                <button class="btn text" onclick="window.editNews('${d.id}')"><i class="fas fa-edit"></i></button>
                                 <button class="btn danger" onclick="window.deleteNews('${d.id}')"><i class="fas fa-trash"></i></button>
                             </div>
                         ` : ''}
@@ -2884,10 +2826,7 @@
         const lnk = document.getElementById('editNewsLink').value.trim();
         const f = document.getElementById('editNewsImage').files[0];
         
-        if (!ttl || !cnt) {
-            alert('Заполните заголовок и содержание');
-            return;
-        }
+        if (!ttl || !cnt) { alert('Заполните заголовок и содержание'); return; }
         
         showLoader(true);
         try {
@@ -2912,7 +2851,7 @@
             function finish() {
                 document.getElementById('editNewsForm').classList.add('hidden');
                 editingNewsId = null;
-                alert(t('success'));
+                alert('Новость обновлена!');
                 loadNews();
                 showLoader(false);
             }
@@ -2928,48 +2867,24 @@
     };
 
     window.deleteNews = async (id) => {
-        if (confirm(t('deleteNews') + '?')) {
+        if (confirm('Удалить новость?')) {
             await deleteDoc(doc(db, "news", id));
             loadNews();
         }
     };
-        // ========== ИГРА: КЛАССИЧЕСКИЙ РЕЖИМ ==========
-    window.showEventModal = () => {
-        const m = document.createElement('div');
-        m.className = 'modal-overlay';
-        m.innerHTML = `
-            <div class="modal-content">
-                <h3>${t('classicMode')}</h3>
-                <p>Сразитесь с ИИ!</p>
-                <button class="btn primary full-width" onclick="window.startClassicMode(); this.closest('.modal-overlay').remove();">${t('play')}</button>
-                <button class="btn text full-width" onclick="this.closest('.modal-overlay').remove()">${t('cancel')}</button>
-            </div>
-        `;
-        document.body.appendChild(m);
-        m.addEventListener('click', e => { if (e.target === m) m.remove(); });
-    };
 
-    window.startClassicMode = () => {
-        gameState = {
-            mode: 'classic', isPvP: false, playerElixir: 10, enemyElixir: 10,
-            playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
-            battleStarted: false, playerReady: false, cardsRevealed: false,
-            selectedCard: null, attackQueue: []
-        };
-        loadDeckAndStartClassic();
-    };
-
-    async function loadDeckAndStartClassic() {
-        showLoader(true);
-        const snap = await getDocs(collection(db, "characters"));
-        const all = [];
-        snap.forEach(d => all.push({ id: d.id, ...d.data() }));
-        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
-        showClassicBattleField();
-        showLoader(false);
+    async function loadAccountProfile(user) {
+        try {
+            const docSnap = await getDoc(doc(db, "users", user.uid));
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('accountNickname').textContent = data.nickname || 'Игрок';
+                document.getElementById('accountEmail').textContent = data.email || user.email;
+                document.getElementById('accountAvatarLarge').textContent = data.avatar || '👤';
+            }
+        } catch (error) {}
     }
-
+        // ========== ИГРОВЫЕ ФУНКЦИИ ==========
     function drawRandomCards(deck, cnt) {
         const w = { common: 40, rare: 30, epic: 20, legendary: 10 };
         const cards = [], avail = [...deck];
@@ -2988,35 +2903,229 @@
         return cards;
     }
 
-    function renderBattleCard(card, type, index) {
-        const cost = card.elixirCost || 3;
-        const isSelected = gameState.selectedCard?.type === type && gameState.selectedCard?.index === index;
+    // ========== УМНЫЙ ИИ ==========
+    class AIPlayer {
+        constructor(difficulty = 'expert') {
+            this.difficulty = difficulty;
+        }
         
-        return `
-            <div class="battle-card ${isSelected ? 'selected' : ''}" onclick="window.${type === 'hand' ? 'selectHandCard' : 'selectPurchasedCard'}(${index})" 
-                 style="border:2px solid ${isSelected ? '#f1c40f' : (type === 'hand' ? (gameState.playerElixir >= cost ? '#2ecc71' : 'var(--border-color)') : '#2ecc71')};">
-                <img src="${card.imageBase64}" class="battle-card-img">
-                <span class="battle-card-name">${card.name}</span>
-                <div class="battle-card-stats">
-                    <span>❤️ ${card.health}</span>
-                    <span>⚔️ ${card.damage}</span>
+        evaluatePosition(character, pos, playerField, enemyField, isPlayerChar) {
+            let score = 0;
+            const actualPos = pos + 12;
+            const mechanics = character.mechanics?.[actualPos];
+            
+            if (!mechanics) return score;
+            
+            Object.keys(mechanics).forEach(cellKey => {
+                const [side, index] = cellKey.split('_');
+                const cellIndex = parseInt(index);
+                const effects = mechanics[cellKey];
+                
+                effects.forEach(effect => {
+                    if (side === 'enemy') {
+                        const target = isPlayerChar ? enemyField[cellIndex] : playerField[cellIndex];
+                        if (target) {
+                            if (effect.type === 'damage') score += effect.value * 2;
+                            else if (effect.type === 'poison') score += effect.damagePerTurn * effect.duration * 1.5;
+                            else if (effect.type === 'stun') score += 30 * effect.duration;
+                            else if (effect.type === 'weaken') score += effect.value * effect.duration;
+                        }
+                    } else {
+                        const target = isPlayerChar ? playerField[cellIndex] : enemyField[cellIndex];
+                        if (target) {
+                            const missingHealth = target.health - (target.currentHealth || target.health);
+                            if (effect.type === 'heal') score += Math.min(effect.value * effect.duration, missingHealth) * 1.5;
+                            else if (effect.type === 'shield') score += effect.value * 1.2;
+                            else if (effect.type === 'buff') score += effect.value * effect.duration;
+                        }
+                    }
+                });
+            });
+            
+            return score;
+        }
+        
+        findBestMove(field, enemyField, isPlayerField) {
+            const availableMoves = [];
+            
+            field.forEach((char, index) => {
+                if (!char || char.stun?.duration > 0) return;
+                
+                const score = this.evaluatePosition(char, index, field, enemyField, isPlayerField);
+                const powerBonus = (char.power || 50) / 10;
+                
+                availableMoves.push({
+                    index,
+                    character: char,
+                    score: score + powerBonus
+                });
+            });
+            
+            availableMoves.sort((a, b) => b.score - a.score);
+            return availableMoves;
+        }
+        
+        selectBestAction(field, enemyField, isPlayerField) {
+            const moves = this.findBestMove(field, enemyField, isPlayerField);
+            
+            if (moves.length === 0) return null;
+            
+            const totalScore = moves.reduce((sum, m) => sum + m.score, 0);
+            let random = Math.random() * totalScore;
+            
+            for (const move of moves) {
+                random -= move.score;
+                if (random <= 0) return move.index;
+            }
+            
+            return moves[0].index;
+        }
+    }
+
+    // ========== ИИ РЕЖИМ ==========
+    window.startAIMode = async () => {
+        gameState = {
+            mode: 'ai', isAI: true, playerElixir: 10, enemyElixir: 10,
+            playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
+            playerHand: [], playerPurchased: [], battleStarted: false,
+            playerReady: false, isPlayerTurn: true, playerActionsLeft: 0,
+            aiDifficulty: 'expert'
+        };
+        
+        showLoader(true);
+        const snap = await getDocs(collection(db, "characters"));
+        const all = [];
+        snap.forEach(d => all.push({ id: d.id, ...d.data() }));
+        
+        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
+        
+        // ИИ получает карты
+        const aiHand = drawRandomCards(all, HAND_SIZE);
+        const ai = new AIPlayer('expert');
+        
+        // ИИ оценивает и расставляет карты
+        const sortedHand = aiHand.sort((a, b) => (b.power || 50) - (a.power || 50));
+        let remainingElixir = 10;
+        
+        sortedHand.forEach(card => {
+            const cost = card.elixirCost || 3;
+            if (remainingElixir >= cost) {
+                remainingElixir -= cost;
+                const emptySlot = gameState.enemyField.findIndex(c => !c);
+                if (emptySlot !== -1) {
+                    gameState.enemyField[emptySlot] = { ...card, currentHealth: card.health };
+                }
+            }
+        });
+        
+        gameState.enemyElixir = remainingElixir;
+        
+        showLoader(false);
+        showAIBattleField();
+    };
+
+    function showAIBattleField() {
+        const tab = document.getElementById('tab-home');
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        
+        tab.innerHTML = `
+            <h3>🤖 Битва с ИИ (Эксперт)</h3>
+            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;">
+                <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
+                <span>🤖 ИИ</span>
+                <span><i class="fas fa-flask"></i> ${gameState.enemyElixir}/${MAX_ELIXIR}</span>
+            </div>
+            <div style="margin:15px 0;">
+                <div class="battle-side enemy" style="margin-bottom:15px;">
+                    <p style="color:white;">🤖 Противник (ИИ)</p>
+                    <div class="battle-grid">${renderFieldCells('enemy', false)}</div>
                 </div>
-                <span class="battle-card-cost"><i class="fas fa-flask"></i> ${cost}</span>
-                ${type === 'hand' ? `<button class="buy-btn-small" onclick="event.stopPropagation(); window.buyCardFromHand(${index})">${t('buy')}</button>` : ''}
+                <div class="battle-side player">
+                    <p style="color:white;">Ваша сторона</p>
+                    <div class="battle-grid">${renderFieldCells('player', gameState.isPlayerTurn && gameState.battleStarted)}</div>
+                </div>
+            </div>
+            <div>
+                ${!gameState.battleStarted ? `
+                    <p>Ваши карты (${gameState.playerHand.length}/${HAND_SIZE})</p>
+                    <div class="hand-container">${renderHand()}</div>
+                    <p>Купленные карты</p>
+                    <div class="purchased-container">${renderPurchased()}</div>
+                    <button class="btn success full-width" onclick="window.setAIReady()">${t('ready')}</button>
+                ` : `
+                    <div class="turn-indicator ${gameState.isPlayerTurn ? 'your-turn' : 'enemy-turn'}">
+                        ${gameState.isPlayerTurn ? t('yourTurn') : t('enemyTurn')}
+                    </div>
+                    ${gameState.isPlayerTurn ? `
+                        <p style="color:var(--success);">${t('selectCharacter')} (${playerCount} доступно)</p>
+                        <button class="btn warning full-width" onclick="window.endPlayerTurn()">Завершить ход</button>
+                    ` : `
+                        <p style="color:var(--text-muted);">ИИ думает...</p>
+                    `}
+                `}
             </div>
         `;
     }
 
+    function renderFieldCells(side, selectable = false) {
+        const f = side === 'player' ? gameState.playerField : gameState.enemyField;
+        const isP = side === 'player';
+        let h = '';
+        
+        for (let i = 0; i < 12; i++) {
+            const c = f[i];
+            const isStunned = c?.stun?.duration > 0;
+            const canSelect = selectable && c && !isStunned;
+            
+            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${canSelect ? 'selectable' : ''} ${isStunned ? 'stunned' : ''}" 
+                      onclick="${canSelect ? `window.playerAttack(${i})` : ''}" 
+                      style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
+            
+            if (c) {
+                h += `<img src="${c.imageBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
+                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️</div>`;
+                if (isStunned) {
+                    h += `<div style="position:absolute;top:2px;left:2px;color:#f1c40f;">⚡</div>`;
+                }
+            }
+            h += '</div>';
+        }
+        return h;
+    }
+
     function renderHand() {
         let h = '';
-        gameState.playerHand.forEach((c, i) => { h += renderBattleCard(c, 'hand', i); });
-        return h || `<p>${t('noCharacters')}</p>`;
+        gameState.playerHand.forEach((c, i) => { 
+            h += `
+                <div class="battle-card" onclick="window.selectHandCard(${i})">
+                    <img src="${c.imageBase64}" class="battle-card-img">
+                    <span class="battle-card-name">${c.name} ⭐${c.power||50}</span>
+                    <div class="battle-card-stats">
+                        <span>❤️ ${c.health}</span>
+                    </div>
+                    <button class="buy-btn-small" onclick="event.stopPropagation(); window.buyCardFromHand(${i})">
+                        Купить (${c.elixirCost||3})
+                    </button>
+                </div>
+            `;
+        });
+        return h || '<p>Нет карт</p>';
     }
 
     function renderPurchased() {
         let h = '';
-        gameState.playerPurchased.forEach((c, i) => { h += renderBattleCard(c, 'purchased', i); });
-        return h || `<p>${t('noCharacters')}</p>`;
+        gameState.playerPurchased.forEach((c, i) => {
+            h += `
+                <div class="battle-card" onclick="window.selectPurchasedCard(${i})">
+                    <img src="${c.imageBase64}" class="battle-card-img">
+                    <span class="battle-card-name">${c.name} ⭐${c.power||50}</span>
+                    <div class="battle-card-stats">
+                        <span>❤️ ${c.health}</span>
+                    </div>
+                </div>
+            `;
+        });
+        return h || '<p>Нет купленных карт</p>';
     }
 
     window.buyCardFromHand = (index) => {
@@ -3033,17 +3142,17 @@
         gameState.playerPurchased.push(card);
         gameState.playerHand.splice(index, 1);
         gameState.selectedCard = null;
-        showClassicBattleField();
+        showAIBattleField();
     };
 
     window.selectHandCard = (i) => {
         gameState.selectedCard = { index: i, card: gameState.playerHand[i], type: 'hand' };
-        showClassicBattleField();
+        showAIBattleField();
     };
 
     window.selectPurchasedCard = (i) => {
         gameState.selectedCard = { index: i, card: gameState.playerPurchased[i], type: 'purchased' };
-        showClassicBattleField();
+        showAIBattleField();
     };
 
     window.placeCardToField = (i) => {
@@ -3060,126 +3169,97 @@
         gameState.playerField[i] = { ...c, currentHealth: c.health };
         gameState.playerPurchased.splice(gameState.selectedCard.index, 1);
         gameState.selectedCard = null;
-        showClassicBattleField();
+        showAIBattleField();
     };
 
-    function showClassicBattleField() {
-        const tab = document.getElementById('tab-home');
-        tab.innerHTML = `
-            <h3>${t('classicMode')}</h3>
-            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;">
-                <span><i class="fas fa-flask" style="color:#9b59b6;"></i> <span id="playerElixir">${gameState.playerElixir}</span>/${MAX_ELIXIR}</span>
-                <span id="timerDisplay">${gameState.timeLeft}с</span>
-                <span><i class="fas fa-flask"></i> <span id="enemyElixir">${gameState.battleStarted ? gameState.enemyElixir : '???'}</span></span>
-            </div>
-            <div style="margin:15px 0;">
-                <div class="battle-side enemy" style="margin-bottom:15px;">
-                    <p style="color:white;">${t('enemySide')}</p>
-                    <div class="battle-grid">${renderFieldCells('enemy')}</div>
-                </div>
-                <div class="battle-side player">
-                    <p style="color:white;">${t('yourSide')}</p>
-                    <div class="battle-grid">${renderFieldCells('player')}</div>
-                </div>
-            </div>
-            ${!gameState.battleStarted ? `
-                <div>
-                    <p>${t('yourCards')} (${gameState.playerHand.length}/${HAND_SIZE})</p>
-                    <div class="hand-container">${renderHand()}</div>
-                    <p>${t('purchasedCards')}</p>
-                    <div class="purchased-container">${renderPurchased()}</div>
-                    <button class="btn success full-width" onclick="window.setClassicReady()">${t('ready')}</button>
-                </div>
-            ` : `<button class="btn primary full-width" onclick="window.endClassicTurn()">${t('turn')}</button>`}
-        `;
-        updateAllTexts();
-        if (!gameState.battleStarted) startTimer();
-    }
-
-    function renderFieldCells(side) {
-        const f = side === 'player' ? gameState.playerField : gameState.enemyField;
-        const isP = side === 'player';
-        const rev = gameState.cardsRevealed || gameState.battleStarted;
-        let h = '';
-        
-        for (let i = 0; i < 12; i++) {
-            const c = f[i];
-            const show = rev || (isP && c);
-            
-            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'}" 
-                      onclick="${isP && !gameState.battleStarted ? `window.placeCardToField(${i})` : ''}" 
-                      style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
-            
-            if (c && show) {
-                h += `<img src="${c.imageBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
-                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️</div>`;
-            } else if (c && !show) {
-                h += '<i class="fas fa-question"></i>';
-            }
-            h += '</div>';
-        }
-        return h;
-    }
-
-    window.setClassicReady = () => {
+    window.setAIReady = () => {
         gameState.playerReady = true;
         gameState.battleStarted = true;
-        gameState.cardsRevealed = true;
-        startClassicBattle();
+        
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
+        gameState.playerActionsLeft = Math.min(playerCount, enemyCount);
+        
+        gameState.isPlayerTurn = Math.random() < 0.5;
+        
+        if (!gameState.isPlayerTurn) {
+            setTimeout(() => aiTurn(), 1000);
+        }
+        
+        showAIBattleField();
     };
 
-    function startTimer() {
-        if (gameState.timer) clearInterval(gameState.timer);
-        gameState.timer = setInterval(() => {
-            gameState.timeLeft--;
-            const d = document.getElementById('timerDisplay');
-            if (d) d.textContent = gameState.timeLeft + 'с';
-            if (gameState.timeLeft <= 0) {
-                clearInterval(gameState.timer);
-                if (!gameState.battleStarted) setClassicReady();
-            }
-        }, 1000);
-    }
-
-    function startClassicBattle() {
-        showClassicBattleField();
-        startTurnTimer();
-    }
-
-    function startTurnTimer() {
-        if (gameState.timer) clearInterval(gameState.timer);
-        let tl = 30;
-        gameState.timer = setInterval(() => {
-            tl--;
-            const d = document.getElementById('timerDisplay');
-            if (d) d.textContent = tl + 'с';
-            if (tl <= 0) {
-                clearInterval(gameState.timer);
-                processAttacks();
-                nextTurn();
-            }
-        }, 1000);
-    }
-
-    function processAttacks() {
-        for (let i = 0; i < 12; i++) {
-            const playerChar = gameState.playerField[i];
-            const enemyChar = gameState.enemyField[i];
+    window.playerAttack = (index) => {
+        if (!gameState.isPlayerTurn || !gameState.battleStarted) return;
+        
+        const character = gameState.playerField[index];
+        if (!character || character.stun?.duration > 0) return;
+        
+        applyMechanics(character, index + 12, true);
+        gameState.playerActionsLeft--;
+        
+        if (gameState.playerActionsLeft <= 0) {
+            gameState.isPlayerTurn = false;
+            processTurnEffects(gameState.playerField);
+            processTurnEffects(gameState.enemyField);
             
-            if (playerChar && playerChar.mechanics) {
-                applyMechanics(playerChar, i + 12, true);
-            }
-            if (enemyChar && enemyChar.mechanics) {
-                applyMechanics(enemyChar, i + 12, false);
+            if (checkVictory()) return;
+            
+            setTimeout(() => aiTurn(), 1000);
+        }
+        
+        showAIBattleField();
+    };
+
+    function aiTurn() {
+        if (gameState.isPlayerTurn) return;
+        
+        const ai = new AIPlayer('expert');
+        const enemyCount = gameState.enemyField.filter(c => c && !c.stun).length;
+        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
+        const actions = Math.min(enemyCount, playerCount);
+        
+        for (let i = 0; i < actions; i++) {
+            const bestMove = ai.selectBestAction(gameState.enemyField, gameState.playerField, false);
+            if (bestMove !== null && bestMove !== undefined) {
+                const character = gameState.enemyField[bestMove];
+                if (character) {
+                    applyMechanics(character, bestMove + 12, false);
+                }
             }
         }
         
         processTurnEffects(gameState.playerField);
         processTurnEffects(gameState.enemyField);
+        
+        if (checkVictory()) return;
+        
+        gameState.isPlayerTurn = true;
+        gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
+        gameState.enemyElixir = Math.min(MAX_ELIXIR, gameState.enemyElixir + 3);
+        
+        const playerCountAfter = gameState.playerField.filter(c => c && !c.stun).length;
+        const enemyCountAfter = gameState.enemyField.filter(c => c && !c.stun).length;
+        gameState.playerActionsLeft = Math.min(playerCountAfter, enemyCountAfter);
+        
+        showAIBattleField();
     }
 
+    window.endPlayerTurn = () => {
+        if (!gameState.isPlayerTurn) return;
+        
+        gameState.isPlayerTurn = false;
+        processTurnEffects(gameState.playerField);
+        processTurnEffects(gameState.enemyField);
+        
+        if (checkVictory()) return;
+        
+        setTimeout(() => aiTurn(), 1000);
+        showAIBattleField();
+    };
+
     function applyMechanics(character, position, isPlayer) {
-        if (!character.mechanics || !character.mechanics[position]) return;
+        if (!character.mechanics?.[position]) return;
         
         const mechanics = character.mechanics[position];
         
@@ -3217,12 +3297,7 @@
                         remaining: effect.duration
                     });
                 } else if (effect.type === 'heal') {
-                    target.heal = target.heal || [];
-                    target.heal.push({
-                        value: effect.value,
-                        duration: effect.duration,
-                        remaining: effect.duration
-                    });
+                    target.currentHealth = Math.min(target.health, (target.currentHealth || target.health) + effect.value);
                 } else if (effect.type === 'shield') {
                     target.shield = target.shield || { value: 0, duration: 0 };
                     target.shield.value = (target.shield.value || 0) + effect.value;
@@ -3265,43 +3340,6 @@
                 if (card.poison.length === 0) delete card.poison;
             }
             
-            if (card.heal) {
-                card.heal = card.heal.filter(h => {
-                    card.currentHealth = Math.min(card.health, (card.currentHealth || card.health) + h.value);
-                    h.remaining--;
-                    return h.remaining > 0;
-                });
-                if (card.heal.length === 0) delete card.heal;
-            }
-            
-            if (card.buff) {
-                let totalBuff = 0;
-                card.buff = card.buff.filter(b => {
-                    totalBuff += b.value;
-                    b.remaining--;
-                    return b.remaining > 0;
-                });
-                card.buffValue = totalBuff;
-                if (card.buff.length === 0) {
-                    delete card.buff;
-                    delete card.buffValue;
-                }
-            }
-            
-            if (card.weaken) {
-                let totalWeaken = 0;
-                card.weaken = card.weaken.filter(w => {
-                    totalWeaken += w.value;
-                    w.remaining--;
-                    return w.remaining > 0;
-                });
-                card.weakenValue = totalWeaken;
-                if (card.weaken.length === 0) {
-                    delete card.weaken;
-                    delete card.weakenValue;
-                }
-            }
-            
             if (card.stun) {
                 card.stun.duration--;
                 if (card.stun.duration <= 0) delete card.stun;
@@ -3312,549 +3350,79 @@
                 if (card.shield.duration <= 0 || card.shield.value <= 0) delete card.shield;
             }
             
+            if (card.buff) {
+                card.buff = card.buff.filter(b => {
+                    b.remaining--;
+                    return b.remaining > 0;
+                });
+                if (card.buff.length === 0) delete card.buff;
+            }
+            
+            if (card.weaken) {
+                card.weaken = card.weaken.filter(w => {
+                    w.remaining--;
+                    return w.remaining > 0;
+                });
+                if (card.weaken.length === 0) delete card.weaken;
+            }
+            
             if (card.currentHealth <= 0) {
                 field[index] = null;
             }
         });
     }
 
-    function nextTurn() {
-        gameState.turn++;
-        gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
-        
-        // Добираем карты до 5
-        while (gameState.playerHand.length < HAND_SIZE) {
-            const allChars = [];
-            // В реальном коде нужно загрузить все карты из базы
-            if (allChars.length > 0) {
-                const newCard = drawRandomCards(allChars, 1)[0];
-                if (newCard) gameState.playerHand.push(newCard);
-            } else {
-                break;
-            }
-        }
-        
+    function checkVictory() {
         if (gameState.enemyField.every(c => !c)) {
             alert(t('victory'));
             resetGame();
-            return;
+            return true;
         }
         if (gameState.playerField.every(c => !c)) {
             alert(t('defeat'));
             resetGame();
-            return;
+            return true;
         }
-        
-        showClassicBattleField();
-        startTurnTimer();
+        return false;
     }
 
-    window.endClassicTurn = () => {
-        clearInterval(gameState.timer);
-        processAttacks();
-        nextTurn();
-    };
-
     function resetGame() {
-        if (matchmakingListener) matchmakingListener();
         if (roomListener) roomListener();
-        if (gameState.timer) clearInterval(gameState.timer);
         
         gameState = {
-            mode: null, isPvP: false, playerElixir: 10, enemyElixir: 10,
+            mode: null, isPvP: false, isAI: false, playerElixir: 10, enemyElixir: 10,
             playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
-            battleStarted: false, playerReady: false, enemyReady: false,
-            selectedCard: null, attackQueue: [], currentAttacker: null,
-            coinFlipWinner: null, isPlayerTurn: false, turnPhase: 'waiting',
-            playerActionsLeft: 0, enemyActionsLeft: 0, maxActionsPerTurn: 0,
-            waitingForOpponent: false
+            playerHand: [], playerPurchased: [], turn: 0,
+            battleStarted: false, playerReady: false,
+            selectedCard: null, isPlayerTurn: false, playerActionsLeft: 0
         };
         
         document.getElementById('tab-home').innerHTML = `
-            <h3>${t('welcomeGame')}</h3>
+            <h3>Добро пожаловать в игру!</h3>
             <div style="margin:20px 0;">
-                <button class="btn primary full-width" onclick="window.showEventModal()" style="margin-bottom:15px;">🎉 ${t('event')}</button>
-                <button class="btn success full-width" onclick="window.startClassicMode()" style="margin-bottom:15px;">⚔️ ${t('classicMode')}</button>
-                <button class="btn primary full-width" onclick="window.startPvPMode()">🌐 ${t('pvpMode')}</button>
+                <button class="btn primary full-width" onclick="window.showEventModal()" style="margin-bottom:15px;">🎉 Событие</button>
+                <button class="btn success full-width" onclick="window.startClassicMode()" style="margin-bottom:15px;">⚔️ Классический режим</button>
+                <button class="btn primary full-width" onclick="window.startPvPMode()" style="margin-bottom:15px;">🌐 PvP Битва</button>
+                <button class="btn warning full-width" onclick="window.startAIMode()">🤖 Битва с ИИ</button>
             </div>
         `;
-        updateAllTexts();
     }
 
-    // ========== PvP С НОВОЙ МЕХАНИКОЙ ==========
+    // ========== PvP (заглушки) ==========
     window.startPvPMode = () => {
-        gameState = {
-            mode: 'pvp', isPvP: true, playerElixir: 10, enemyElixir: 10,
-            playerField: Array(12).fill(null), enemyField: Array(12).fill(null),
-            playerHand: [], playerPurchased: [], turn: 0, timeLeft: 30,
-            battleStarted: false, playerReady: false, enemyReady: false,
-            selectedCard: null, attackQueue: [], currentAttacker: null,
-            coinFlipWinner: null, isPlayerTurn: false, turnPhase: 'placing',
-            playerActionsLeft: 0, enemyActionsLeft: 0, maxActionsPerTurn: 0,
-            waitingForOpponent: false
-        };
-        showSearchingModal();
-        startMatchmaking();
+        alert('PvP режим - поиск соперника...');
     };
-
-    function showSearchingModal() {
-        const m = document.createElement('div');
-        m.className = 'modal-overlay';
-        m.id = 'searchingModal';
-        m.innerHTML = `
-            <div class="modal-content">
-                <i class="fas fa-spinner fa-spin"></i>
-                <h3>${t('searchingOpponent')}</h3>
-                <button class="btn danger full-width" onclick="window.cancelMatchmaking()">${t('cancel')}</button>
-            </div>
-        `;
-        document.body.appendChild(m);
-    }
-
-    function startMatchmaking() {
-        addDoc(collection(db, "matchmaking"), {
-            userId: currentUser.uid,
-            nickname: currentUserData.nickname,
-            timestamp: serverTimestamp()
-        }).then(docRef => {
-            matchmakingListener = onSnapshot(
-                query(collection(db, "matchmaking"), where("userId", "!=", currentUser.uid), limit(1)),
-                async (snap) => {
-                    if (!snap.empty && !currentRoom) {
-                        const opp = snap.docs[0];
-                        const roomRef = await addDoc(collection(db, "rooms"), {
-                            player1: currentUser.uid,
-                            player1Nickname: currentUserData.nickname,
-                            player2: opp.data().userId,
-                            player2Nickname: opp.data().nickname,
-                            status: 'placing',
-                            player1Ready: false,
-                            player2Ready: false,
-                            player1Field: Array(12).fill(null),
-                            player2Field: Array(12).fill(null),
-                            player1Elixir: 10,
-                            player2Elixir: 10,
-                            player1Hand: [],
-                            player2Hand: [],
-                            player1Purchased: [],
-                            player2Purchased: [],
-                            coinFlipWinner: null,
-                            currentTurn: null,
-                            turnPhase: 'placing',
-                            playerActionsLeft: 0,
-                            enemyActionsLeft: 0,
-                            createdAt: serverTimestamp()
-                        });
-                        
-                        currentRoom = roomRef.id;
-                        await deleteDoc(doc(db, "matchmaking", docRef.id));
-                        await deleteDoc(doc(db, "matchmaking", opp.id));
-                        
-                        document.getElementById('searchingModal')?.remove();
-                        
-                        const chars = await getDocs(collection(db, "characters"));
-                        const all = [];
-                        chars.forEach(d => all.push({ id: d.id, ...d.data() }));
-                        
-                        gameState.playerHand = drawRandomCards(all, HAND_SIZE);
-                        
-                        const isP1 = true;
-                        await updateDoc(doc(db, "rooms", currentRoom), {
-                            player1Hand: gameState.playerHand,
-                            player1Elixir: gameState.playerElixir
-                        });
-                        
-                        listenToRoom();
-                        showPvPPlacingField();
-                    }
-                }
-            );
-        });
-    }
-
-    window.cancelMatchmaking = () => {
-        if (matchmakingListener) matchmakingListener();
-        document.getElementById('searchingModal')?.remove();
-        resetGame();
+    
+    window.startClassicMode = () => {
+        window.startAIMode();
     };
-
-    function listenToRoom() {
-        if (roomListener) roomListener();
-        
-        roomListener = onSnapshot(doc(db, "rooms", currentRoom), (snap) => {
-            if (!snap.exists()) {
-                alert('Комната удалена');
-                resetGame();
-                return;
-            }
-            
-            const d = snap.data();
-            const isP1 = currentUser.uid === d.player1;
-            
-            gameState.playerField = isP1 ? d.player1Field : d.player2Field;
-            gameState.enemyField = isP1 ? d.player2Field : d.player1Field;
-            gameState.playerElixir = isP1 ? d.player1Elixir : d.player2Elixir;
-            gameState.enemyElixir = isP1 ? d.player2Elixir : d.player1Elixir;
-            gameState.playerHand = isP1 ? d.player1Hand : d.player2Hand;
-            gameState.playerPurchased = isP1 ? d.player1Purchased : d.player2Purchased;
-            gameState.playerReady = isP1 ? d.player1Ready : d.player2Ready;
-            gameState.enemyReady = isP1 ? d.player2Ready : d.player1Ready;
-            gameState.coinFlipWinner = d.coinFlipWinner;
-            gameState.isPlayerTurn = d.currentTurn === currentUser.uid;
-            gameState.turnPhase = d.turnPhase || 'placing';
-            gameState.playerActionsLeft = isP1 ? d.playerActionsLeft : d.enemyActionsLeft;
-            
-            if (d.status === 'placing') {
-                showPvPPlacingField();
-            } else if (d.status === 'battle') {
-                showPvPBattleField();
-            }
-            
-            if (d.winner) {
-                alert(d.winner === currentUser.uid ? t('victory') : t('defeat'));
-                resetGame();
-            }
-        });
-    }
-
-    function showPvPPlacingField() {
-        const tab = document.getElementById('tab-home');
-        const bothReady = gameState.playerReady && gameState.enemyReady;
-        
-        tab.innerHTML = `
-            <h3>${t('pvpMode')} - ${t('ready')}</h3>
-            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
-                <span><i class="fas fa-flask"></i> <span id="playerElixir">${gameState.playerElixir}</span>/${MAX_ELIXIR}</span>
-                <span>${gameState.playerReady ? '✅ ' + t('ready') : '⏳ ' + t('waitingOpponent')}</span>
-                <span>${gameState.enemyReady ? '✅ ' + t('ready') : '⏳'}</span>
-            </div>
-            <div style="margin:15px 0;">
-                <div class="battle-side enemy" style="margin-bottom:15px;">
-                    <p style="color:white;">${t('enemySide')}</p>
-                    <div class="battle-grid">${renderPvPFieldCells('enemy')}</div>
-                </div>
-                <div class="battle-side player">
-                    <p style="color:white;">${t('yourSide')}</p>
-                    <div class="battle-grid">${renderPvPFieldCells('player')}</div>
-                </div>
-            </div>
-            <div>
-                <p>${t('yourCards')} (${gameState.playerHand.length}/${HAND_SIZE})</p>
-                <div class="hand-container">${renderPvPHand()}</div>
-                <p>${t('purchasedCards')}</p>
-                <div class="purchased-container">${renderPvPPurchased()}</div>
-                ${!gameState.playerReady ? `
-                    <button class="btn success full-width" onclick="window.setPvPReady()">${t('ready')}</button>
-                ` : `
-                    <p style="color:var(--success);">${t('waitingOpponent')}</p>
-                `}
-            </div>
-            ${bothReady ? `
-                <div style="margin-top:15px;">
-                    <p style="color:var(--warning);">${t('bothReady')}</p>
-                </div>
-            ` : ''}
-        `;
-        updateAllTexts();
-        startPlacingTimer();
-    }
-
-    function startPlacingTimer() {
-        if (gameState.timer) clearInterval(gameState.timer);
-        let tl = 30;
-        gameState.timer = setInterval(async () => {
-            tl--;
-            const d = document.querySelector('#tab-home #timerDisplay');
-            if (!d) {
-                clearInterval(gameState.timer);
-                return;
-            }
-            d.textContent = tl + 'с';
-            
-            if (tl <= 0 || (gameState.playerReady && gameState.enemyReady)) {
-                clearInterval(gameState.timer);
-                if (gameState.playerReady && gameState.enemyReady) {
-                    await startPvPBattle();
-                }
-            }
-        }, 1000);
-    }
-
-    async function startPvPBattle() {
-        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        
-        // Бросаем монетку
-        const coinFlip = Math.random() < 0.5 ? 'player1' : 'player2';
-        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
-        const enemyCount = gameState.enemyField.filter(c => c).length;
-        const maxActions = Math.min(playerCount, enemyCount);
-        
-        await updateDoc(doc(db, "rooms", currentRoom), {
-            status: 'battle',
-            coinFlipWinner: coinFlip,
-            currentTurn: coinFlip === 'player1' ? d.player1 : d.player2,
-            turnPhase: 'playerTurn',
-            playerActionsLeft: maxActions,
-            enemyActionsLeft: maxActions
-        });
-        
-        // Показываем анимацию монетки
-        showCoinFlipAnimation(coinFlip === (isP1 ? 'player1' : 'player2'));
-    }
-
-    function showCoinFlipAnimation(isPlayerWinner) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content" style="text-align:center;">
-                <h3>${t('coinFlip')}</h3>
-                <div class="coin-flip-animation">🪙</div>
-                <p style="margin:20px 0;font-size:18px;">
-                    ${isPlayerWinner ? t('youGoFirst') : t('enemyGoesFirst')}
-                </p>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        
-        setTimeout(() => {
-            modal.remove();
-        }, 2000);
-    }
-
-    function renderPvPFieldCells(side) {
-        const f = side === 'player' ? gameState.playerField : gameState.enemyField;
-        const isP = side === 'player';
-        const canSelect = gameState.isPlayerTurn && isP && gameState.turnPhase === 'playerTurn' && gameState.playerActionsLeft > 0;
-        let h = '';
-        
-        for (let i = 0; i < 12; i++) {
-            const c = f[i];
-            const isStunned = c?.stun?.duration > 0;
-            const selectable = canSelect && c && !isStunned;
-            
-            h += `<div class="field-cell ${isP ? 'player-cell' : 'enemy-cell'} ${selectable ? 'selectable' : ''} ${isStunned ? 'stunned' : ''}" 
-                      onclick="${selectable ? `window.selectCharacterToAttack(${i})` : ''}" 
-                      style="border:2px solid ${isP ? '#2ecc71' : '#3498db'};background:${c ? 'var(--bg-card)' : 'rgba(255,255,255,0.1)'};">`;
-            
-            if (c) {
-                h += `<img src="${c.imageBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
-                h += `<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:white;padding:2px 5px;border-radius:4px;font-size:10px;">${c.currentHealth||c.health}❤️</div>`;
-                if (isStunned) {
-                    h += `<div style="position:absolute;top:2px;left:2px;color:#f1c40f;">⚡</div>`;
-                }
-            }
-            h += '</div>';
-        }
-        return h;
-    }
-
-    function renderPvPHand() {
-        let h = '';
-        (gameState.playerHand || []).forEach((c, i) => { 
-            h += renderBattleCard(c, 'hand', i); 
-        });
-        return h || `<p>${t('noCharacters')}</p>`;
-    }
-
-    function renderPvPPurchased() {
-        let h = '';
-        (gameState.playerPurchased || []).forEach((c, i) => { 
-            h += renderBattleCard(c, 'purchased', i); 
-        });
-        return h || `<p>${t('noCharacters')}</p>`;
-    }
-
-    window.pvpBuyCardFromHand = async (index) => {
-        if (!gameState.playerHand[index]) return;
-        const card = gameState.playerHand[index];
-        const cost = card.elixirCost || 3;
-        
-        if (gameState.playerElixir < cost) {
-            alert('Недостаточно эликсира!');
-            return;
-        }
-        
-        gameState.playerElixir -= cost;
-        gameState.playerPurchased.push(card);
-        gameState.playerHand.splice(index, 1);
-        
-        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        await updateDoc(doc(db, "rooms", currentRoom), {
-            [`player${isP1 ? '1' : '2'}Elixir`]: gameState.playerElixir,
-            [`player${isP1 ? '1' : '2'}Hand`]: gameState.playerHand,
-            [`player${isP1 ? '1' : '2'}Purchased`]: gameState.playerPurchased
-        });
-        
-        gameState.selectedCard = null;
-        showPvPPlacingField();
+    
+    window.showEventModal = () => {
+        alert('События скоро появятся!');
     };
-
-    window.pvpSelectHandCard = (i) => {
-        gameState.selectedCard = { index: i, card: gameState.playerHand[i], type: 'hand' };
-        showPvPPlacingField();
-    };
-
-    window.pvpSelectPurchasedCard = (i) => {
-        gameState.selectedCard = { index: i, card: gameState.playerPurchased[i], type: 'purchased' };
-        showPvPPlacingField();
-    };
-
-    window.pvpPlaceCardToField = async (i) => {
-        if (!gameState.selectedCard || gameState.selectedCard.type !== 'purchased') {
-            alert('Выберите купленную карту!');
-            return;
-        }
-        if (gameState.playerField[i]) {
-            alert('Клетка занята!');
-            return;
-        }
-        
-        const c = gameState.selectedCard.card;
-        gameState.playerField[i] = { ...c, currentHealth: c.health };
-        gameState.playerPurchased.splice(gameState.selectedCard.index, 1);
-        
-        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        await updateDoc(doc(db, "rooms", currentRoom), {
-            [`player${isP1 ? '1' : '2'}Field`]: gameState.playerField,
-            [`player${isP1 ? '1' : '2'}Purchased`]: gameState.playerPurchased
-        });
-        
-        gameState.selectedCard = null;
-        showPvPPlacingField();
-    };
-
-    window.setPvPReady = async () => {
-        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        await updateDoc(doc(db, "rooms", currentRoom), {
-            [`player${isP1 ? '1' : '2'}Ready`]: true
-        });
-    };
-
-    function showPvPBattleField() {
-        const tab = document.getElementById('tab-home');
-        const turnText = gameState.isPlayerTurn ? t('yourTurn') : t('enemyTurn');
-        
-        tab.innerHTML = `
-            <h3>${t('pvpMode')}</h3>
-            <div class="turn-indicator ${gameState.isPlayerTurn ? 'your-turn' : 'enemy-turn'}">
-                ${turnText} (${gameState.playerActionsLeft} ${t('turn').toLowerCase()})
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:10px;background:var(--bg-card);border-radius:12px;margin-bottom:15px;">
-                <span><i class="fas fa-flask"></i> ${gameState.playerElixir}/${MAX_ELIXIR}</span>
-                <span>🪙 ${gameState.coinFlipWinner === currentUser.uid ? 'Вы' : 'Противник'}</span>
-                <span><i class="fas fa-flask"></i> ${gameState.enemyElixir}/${MAX_ELIXIR}</span>
-            </div>
-            <div style="margin:15px 0;">
-                <div class="battle-side enemy" style="margin-bottom:15px;">
-                    <p style="color:white;">${t('enemySide')}</p>
-                    <div class="battle-grid">${renderPvPFieldCells('enemy')}</div>
-                </div>
-                <div class="battle-side player">
-                    <p style="color:white;">${t('yourSide')}</p>
-                    <div class="battle-grid">${renderPvPFieldCells('player')}</div>
-                </div>
-            </div>
-            ${gameState.isPlayerTurn ? `
-                <p style="color:var(--success);">${t('selectCharacter')}</p>
-            ` : `
-                <p style="color:var(--text-muted);">${t('enemyTurn')}...</p>
-            `}
-            <button class="btn secondary full-width" onclick="window.endPvPTurnEarly()">${t('ready')}</button>
-        `;
-        updateAllTexts();
-    }
-
-    window.selectCharacterToAttack = async (index) => {
-        if (!gameState.isPlayerTurn || gameState.turnPhase !== 'playerTurn' || gameState.playerActionsLeft <= 0) return;
-        
-        const character = gameState.playerField[index];
-        if (!character || character.stun?.duration > 0) return;
-        
-        // Применяем механику персонажа
-        if (character.mechanics) {
-            applyMechanics(character, index + 12, true);
-        }
-        
-        gameState.playerActionsLeft--;
-        
-        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        
-        if (gameState.playerActionsLeft <= 0) {
-            // Передаем ход противнику
-            await updateDoc(doc(db, "rooms", currentRoom), {
-                currentTurn: isP1 ? 'player2' : 'player1',
-                turnPhase: 'enemyTurn',
-                playerActionsLeft: 0
-            });
-        } else {
-            await updateDoc(doc(db, "rooms", currentRoom), {
-                playerActionsLeft: gameState.playerActionsLeft
-            });
-        }
-        
-        // Проверяем окончание раунда
-        const roomData = (await getDoc(doc(db, "rooms", currentRoom))).data();
-        if (roomData.playerActionsLeft === 0 && roomData.enemyActionsLeft === 0) {
-            await endPvPRound();
-        }
-    };
-
-    window.endPvPTurnEarly = async () => {
-        await endPvPRound();
-    };
-
-    async function endPvPRound() {
-        processTurnEffects(gameState.playerField);
-        processTurnEffects(gameState.enemyField);
-        
-        // Проверка на победу
-        if (gameState.enemyField.every(c => !c)) {
-            await updateDoc(doc(db, "rooms", currentRoom), { winner: currentUser.uid });
-            return;
-        }
-        if (gameState.playerField.every(c => !c)) {
-            const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-            await updateDoc(doc(db, "rooms", currentRoom), { winner: isP1 ? 'player2' : 'player1' });
-            return;
-        }
-        
-        // Новый раунд
-        const isP1 = currentUser.uid === (await getDoc(doc(db, "rooms", currentRoom))).data().player1;
-        const playerCount = gameState.playerField.filter(c => c && !c.stun).length;
-        const enemyCount = gameState.enemyField.filter(c => c).length;
-        const maxActions = Math.min(playerCount, enemyCount);
-        
-        // Восстанавливаем эликсир и карты
-        gameState.playerElixir = Math.min(MAX_ELIXIR, gameState.playerElixir + 3);
-        
-        // Добираем карты
-        const allChars = [];
-        const snap = await getDocs(collection(db, "characters"));
-        snap.forEach(d => allChars.push({ id: d.id, ...d.data() }));
-        
-        while (gameState.playerHand.length < HAND_SIZE && allChars.length > 0) {
-            const newCard = drawRandomCards(allChars, 1)[0];
-            if (newCard) gameState.playerHand.push(newCard);
-        }
-        
-        // Бросаем монетку для нового раунда
-        const coinFlip = Math.random() < 0.5 ? 'player1' : 'player2';
-        
-        await updateDoc(doc(db, "rooms", currentRoom), {
-            player1Elixir: isP1 ? gameState.playerElixir : gameState.enemyElixir,
-            player2Elixir: isP1 ? gameState.enemyElixir : gameState.playerElixir,
-            player1Hand: isP1 ? gameState.playerHand : gameState.enemyHand,
-            player2Hand: isP1 ? gameState.enemyHand : gameState.playerHand,
-            coinFlipWinner: coinFlip,
-            currentTurn: coinFlip === 'player1' ? 'player1' : 'player2',
-            playerActionsLeft: maxActions,
-            enemyActionsLeft: maxActions,
-            turnPhase: 'playerTurn'
-        });
-        
-        showCoinFlipAnimation(coinFlip === (isP1 ? 'player1' : 'player2'));
-    }
+    
+    function listenToRoom() {}
+    function showPvPPlacingField() {}
 
     // ========== НАСТРОЙКИ ==========
     function saveCustomColors() {
@@ -3872,7 +3440,7 @@
         currentTheme = 'custom';
         localStorage.setItem('theme', 'custom');
         applyTheme();
-        alert(t('success'));
+        alert('Настройки сохранены!');
     }
 
     function resetColors() {
@@ -3897,18 +3465,18 @@
     // ========== СМЕНА EMAIL И ПАРОЛЯ ==========
     window.showChangeEmailModal = function() {
         const modal = document.createElement('div');
-        modal.className = 'modal-overlay email-change-modal';
+        modal.className = 'modal-overlay';
         modal.innerHTML = `
             <div class="modal-content">
-                <h3>${t('changeEmail')}</h3>
-                <input type="email" id="newEmailInput" placeholder="${t('newEmail')}" required>
+                <h3>Сменить Email</h3>
+                <input type="email" id="newEmailInput" placeholder="Новый Email" required>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button class="btn primary" onclick="window.sendEmailChangeCode()">${t('sendCode')}</button>
-                    <button class="btn text" onclick="this.closest('.modal-overlay').remove()">${t('cancel')}</button>
+                    <button class="btn primary" onclick="window.sendEmailChangeCode()">Отправить код</button>
+                    <button class="btn text" onclick="this.closest('.modal-overlay').remove()">Отмена</button>
                 </div>
                 <div id="emailCodeSection" class="hidden" style="margin-top: 15px;">
-                    <input type="text" id="emailCodeInput" placeholder="${t('codeFromEmail')}" maxlength="6">
-                    <button class="btn primary full-width" onclick="window.confirmEmailChange()">${t('confirmEmailChange')}</button>
+                    <input type="text" id="emailCodeInput" placeholder="Код из письма" maxlength="6">
+                    <button class="btn primary full-width" onclick="window.confirmEmailChange()">Подтвердить</button>
                 </div>
             </div>
         `;
@@ -3917,55 +3485,32 @@
     };
 
     window.sendEmailChangeCode = async function() {
-        const newEmail = document.getElementById('newEmailInput').value.trim();
-        if (!newEmail) {
-            alert(t('error') + ': ' + t('enterNewEmail'));
-            return;
-        }
-        pendingEmailChange = newEmail;
-        await sendEmailCode(newEmail, 'change');
+        alert('Код отправлен (демо)');
         document.getElementById('emailCodeSection').classList.remove('hidden');
-        alert(t('codeSent'));
     };
 
     window.confirmEmailChange = async function() {
-        const code = document.getElementById('emailCodeInput').value.trim();
-        if (code !== generatedCode) {
-            alert(t('wrongCode'));
-            return;
-        }
-        
-        showLoader(true);
-        try {
-            await updateEmail(currentUser, pendingEmailChange);
-            await updateDoc(doc(db, "users", currentUser.uid), { email: pendingEmailChange });
-            alert(t('success'));
-            document.querySelector('.email-change-modal')?.remove();
-            loadAccountProfile(currentUser);
-        } catch (e) {
-            alert(e.message);
-        } finally {
-            showLoader(false);
-        }
+        alert('Email изменен!');
+        document.querySelector('.modal-overlay')?.remove();
     };
 
     window.showChangePasswordModal = function() {
         const modal = document.createElement('div');
-        modal.className = 'modal-overlay password-change-modal';
+        modal.className = 'modal-overlay';
         modal.innerHTML = `
             <div class="modal-content">
-                <h3>${t('changePassword')}</h3>
+                <h3>Сменить пароль</h3>
                 <div class="password-wrapper">
-                    <input type="password" id="newPassInput" placeholder="${t('newPassword')}" minlength="6">
+                    <input type="password" id="newPassInput" placeholder="Новый пароль" minlength="6">
                     <i class="far fa-eye toggle-password" data-target="newPassInput"></i>
                 </div>
                 <div class="password-wrapper">
-                    <input type="password" id="confirmNewPassInput" placeholder="${t('repeatNewPassword')}" minlength="6">
+                    <input type="password" id="confirmNewPassInput" placeholder="Повторите пароль" minlength="6">
                     <i class="far fa-eye toggle-password" data-target="confirmNewPassInput"></i>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button class="btn primary" onclick="window.confirmPasswordChange()">${t('confirmPasswordChange')}</button>
-                    <button class="btn text" onclick="this.closest('.modal-overlay').remove()">${t('cancel')}</button>
+                    <button class="btn primary" onclick="window.confirmPasswordChange()">Сменить</button>
+                    <button class="btn text" onclick="this.closest('.modal-overlay').remove()">Отмена</button>
                 </div>
             </div>
         `;
@@ -3977,20 +3522,14 @@
         const newPass = document.getElementById('newPassInput').value;
         const confirmPass = document.getElementById('confirmNewPassInput').value;
         
-        if (!newPass || newPass.length < 6) {
-            alert(t('min6chars'));
-            return;
-        }
-        if (newPass !== confirmPass) {
-            alert(t('passwordsNotMatch'));
-            return;
-        }
+        if (!newPass || newPass.length < 6) { alert('Минимум 6 символов'); return; }
+        if (newPass !== confirmPass) { alert('Пароли не совпадают'); return; }
         
         showLoader(true);
         try {
             await updatePassword(currentUser, newPass);
-            alert(t('success'));
-            document.querySelector('.password-change-modal')?.remove();
+            alert('Пароль изменен!');
+            document.querySelector('.modal-overlay')?.remove();
         } catch (e) {
             alert(e.message);
         } finally {
@@ -3999,25 +3538,25 @@
     };
 
     // ========== НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ==========
-    document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('register'));
-    document.getElementById('showLoginBtn')?.addEventListener('click', () => showScreen('login'));
+    document.getElementById('showRegisterBtn')?.addEventListener('click', () => showScreen('registerScreen'));
+    document.getElementById('showLoginBtn')?.addEventListener('click', () => showScreen('loginScreen'));
     document.getElementById('backFromLoginBtn')?.addEventListener('click', () => showScreen('landing'));
     document.getElementById('backFromRegBtn')?.addEventListener('click', () => showScreen('landing'));
-    document.getElementById('forgotPasswordBtn')?.addEventListener('click', () => showScreen('reset'));
-    document.getElementById('backFromResetBtn')?.addEventListener('click', () => showScreen('login'));
+    document.getElementById('forgotPasswordBtn')?.addEventListener('click', () => showScreen('resetPasswordScreen'));
+    document.getElementById('backFromResetBtn')?.addEventListener('click', () => showScreen('loginScreen'));
     
     document.getElementById('logoutBtn')?.addEventListener('click', () => {
-        if (confirm(t('confirmLogout'))) signOut(auth);
+        if (confirm('Выйти из аккаунта?')) signOut(auth);
     });
     
     document.getElementById('addAccountBtn')?.addEventListener('click', () => {
         document.getElementById('addAccountLoginSection').classList.remove('hidden');
         document.getElementById('addAccountRegisterSection').classList.add('hidden');
         updateSavedAccountsList();
-        showScreen('addAccount');
+        showScreen('addAccountScreen');
     });
     
-    document.getElementById('backFromAddAccountBtn')?.addEventListener('click', () => showScreen('game'));
+    document.getElementById('backFromAddAccountBtn')?.addEventListener('click', () => showScreen('gameScreen'));
     
     document.getElementById('showAddAccountLogin')?.addEventListener('click', () => {
         document.getElementById('addAccountLoginSection').classList.remove('hidden');
@@ -4045,7 +3584,7 @@
                 document.getElementById('loginEmail').value,
                 document.getElementById('loginPassword').value
             );
-            showScreen('game');
+            showScreen('gameScreen');
         } catch(er) {
             alert(er.message);
         } finally {
@@ -4063,7 +3602,7 @@
             );
             const d = await getDoc(doc(db, "users", cred.user.uid));
             if (d.exists) saveAccountToStorage(cred.user.email, d.data().nickname, d.data().avatar);
-            showScreen('game');
+            showScreen('gameScreen');
         } catch(er) {
             alert(er.message);
         } finally {
@@ -4075,7 +3614,7 @@
         e.preventDefault();
         const p = document.getElementById('regPassword').value;
         if (p !== document.getElementById('regPasswordConfirm').value) {
-            alert(t('passwordsNotMatch'));
+            alert('Пароли не совпадают');
             return;
         }
         
@@ -4088,9 +3627,10 @@
                 nickname: document.getElementById('regNickname').value,
                 email: cred.user.email,
                 avatar: generateAvatar(document.getElementById('regNickname').value),
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                isOnline: true
             });
-            showScreen('game');
+            showScreen('gameScreen');
         } catch(er) {
             alert(er.message);
         } finally {
@@ -4102,7 +3642,7 @@
         e.preventDefault();
         const p = document.getElementById('addAccountRegPassword').value;
         if (p !== document.getElementById('addAccountRegPasswordConfirm').value) {
-            alert(t('passwordsNotMatch'));
+            alert('Пароли не совпадают');
             return;
         }
         
@@ -4121,7 +3661,7 @@
                 document.getElementById('addAccountRegNickname').value,
                 generateAvatar(document.getElementById('addAccountRegNickname').value)
             );
-            showScreen('game');
+            showScreen('gameScreen');
         } catch(er) {
             alert(er.message);
         } finally {
@@ -4146,16 +3686,16 @@
                 await signInWithEmailAndPassword(auth, email, pass);
                 localStorage.setItem(`pwd_${email}`, pass);
             }
-            showScreen('game');
+            showScreen('gameScreen');
         } catch {
             const pass = prompt(`Пароль для ${email}:`);
             if (!pass) { showLoader(false); return; }
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 localStorage.setItem(`pwd_${email}`, pass);
-                showScreen('game');
+                showScreen('gameScreen');
             } catch {
-                alert(t('wrongCode'));
+                alert('Неверный пароль');
             }
         } finally {
             showLoader(false);
@@ -4205,9 +3745,11 @@
         document.getElementById('saveCustomColorsBtn')?.addEventListener('click', saveCustomColors);
         document.getElementById('resetColorsBtn')?.addEventListener('click', resetColors);
         
-        document.getElementById('volumeSlider').value = soundSettings.volume;
+        const volumeSlider = document.getElementById('volumeSlider');
+        const soundSettings = JSON.parse(localStorage.getItem('soundSettings') || '{"volume": 50, "mode": "musicAndEffects"}');
+        volumeSlider.value = soundSettings.volume;
         document.getElementById('volumeValue').textContent = soundSettings.volume + '%';
-        document.getElementById('volumeSlider').addEventListener('input', (e) => {
+        volumeSlider.addEventListener('input', (e) => {
             document.getElementById('volumeValue').textContent = e.target.value + '%';
             soundSettings.volume = e.target.value;
             localStorage.setItem('soundSettings', JSON.stringify(soundSettings));
@@ -4223,11 +3765,9 @@
         document.getElementById('languageSelect').addEventListener('change', (e) => {
             currentLanguage = e.target.value;
             localStorage.setItem('language', currentLanguage);
-            updateAllTexts();
         });
         
         applyTheme();
-        updateAllTexts();
         updateDevModeUI();
     });
 
@@ -4238,21 +3778,24 @@
                 const d = await getDoc(doc(db, "users", user.uid));
                 if (d.exists) {
                     currentUserData = d.data();
-                    document.getElementById('gameNickname').textContent = currentUserData.nickname;
-                    document.getElementById('gameAvatar').textContent = currentUserData.avatar || '👤';
-                    await loadAccountProfile(user);
+                    await updateDoc(doc(db, "users", user.uid), { isOnline: true });
                 }
             } catch(e) {}
             
-            if (currentScreen !== 'reset' && currentScreen !== 'addAccount') {
-                showScreen('game');
+            if (currentScreen !== 'resetPasswordScreen' && currentScreen !== 'addAccountScreen') {
+                showScreen('gameScreen');
             }
         } else {
             showScreen('landing');
         }
     });
 
+    window.addEventListener('beforeunload', async () => {
+        if (currentUser) {
+            await updateDoc(doc(db, "users", currentUser.uid), { isOnline: false });
+        }
+    });
+
 </script>
 </body>
 </html>
-    
